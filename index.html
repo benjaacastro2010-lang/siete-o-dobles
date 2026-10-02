@@ -22,6 +22,8 @@
   --win-soft: #d6efe1;
   --lose: #9b3a2a;
   --die: #fbf8ef;
+  --team: #5b3fc4;
+  --team-soft: #ebe6fb;
   --pip: #1b2420;
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
@@ -31,14 +33,14 @@
   :root:not([data-theme="light"]) {
     --bg: #111814; --surface: #19221d; --felt: #174634; --felt-ink: #f3efe2;
     --fg: #e6ece8; --muted: #9aaba2; --line: #2c3a33; --accent: #ef7558;
-    --win: #5fd39a; --win-soft: #1d3a2c; --lose: #f08a74; --die: #f6f1e3; --pip: #1b2420;
+    --win: #5fd39a; --win-soft: #1d3a2c; --lose: #f08a74; --die: #f6f1e3; --pip: #1b2420; --team: #b9a6ff; --team-soft: #2a2347;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #111814; --surface: #19221d; --felt: #174634; --felt-ink: #f3efe2;
   --fg: #e6ece8; --muted: #9aaba2; --line: #2c3a33; --accent: #ef7558;
-  --win: #5fd39a; --win-soft: #1d3a2c; --lose: #f08a74; --die: #f6f1e3; --pip: #1b2420;
+  --win: #5fd39a; --win-soft: #1d3a2c; --lose: #f08a74; --die: #f6f1e3; --pip: #1b2420; --team: #b9a6ff; --team-soft: #2a2347;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -54,6 +56,10 @@ p { margin: 0; max-width: 65ch; }
 
 header { display: grid; gap: 10px; }
 header p { color: var(--muted); }
+.team { justify-self: start; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; background: var(--team-soft); border: 2px solid var(--team); border-radius: 12px; padding: 10px 16px; }
+.team .course { font-family: var(--font-display); font-weight: 800; color: var(--bg); background: var(--team); border-radius: 8px; padding: 2px 10px; }
+.team ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.team li { color: var(--team); font-weight: 700; }
 
 /* Reglas */
 .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
@@ -145,6 +151,14 @@ table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
     <span class="eyebrow">Momento 3 · Actividad 3 · Juego de azar con dos dados</span>
     <h1>Siete o Dobles</h1>
     <p>Un juego para dos o más jugadores. Se tiran dos dados comunes de seis caras y se mira si la tirada es ganadora.</p>
+    <div class="team" aria-label="Integrantes del grupo">
+      <span class="course">3ro 2da</span>
+      <ul>
+        <li>Benjamin Castro</li>
+        <li>Mara Molina</li>
+        <li>Sol Quispe</li>
+      </ul>
+    </div>
   </header>
 
   <div class="rules">
