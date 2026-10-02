@@ -1,0 +1,890 @@
+<title>Workia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: barra superior fija; cada vista se monta en <main>. Identidad: grafito + amarillo de chaleco reflectivo, franjas de cinta de obra como textura. */
+:root {
+  --bg: #f2f3f5;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --ink: #14171c;
+  --muted: #5b6270;
+  --line: #dfe2e8;
+  --vest: #ffd23f;
+  --vest-ink: #14171c;
+  --vest-soft: #fff4c7;
+  --primary: #14171c;
+  --primary-ink: #ffffff;
+  --ok: #1f7a52;
+  --ok-soft: #dff3e9;
+  --star: #e8a200;
+  --danger: #b8392a;
+  --focus: #9a7400;
+  --shadow: 0 1px 2px rgba(20,23,28,.06), 0 8px 24px rgba(20,23,28,.06);
+  --font-display: "Archivo", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --r: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1114; --surface: #171a1f; --surface-2: #1d2128; --ink: #eceef2; --muted: #9aa1ad; --line: #2a2f37;
+    --vest: #ffd23f; --vest-ink: #14171c; --vest-soft: #3a3214; --primary: #ffd23f; --primary-ink: #14171c;
+    --ok: #5ccf97; --ok-soft: #173327; --star: #ffc93a; --danger: #f07a68; --focus: #ffd23f;
+    --shadow: 0 1px 2px rgba(0,0,0,.4); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1114; --surface: #171a1f; --surface-2: #1d2128; --ink: #eceef2; --muted: #9aa1ad; --line: #2a2f37;
+  --vest: #ffd23f; --vest-ink: #14171c; --vest-soft: #3a3214; --primary: #ffd23f; --primary-ink: #14171c;
+  --ok: #5ccf97; --ok-soft: #173327; --star: #ffc93a; --danger: #f07a68; --focus: #ffd23f;
+  --shadow: 0 1px 2px rgba(0,0,0,.4); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+h1, h2, h3 { font-family: var(--font-display); font-stretch: 112%; line-height: 1.08; margin: 0; text-wrap: balance; letter-spacing: -.015em; }
+h2 { font-size: 1.5rem; font-weight: 800; }
+h3 { font-size: 1.08rem; font-weight: 700; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Barra superior */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 1120px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; font-family: var(--font-display); font-stretch: 125%; font-weight: 900; font-size: 1.35rem; letter-spacing: -.02em; }
+.brand-mark { width: 32px; height: 32px; border-radius: 8px; background: var(--vest); color: var(--vest-ink); display: grid; place-items: center; font-size: 1rem; position: relative; overflow: hidden; }
+.brand-mark::after { content: ""; position: absolute; left: 0; right: 0; top: 58%; height: 4px; background: repeating-linear-gradient(90deg, #e8eaef 0 3px, #b9bec8 3px 6px); opacity: .9; }
+.nav { display: flex; gap: 4px; margin-left: auto; align-items: center; flex-wrap: wrap; }
+.nav button { background: none; border: 0; padding: 8px 12px; border-radius: 8px; font-weight: 600; color: var(--muted); }
+.nav button:hover { color: var(--ink); background: var(--surface-2); }
+.nav button.on { color: var(--ink); box-shadow: inset 0 -2px 0 var(--vest); border-radius: 0; }
+
+main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 72px; display: grid; gap: 40px; }
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; border-radius: 10px; padding: 11px 18px; font-weight: 700; background: var(--primary); color: var(--primary-ink); white-space: nowrap; transition: transform .12s, filter .12s; }
+.btn:hover { filter: brightness(1.12); }
+.btn:active { transform: translateY(1px); }
+.btn.vest { background: var(--vest); color: var(--vest-ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.ghost:hover { background: var(--surface-2); filter: none; }
+.btn.danger { background: transparent; color: var(--danger); border-color: var(--line); }
+.btn.sm { padding: 7px 12px; font-size: .9rem; border-radius: 8px; }
+.btn.block { width: 100%; }
+.btn:disabled { opacity: .55; cursor: progress; }
+.link { background: none; border: 0; padding: 0; color: var(--muted); font-weight: 600; display: inline-flex; gap: 6px; align-items: center; }
+.link:hover { color: var(--ink); }
+
+.eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 22px; }
+.notice { border: 1px solid var(--line); background: var(--vest-soft); border-radius: 10px; padding: 12px 14px; font-size: .92rem; }
+
+/* Inicio */
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 40px; align-items: center; padding-top: 12px; }
+.hero h1 { font-size: clamp(2.5rem, 6.4vw, 4.6rem); font-weight: 900; font-stretch: 118%; letter-spacing: -.03em; margin: 14px 0 18px; }
+.hero h1 mark { background: linear-gradient(transparent 58%, var(--vest) 58% 92%, transparent 92%); color: inherit; padding: 0 .06em; }
+.hero .lead { font-size: 1.12rem; color: var(--muted); max-width: 52ch; }
+.search { display: flex; gap: 8px; margin-top: 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 8px; box-shadow: var(--shadow); flex-wrap: wrap; }
+.search select, .search input { flex: 1 1 180px; min-width: 0; border: 0; background: var(--surface-2); border-radius: 9px; padding: 11px 12px; }
+.search .btn { flex: 0 0 auto; }
+.hero-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+.counts { margin-top: 18px; display: flex; gap: 18px; flex-wrap: wrap; font-size: .92rem; color: var(--muted); }
+.counts b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.sample-wrap { position: relative; }
+.sample-tag { position: absolute; top: -12px; left: 18px; z-index: 2; background: var(--ink); color: var(--bg); font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+.sample-wrap .wcard { pointer-events: none; transform: rotate(-1.2deg); box-shadow: var(--shadow); }
+@media (max-width: 820px) { .hero { grid-template-columns: 1fr; gap: 32px; } .sample-wrap { max-width: 380px; } }
+
+.sec-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); overflow: hidden; }
+.step { padding: 22px; display: grid; gap: 8px; align-content: start; }
+.step + .step { border-left: 1px solid var(--line); }
+.step .n { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: .85rem; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--vest); color: var(--vest-ink); }
+@media (max-width: 760px) { .steps { grid-template-columns: 1fr; } .step + .step { border-left: 0; border-top: 1px solid var(--line); } }
+
+/* Tarjetas */
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+.wcard { text-align: left; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; padding: 0; transition: border-color .15s, transform .15s; color: inherit; }
+.wcard:hover { border-color: var(--ink); transform: translateY(-2px); }
+.cover { aspect-ratio: 16 / 8; background: var(--surface-2); position: relative; overflow: hidden; }
+.cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover.tape { background: repeating-linear-gradient(-45deg, var(--surface-2) 0 14px, var(--bg) 14px 28px); display: grid; place-items: center; }
+.cover.tape span { font-family: var(--font-display); font-stretch: 125%; font-weight: 800; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: var(--surface); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); }
+.wbody { padding: 0 16px 16px; display: grid; gap: 12px; }
+.who { display: flex; gap: 12px; align-items: end; margin-top: -24px; position: relative; }
+.who > div { min-width: 0; padding-bottom: 2px; }
+.who h3 { display: flex; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+.meta { display: flex; gap: 4px 12px; flex-wrap: wrap; color: var(--muted); font-size: .86rem; }
+.meta span { display: inline-flex; align-items: center; gap: 4px; }
+.av { width: 56px; height: 56px; flex: none; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-stretch: 112%; font-weight: 800; color: #fff; font-size: 1.15rem; overflow: hidden; border: 3px solid var(--surface); }
+.av img { width: 100%; height: 100%; object-fit: cover; }
+.av.sq { border-radius: 12px; }
+.av.xl { width: 104px; height: 104px; font-size: 2.2rem; border-width: 4px; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: .8rem; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); }
+.tag.vest { background: var(--vest-soft); border-color: transparent; }
+.wfoot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.price { font-family: var(--font-display); font-stretch: 112%; font-weight: 800; font-size: 1.12rem; font-variant-numeric: tabular-nums; }
+.price small { font-family: var(--font-body); font-weight: 500; font-size: .8rem; color: var(--muted); }
+.rate { display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; font-variant-numeric: tabular-nums; }
+.rate b { font-weight: 700; }
+.stars { display: inline-flex; gap: 1px; }
+.stars svg { width: 14px; height: 14px; }
+.stars .on { fill: var(--star); }
+.stars .off { fill: var(--line); }
+.verified { display: inline-flex; color: var(--ok); }
+.verified svg { width: 17px; height: 17px; }
+
+.ecard { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 12px; color: inherit; transition: border-color .15s, transform .15s; align-content: start; }
+.ecard:hover { border-color: var(--ink); transform: translateY(-2px); }
+.ecard .who { margin: 0; align-items: center; }
+.ecard .av { border: 0; }
+
+.empty { border: 1px dashed var(--line); border-radius: var(--r); padding: 36px 20px; text-align: center; display: grid; gap: 10px; justify-items: center; background: var(--surface); }
+.empty p { max-width: 46ch; color: var(--muted); }
+
+/* Explorar */
+.list-head { display: grid; gap: 6px; }
+.list-head h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 900; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px; }
+.filters > * { flex: 1 1 150px; min-width: 0; }
+.filters .grow { flex: 2 1 220px; }
+.filters input, .filters select { width: 100%; border: 1px solid var(--line); background: var(--surface-2); border-radius: 9px; padding: 10px 12px; }
+.result-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: .9rem; margin: 4px 0 -24px; }
+
+/* Perfil */
+.profile { display: grid; gap: 24px; }
+.phead { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.phead .band { height: 120px; background: repeating-linear-gradient(-45deg, var(--vest) 0 18px, var(--ink) 18px 36px); opacity: .92; }
+.phead .band.img { background: var(--surface-2); opacity: 1; }
+.phead .band img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(.9); }
+.phead-in { padding: 0 24px 22px; display: flex; gap: 18px; align-items: end; flex-wrap: wrap; margin-top: -52px; }
+.phead-in > div { min-width: 0; flex: 1 1 260px; display: grid; gap: 6px; padding-bottom: 4px; }
+.phead h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 900; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; overflow-wrap: anywhere; }
+.pgrid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+.pmain { display: grid; gap: 24px; min-width: 0; }
+.pside { display: grid; gap: 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); }
+@media (max-width: 860px) { .pgrid { grid-template-columns: 1fr; } .pside { position: static; order: -1; } }
+.panel h2 { font-size: 1.15rem; margin-bottom: 12px; }
+.prose { white-space: pre-line; max-width: 68ch; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 8px; }
+.gallery button { padding: 0; border: 0; border-radius: 10px; overflow: hidden; aspect-ratio: 4 / 3; background: var(--surface-2); }
+.gallery img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.facts { display: grid; gap: 0; }
+.facts > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: .94rem; }
+.facts > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; font-weight: 600; text-align: right; }
+.bigprice { font-family: var(--font-display); font-stretch: 112%; font-weight: 900; font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.phone { display: flex; gap: 8px; align-items: center; justify-content: space-between; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; font-variant-numeric: tabular-nums; user-select: all; }
+.rev { padding: 16px 0; border-top: 1px solid var(--line); display: grid; gap: 6px; }
+.rev:first-of-type { border-top: 0; padding-top: 0; }
+.rev-top { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; }
+.rev-sum { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.rev-sum .bigprice { font-size: 2.4rem; }
+.pick { display: flex; gap: 2px; }
+.pick button { background: none; border: 0; padding: 2px; }
+.pick svg { width: 28px; height: 28px; fill: var(--line); transition: fill .1s; }
+.pick button.on svg { fill: var(--star); }
+.lightbox { position: fixed; inset: 0; z-index: 50; background: rgba(8,9,11,.88); display: grid; place-items: center; padding: 16px; cursor: zoom-out; }
+.lightbox img { max-width: 100%; max-height: 90vh; border-radius: 10px; }
+
+/* Formularios */
+.form-wrap { max-width: 680px; width: 100%; margin: 0 auto; display: grid; gap: 18px; }
+.form-wrap > header { display: grid; gap: 8px; }
+.form-wrap h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 900; }
+.progress { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.progress i { height: 6px; border-radius: 3px; background: var(--line); }
+.progress i.on { background: var(--vest); }
+.field { display: grid; gap: 6px; }
+.field + .field { margin-top: 18px; }
+.field > label, .field > .lbl { font-weight: 700; }
+.hint { font-size: .86rem; color: var(--muted); }
+.field input[type=text], .field input[type=number], .field input[type=tel], .field select, .field textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-2); }
+.field textarea { min-height: 120px; resize: vertical; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 520px) { .two { grid-template-columns: 1fr; } }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 7px 12px; font-size: .92rem; font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+.drop { display: grid; place-items: center; gap: 4px; text-align: center; border: 2px dashed var(--line); border-radius: 12px; padding: 22px 14px; background: var(--surface-2); cursor: pointer; font-weight: 600; }
+.drop:hover { border-color: var(--ink); }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.drop:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: 10px; }
+.thumbs .th { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--surface-2); }
+.thumbs .th img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumbs .th button { position: absolute; top: 5px; right: 5px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(8,9,11,.72); color: #fff; font-weight: 700; line-height: 1; }
+.thumbs .th .first { position: absolute; left: 5px; bottom: 5px; background: var(--vest); color: var(--vest-ink); font-size: .7rem; font-weight: 700; padding: 2px 6px; border-radius: 5px; }
+.preview-img { max-width: 260px; border-radius: 10px; border: 1px solid var(--line); margin-top: 8px; }
+.preview-av { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; margin-top: 8px; }
+.form-nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.err { color: var(--danger); font-weight: 600; font-size: .92rem; min-height: 1.4em; }
+.ok-line { display: inline-flex; gap: 6px; align-items: center; color: var(--ok); font-weight: 600; }
+.confirm { display: grid; gap: 10px; border: 1px solid var(--danger); border-radius: 10px; padding: 12px; }
+
+#toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 10px; font-weight: 600; box-shadow: var(--shadow); max-width: calc(100% - 32px); }
+.loading { color: var(--muted); padding: 24px 0; }
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <button class="brand" data-go="home" aria-label="Workia, inicio"><span class="brand-mark">W</span>Workia</button>
+    <nav class="nav" id="nav"></nav>
+  </div>
+</header>
+<main id="app"><p class="loading">Cargando Workia…</p></main>
+<div id="toast" hidden></div>
+
+<script>
+/* ---------- Constantes ---------- */
+const OFICIOS = ["Albañil","Electricista","Plomero","Gasista","Pintor","Carpintero","Herrero","Soldador","Durlero","Techista","Jardinero","Mecánico","Limpieza","Cocinero/a","Mozo/a","Niñera","Cuidado de adultos","Chofer","Delivery","Vendedor/a","Administrativo/a","Peluquero/a","Diseñador/a","Programador/a"];
+const BENEFICIOS = ["Obra social","Aguinaldo","Vacaciones pagas","ART","Recibo de sueldo","Viandas","Ropa de trabajo","Viáticos","Capacitación","Premios por productividad","Horario flexible","Trabajo remoto"];
+const UNIDADES = { hora: "por hora", jornada: "por jornada", trabajo: "por trabajo", mes: "por mes" };
+const ZONAS = ["CABA","GBA Norte","GBA Sur","GBA Oeste","La Plata","Mar del Plata","Bahía Blanca","Córdoba Capital","Villa Carlos Paz","Río Cuarto","Rosario","Santa Fe","Rafaela","Mendoza","San Juan","San Luis","Tucumán","Salta","Jujuy","Neuquén","Bariloche","Comodoro Rivadavia","Paraná","Corrientes","Posadas","Resistencia","Santiago del Estero"];
+const AV_COLORS = ["#3b5bdb","#2b8a3e","#c2255c","#e8590c","#5f3dc4","#0b7285","#795548","#495057"];
+const STAR = "M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z";
+
+/* ---------- Estado ---------- */
+const S = {
+  db: null, user: null, uid: null, canWrite: null, offline: false,
+  loaded: { t: false, e: false, r: false },
+  trab: new Map(), emp: new Map(), res: new Map(), rev: new Map(), names: {},
+  view: { name: "home" }, update: null,
+  ft: { q: "", oficio: "", zona: "", max: "", min: "0", orden: "rating" },
+  fe: { q: "", oficio: "", zona: "" },
+};
+
+/* ---------- Utilidades ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const money = n => "$ " + Number(n || 0).toLocaleString("es-AR");
+const initials = n => String(n || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "?";
+const colorFor = id => { let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AV_COLORS[h % AV_COLORS.length]; };
+const fecha = t => new Date(t).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
+const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+
+function avatar(id, p, cls = "") {
+  const img = p.foto || p.logo;
+  return `<div class="av ${cls}" style="background:${colorFor(id)}">${img ? `<img src="${img}" alt="">` : esc(initials(p.nombre))}</div>`;
+}
+function stars(avg) {
+  const f = Math.round(avg);
+  return `<span class="stars" aria-hidden="true">${[1,2,3,4,5].map(i => `<svg viewBox="0 0 24 24"><path class="${i <= f ? "on" : "off"}" d="${STAR}"/></svg>`).join("")}</span>`;
+}
+function stat(key) {
+  const list = S.rev.get(key) || [];
+  const avg = list.length ? list.reduce((a, r) => a + r.e, 0) / list.length : 0;
+  return { avg, count: list.length, list };
+}
+function rateHtml(key) {
+  const { avg, count } = stat(key);
+  return count
+    ? `<span class="rate">${stars(avg)}<b>${avg.toFixed(1)}</b><span class="muted">(${count})</span></span>`
+    : `<span class="rate muted">Sin reseñas</span>`;
+}
+const ICON = {
+  pin: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  clock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3.5v6c0 5-3.4 9.3-8 10.5-4.6-1.2-8-5.5-8-10.5v-6z"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8" fill="none" stroke="var(--surface)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  back: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>',
+  chat: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.2A8.5 8.5 0 1 1 21 12z"/></svg>',
+  cam: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+};
+const dniBadge = on => on ? `<span class="verified" title="DNI cargado">${ICON.check}</span>` : "";
+
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 2800);
+}
+function dbMsg(e) {
+  const c = e && e.code;
+  if (c === "invalid_argument") return "No tenés permiso para guardar en Workia. Pedile a quien te pasó el link que te dé acceso de edición.";
+  if (c === "quota_exceeded") return "Workia se quedó sin espacio. Probá con menos fotos.";
+  if (c === "resource_exhausted") return "Demasiados cambios seguidos. Esperá unos segundos y probá de nuevo.";
+  if (c === "too_big") return "Una de las fotos es demasiado pesada. Probá con otra.";
+  return "No se pudo guardar. Revisá tu conexión y probá de nuevo.";
+}
+function waLink(tel, msg) {
+  const n = String(tel || "").replace(/\D/g, "");
+  return n ? `https://wa.me/${n}?text=${encodeURIComponent(msg)}` : "";
+}
+
+/* Comprime una imagen a JPEG hasta que entre en maxLen caracteres (base64) */
+async function toImg(src) {
+  if (src instanceof Blob) src = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(src); });
+  return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("img")); i.src = src; });
+}
+async function compress(src, maxDim, maxLen) {
+  const img = await toImg(src);
+  let dim = maxDim, q = .82;
+  for (let i = 0; i < 12; i++) {
+    const k = Math.min(1, dim / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    const out = c.toDataURL("image/jpeg", q);
+    if (out.length <= maxLen) return out;
+    if (q > .5) q -= .1; else dim = Math.round(dim * .8);
+  }
+  throw { code: "too_big" };
+}
+
+/* ---------- Permisos ---------- */
+function writeBlock() {
+  if (S.offline) return "Workia necesita abrirse desde su link de Claude para guardar perfiles.";
+  if (!S.db || !S.uid) return "Iniciá sesión en Claude para crear tu perfil en Workia.";
+  if (S.canWrite === false) return "Podés mirar los perfiles, pero para crear el tuyo necesitás acceso de edición. Pedíselo a quien te pasó el link.";
+  return "";
+}
+
+/* ---------- Navegación ---------- */
+function go(name, id) {
+  S.view = { name, id }; S.update = null;
+  window.scrollTo(0, 0);
+  mount();
+}
+function mount() {
+  renderNav();
+  const app = $("#app"), v = S.view;
+  const views = { home: vHome, trabajadores: vWorkers, empresas: vCompanies, t: vWorker, e: vCompany, "reg-t": vWorkerForm, "reg-e": vCompanyForm, crear: vChoose };
+  (views[v.name] || vHome)(app, v.id);
+}
+/* Llegan datos nuevos: sólo se refrescan las vistas de lectura, nunca un formulario a medio llenar */
+function refresh() { renderNav(); if (S.update) S.update(); }
+
+function renderNav() {
+  const n = S.view.name;
+  const mineT = S.uid && S.trab.has(S.uid), mineE = S.uid && S.emp.has(S.uid);
+  let html = `<button data-go="trabajadores" class="${n === "trabajadores" ? "on" : ""}">Trabajadores</button>
+    <button data-go="empresas" class="${n === "empresas" ? "on" : ""}">Empresas</button>`;
+  if (mineT) html += `<button data-go="t" data-id="${esc(S.uid)}" class="${n === "t" && S.view.id === S.uid ? "on" : ""}">Mi perfil</button>`;
+  if (mineE) html += `<button data-go="e" data-id="${esc(S.uid)}" class="${n === "e" && S.view.id === S.uid ? "on" : ""}">Mi empresa</button>`;
+  if (!mineT && !mineE) html += `<button class="btn vest sm" data-go="crear" style="margin-left:6px">Crear perfil</button>`;
+  $("#nav").innerHTML = html;
+}
+
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]");
+  if (g) { e.preventDefault(); go(g.dataset.go, g.dataset.id); }
+});
+
+/* ---------- Tarjetas ---------- */
+function workerCard(id, w) {
+  return `<button class="wcard" data-go="t" data-id="${esc(id)}">
+    <div class="cover ${w.portada ? "" : "tape"}">${w.portada ? `<img src="${w.portada}" alt="">` : `<span>${esc(w.oficios?.[0] || "Oficio")}</span>`}</div>
+    <div class="wbody">
+      <div class="who">${avatar(id, w)}<div><h3>${esc(w.nombre)} ${dniBadge(w.dni)}</h3><p class="meta"><span>${ICON.pin}${esc(w.zona)}</span></p></div></div>
+      <div class="tags">${(w.oficios || []).slice(0, 3).map(o => `<span class="tag">${esc(o)}</span>`).join("")}${(w.oficios || []).length > 3 ? `<span class="tag">+${w.oficios.length - 3}</span>` : ""}</div>
+      <div class="wfoot">${rateHtml("t~" + id)}<span class="price">${money(w.precio)} <small>${UNIDADES[w.unidad] || ""}</small></span></div>
+    </div></button>`;
+}
+function companyCard(id, c) {
+  return `<button class="ecard" data-go="e" data-id="${esc(id)}">
+    <div class="who">${avatar(id, c, "sq")}<div><h3>${esc(c.nombre)}</h3><p class="meta">${c.rubro ? `<span>${esc(c.rubro)}</span>` : ""}<span>${ICON.pin}${esc(c.zona)}</span></p></div></div>
+    ${rateHtml("e~" + id)}
+    <p class="meta"><span>${ICON.clock}${esc(c.horario)}</span>${c.anios ? `<span>${plural(c.anios, "año", "años")} de trayectoria</span>` : ""}</p>
+    ${(c.buscan || []).length ? `<div class="tags">${c.buscan.slice(0, 4).map(o => `<span class="tag vest">Busca ${esc(o.toLowerCase())}</span>`).join("")}</div>` : ""}
+  </button>`;
+}
+const SAMPLE = { nombre: "Ramiro Gómez", oficios: ["Albañil", "Pintor"], zona: "Córdoba Capital", precio: 45000, unidad: "jornada", dni: true };
+
+/* ---------- Inicio ---------- */
+function vHome(app) {
+  app.innerHTML = `
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Trabajo directo, sin intermediarios</p>
+      <h1>Tu trabajo habla <mark>por vos.</mark></h1>
+      <p class="lead">Workia conecta a la gente que sabe hacer bien su oficio con las empresas que la necesitan. Perfil con fotos de tus trabajos, tu precio y reseñas de quienes ya trabajaron con vos.</p>
+      <form class="search" id="hs">
+        <select id="hsOf" aria-label="Oficio"><option value="">¿Qué oficio buscás?</option>${OFICIOS.map(o => `<option>${esc(o)}</option>`).join("")}</select>
+        <input id="hsZona" type="text" list="zonas" placeholder="¿Dónde?" aria-label="Zona">
+        <button class="btn" type="submit">Buscar</button>
+      </form>
+      <div class="hero-actions">
+        <button class="btn vest" data-go="reg-t">Quiero que me encuentren</button>
+        <button class="btn ghost" data-go="reg-e">Busco personal</button>
+      </div>
+      <p class="counts" id="counts"></p>
+    </div>
+    <div class="sample-wrap" aria-label="Ejemplo de perfil"><span class="sample-tag">Ejemplo</span>
+      <div class="wcard"><div class="cover tape"><span>Albañil</span></div><div class="wbody">
+        <div class="who"><div class="av" style="background:#e8590c">RG</div><div><h3>${SAMPLE.nombre} ${dniBadge(true)}</h3><p class="meta"><span>${ICON.pin}${SAMPLE.zona}</span></p></div></div>
+        <div class="tags">${SAMPLE.oficios.map(o => `<span class="tag">${o}</span>`).join("")}</div>
+        <div class="wfoot"><span class="rate">${stars(5)}<b>4.8</b><span class="muted">(12)</span></span><span class="price">${money(SAMPLE.precio)} <small>por jornada</small></span></div>
+      </div></div>
+    </div>
+  </section>
+  <section>
+    <div class="sec-head"><h2>Trabajadores recientes</h2><button class="link" data-go="trabajadores">Ver todos →</button></div>
+    <div id="recent"></div>
+  </section>
+  <section>
+    <div class="sec-head"><h2>Cómo funciona</h2></div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><h3>Armás tu perfil</h3><p class="muted">Cargás tu DNI, lo que sabés hacer, de dónde sos, fotos de tus trabajos y cuánto cobrás.</p></div>
+      <div class="step"><span class="n">2</span><h3>Las empresas te encuentran</h3><p class="muted">Buscan por oficio, zona, precio y puntuación. Tu perfil queda guardado para cuando te necesiten.</p></div>
+      <div class="step"><span class="n">3</span><h3>Hablan directo</h3><p class="muted">Te escriben por WhatsApp. Después del trabajo, cada uno deja su reseña.</p></div>
+    </div>
+  </section>
+  <datalist id="zonas">${zonaOptions()}</datalist>`;
+  $("#hs").onsubmit = e => { e.preventDefault(); S.ft.oficio = $("#hsOf").value; S.ft.zona = $("#hsZona").value.trim(); go("trabajadores"); };
+  S.update = () => {
+    const nRev = [...S.rev.values()].reduce((a, l) => a + l.length, 0);
+    $("#counts").innerHTML = `<span><b>${S.trab.size}</b> trabajadores</span><span><b>${S.emp.size}</b> empresas</span><span><b>${nRev}</b> reseñas</span>`;
+    const box = $("#recent");
+    if (!S.loaded.t) { box.innerHTML = `<p class="loading">Cargando perfiles…</p>`; return; }
+    const list = [...S.trab.entries()].sort((a, b) => (b[1].creado || 0) - (a[1].creado || 0)).slice(0, 6);
+    box.innerHTML = list.length ? `<div class="grid">${list.map(([id, w]) => workerCard(id, w)).join("")}</div>`
+      : `<div class="empty"><h3>Todavía no hay perfiles</h3><p>Cuando alguien cree su perfil de trabajador va a aparecer acá. Podés ser el primero.</p><button class="btn vest" data-go="reg-t">Crear mi perfil</button></div>`;
+  };
+  S.update();
+}
+function zonaOptions() {
+  const all = new Set([...ZONAS, ...[...S.trab.values()].map(w => w.zona), ...[...S.emp.values()].map(c => c.zona)]);
+  return [...all].filter(Boolean).map(z => `<option value="${esc(z)}">`).join("");
+}
+
+function vChoose(app) {
+  app.innerHTML = `<div class="form-wrap"><header><p class="eyebrow">Crear perfil</p><h1>¿Cómo vas a usar Workia?</h1></header>
+    <div class="grid">
+      <button class="ecard" data-go="reg-t"><h3>Soy trabajador/a</h3><p class="muted">Quiero que las empresas me encuentren por lo que sé hacer.</p><span class="link">Empezar →</span></button>
+      <button class="ecard" data-go="reg-e"><h3>Soy una empresa</h3><p class="muted">Quiero mostrar qué ofrecemos y encontrar buena gente.</p><span class="link">Empezar →</span></button>
+    </div></div>`;
+}
+
+/* ---------- Listados ---------- */
+function vWorkers(app) {
+  const f = S.ft;
+  const ofs = [...new Set([...OFICIOS, ...[...S.trab.values()].flatMap(w => w.oficios || [])])];
+  app.innerHTML = `<section class="list-head"><p class="eyebrow">Explorar</p><h1>Trabajadores</h1><p class="muted">Filtrá por oficio, zona, precio y puntuación.</p></section>
+  <div class="filters">
+    <input id="fq" class="grow" type="search" placeholder="Nombre o palabra clave" value="${esc(f.q)}" aria-label="Buscar">
+    <select id="foficio" aria-label="Oficio"><option value="">Todos los oficios</option>${ofs.map(o => `<option ${f.oficio === o ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>
+    <input id="fzona" type="text" list="zonas" placeholder="Zona" value="${esc(f.zona)}" aria-label="Zona">
+    <input id="fmax" type="number" min="0" step="1000" placeholder="Precio máximo" value="${esc(f.max)}" aria-label="Precio máximo">
+    <select id="fmin" aria-label="Puntuación mínima">${[["0","Cualquier puntuación"],["3","3 estrellas o más"],["4","4 estrellas o más"],["4.5","4,5 o más"]].map(([v, t]) => `<option value="${v}" ${f.min === v ? "selected" : ""}>${t}</option>`).join("")}</select>
+    <select id="forden" aria-label="Ordenar"><option value="rating" ${f.orden === "rating" ? "selected" : ""}>Mejor puntuados</option><option value="precio" ${f.orden === "precio" ? "selected" : ""}>Menor precio</option><option value="nuevo" ${f.orden === "nuevo" ? "selected" : ""}>Más nuevos</option></select>
+  </div>
+  <p class="result-meta"><span id="rcount"></span></p>
+  <div id="results"></div>
+  <datalist id="zonas">${zonaOptions()}</datalist>`;
+  ["q","oficio","zona","max","min","orden"].forEach(k => $("#f" + k).addEventListener("input", e => { f[k] = e.target.value; S.update(); }));
+  S.update = () => {
+    if (!S.loaded.t) { $("#results").innerHTML = `<p class="loading">Cargando perfiles…</p>`; return; }
+    const list = [...S.trab.entries()].filter(([id, w]) => {
+      if (f.q && !norm(`${w.nombre} ${w.sobre} ${(w.oficios || []).join(" ")}`).includes(norm(f.q))) return false;
+      if (f.oficio && !(w.oficios || []).includes(f.oficio)) return false;
+      if (f.zona && !norm(w.zona).includes(norm(f.zona))) return false;
+      if (f.max && Number(w.precio) > Number(f.max)) return false;
+      if (Number(f.min) && stat("t~" + id).avg < Number(f.min)) return false;
+      return true;
+    }).sort((a, b) => f.orden === "precio" ? a[1].precio - b[1].precio : f.orden === "nuevo" ? (b[1].creado || 0) - (a[1].creado || 0) : (stat("t~" + b[0]).avg - stat("t~" + a[0]).avg) || (stat("t~" + b[0]).count - stat("t~" + a[0]).count));
+    $("#rcount").textContent = plural(list.length, "resultado", "resultados");
+    $("#results").innerHTML = list.length ? `<div class="grid">${list.map(([id, w]) => workerCard(id, w)).join("")}</div>`
+      : S.trab.size ? `<div class="empty"><h3>Nadie coincide con esos filtros</h3><p>Probá con otra zona o sacá el precio máximo.</p></div>`
+      : `<div class="empty"><h3>Todavía no hay trabajadores</h3><p>Los perfiles que se creen en Workia van a aparecer acá.</p><button class="btn vest" data-go="reg-t">Crear mi perfil</button></div>`;
+  };
+  S.update();
+}
+
+function vCompanies(app) {
+  const f = S.fe;
+  app.innerHTML = `<section class="list-head"><p class="eyebrow">Explorar</p><h1>Empresas</h1><p class="muted">Mirá dónde están, qué ofrecen y qué opinan quienes trabajaron ahí.</p></section>
+  <div class="filters">
+    <input id="eq" class="grow" type="search" placeholder="Nombre o rubro" value="${esc(f.q)}" aria-label="Buscar">
+    <select id="eoficio" aria-label="Oficio que buscan"><option value="">Buscan cualquier oficio</option>${OFICIOS.map(o => `<option ${f.oficio === o ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>
+    <input id="ezona" type="text" list="zonas" placeholder="Zona" value="${esc(f.zona)}" aria-label="Zona">
+  </div>
+  <p class="result-meta"><span id="rcount"></span></p>
+  <div id="results"></div>
+  <datalist id="zonas">${zonaOptions()}</datalist>`;
+  ["q","oficio","zona"].forEach(k => $("#e" + k).addEventListener("input", e => { f[k] = e.target.value; S.update(); }));
+  S.update = () => {
+    if (!S.loaded.e) { $("#results").innerHTML = `<p class="loading">Cargando empresas…</p>`; return; }
+    const list = [...S.emp.entries()].filter(([, c]) =>
+      (!f.q || norm(`${c.nombre} ${c.rubro} ${c.sobre}`).includes(norm(f.q))) &&
+      (!f.oficio || (c.buscan || []).includes(f.oficio)) &&
+      (!f.zona || norm(c.zona).includes(norm(f.zona)))
+    ).sort((a, b) => stat("e~" + b[0]).avg - stat("e~" + a[0]).avg);
+    $("#rcount").textContent = plural(list.length, "resultado", "resultados");
+    $("#results").innerHTML = list.length ? `<div class="grid">${list.map(([id, c]) => companyCard(id, c)).join("")}</div>`
+      : S.emp.size ? `<div class="empty"><h3>Ninguna empresa coincide</h3><p>Probá con otra zona u oficio.</p></div>`
+      : `<div class="empty"><h3>Todavía no hay empresas</h3><p>Cuando una empresa cree su perfil va a aparecer acá.</p><button class="btn vest" data-go="reg-e">Crear perfil de empresa</button></div>`;
+  };
+  S.update();
+}
+
+/* ---------- Perfiles ---------- */
+function contactPanel(tel, nombre, msg) {
+  const wa = waLink(tel, msg);
+  if (!wa) return `<div class="panel"><h2>Contacto</h2><p class="muted small">${esc(nombre)} todavía no cargó un número de contacto.</p></div>`;
+  return `<div class="panel" style="display:grid;gap:10px"><h2 style="margin:0">Contacto directo</h2>
+    <a class="btn vest block" href="${wa}" target="_blank" rel="noopener">${ICON.chat} Escribir por WhatsApp</a>
+    <div class="phone"><span>+${esc(String(tel).replace(/\D/g, ""))}</span><button class="btn ghost sm" id="copyTel" type="button">Copiar</button></div>
+  </div>`;
+}
+function bindCopy(tel) {
+  const b = $("#copyTel"); if (!b) return;
+  b.onclick = () => {
+    const num = "+" + String(tel).replace(/\D/g, "");
+    navigator.clipboard?.writeText(num).then(() => toast("Número copiado"), () => toast("Seleccioná el número para copiarlo"));
+  };
+}
+
+function reviewsPanel(key, nombre, ownerId) {
+  const { avg, count, list } = stat(key);
+  const block = writeBlock();
+  const mine = S.uid && (S.res.get(S.uid)?.items || {})[key];
+  let form = "";
+  if (S.uid === ownerId) form = "";
+  else if (block) form = `<p class="notice" style="margin-top:16px">${esc(block)}</p>`;
+  else form = `<form id="revForm" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--line);display:grid;gap:10px">
+      <h3>${mine ? "Editar tu reseña" : `Dejale una reseña a ${esc(nombre)}`}</h3>
+      <div class="pick" id="pick" role="radiogroup" aria-label="Puntuación">${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}" role="radio" aria-checked="false" aria-label="${n} de 5"><svg viewBox="0 0 24 24"><path d="${STAR}"/></svg></button>`).join("")}</div>
+      <div class="field"><textarea id="revText" placeholder="¿Cómo fue trabajar con ${esc(nombre)}? Puntualidad, prolijidad, trato…" style="min-height:90px">${esc(mine?.t || "")}</textarea></div>
+      <p class="err" id="revErr"></p>
+      <div><button class="btn" type="submit" id="revSend">${mine ? "Guardar cambios" : "Publicar reseña"}</button></div>
+    </form>`;
+  return `<section class="panel" id="revPanel"><h2>Reseñas</h2>
+    ${count ? `<div class="rev-sum"><span class="bigprice">${avg.toFixed(1)}</span><div>${stars(avg)}<p class="muted small">${plural(count, "reseña", "reseñas")}</p></div></div>` : ""}
+    ${count ? list.slice().sort((a, b) => b.f - a.f).map(r => `<article class="rev"><div class="rev-top"><b data-author="${esc(r.a)}">${esc(authorName(r.a))}</b>${stars(r.e)}</div><p>${esc(r.t)}</p><p class="muted small">${fecha(r.f)}</p></article>`).join("")
+      : `<p class="muted">Todavía nadie dejó una reseña.</p>`}
+    ${form}</section>`;
+}
+function authorName(a) { return S.trab.get(a)?.nombre || S.emp.get(a)?.nombre || S.names[a] || "Usuario de Workia"; }
+async function resolveAuthors(key) {
+  if (!S.user) return;
+  const ids = stat(key).list.map(r => r.a).filter(a => !S.trab.has(a) && !S.emp.has(a) && !S.names[a]);
+  if (!ids.length) return;
+  const ps = await S.user.profiles(ids);
+  ids.forEach(id => { if (ps[id]?.name) S.names[id] = ps[id].name; });
+  $$("[data-author]").forEach(el => el.textContent = authorName(el.dataset.author));
+}
+function bindReviews(key) {
+  resolveAuthors(key);
+  const form = $("#revForm"); if (!form) return;
+  const mine = (S.res.get(S.uid)?.items || {})[key];
+  let n = mine?.e || 0;
+  const paint = () => $$("#pick button").forEach(b => { const on = +b.dataset.n <= n; b.classList.toggle("on", on); b.setAttribute("aria-checked", String(+b.dataset.n === n)); });
+  $$("#pick button").forEach(b => b.onclick = () => { n = +b.dataset.n; paint(); });
+  paint();
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const t = $("#revText").value.trim();
+    if (!n) return $("#revErr").textContent = "Elegí de 1 a 5 estrellas.";
+    if (t.length < 8) return $("#revErr").textContent = "Contá un poco más en el comentario.";
+    const btn = $("#revSend"); btn.disabled = true; btn.textContent = "Guardando…";
+    const items = { ...(S.res.get(S.uid)?.items || {}), [key]: { e: n, t, f: Date.now() } };
+    try { await S.db.doc("resenas/" + S.uid).set({ items }); toast("Reseña publicada"); }
+    catch (err) { $("#revErr").textContent = dbMsg(err); btn.disabled = false; btn.textContent = "Publicar reseña"; }
+  };
+}
+
+function ownerTools(kind) {
+  return `<div class="panel" style="display:grid;gap:10px" id="ownTools"><h2 style="margin:0">Tu ${kind === "t" ? "perfil" : "empresa"}</h2>
+    <button class="btn ghost block" data-go="reg-${kind}">Editar</button>
+    <button class="btn danger block" id="delBtn" type="button">Eliminar ${kind === "t" ? "perfil" : "empresa"}</button></div>`;
+}
+function bindDelete(kind) {
+  const b = $("#delBtn"); if (!b) return;
+  b.onclick = () => {
+    const box = $("#ownTools");
+    box.innerHTML = `<div class="confirm"><b>¿Eliminar ${kind === "t" ? "tu perfil" : "tu empresa"}?</b><p class="small muted">Se borran tus datos${kind === "t" ? " y las fotos de tus trabajos" : ""}. Las reseñas que dejaste a otros se mantienen.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="delYes" type="button" style="background:var(--danger);color:#fff">Sí, eliminar</button><button class="btn ghost" id="delNo" type="button">Cancelar</button></div><p class="err" id="delErr"></p></div>`;
+    $("#delNo").onclick = () => mount();
+    $("#delYes").onclick = async () => {
+      $("#delYes").disabled = true;
+      try {
+        if (kind === "t") {
+          const fs = await S.db.collection(`trabajadores/${S.uid}/fotos`).get();
+          for (const d of fs.docs) await S.db.doc(`trabajadores/${S.uid}/fotos/${d.id}`).delete();
+          await S.db.doc("trabajadores/" + S.uid).delete();
+        } else await S.db.doc("empresas/" + S.uid).delete();
+        toast(kind === "t" ? "Perfil eliminado" : "Empresa eliminada"); go("home");
+      } catch (err) { $("#delErr").textContent = dbMsg(err); $("#delYes").disabled = false; }
+    };
+  };
+}
+
+function vWorker(app, id) {
+  let photos = null;
+  const draw = () => {
+    const w = S.trab.get(id);
+    if (!w) { app.innerHTML = S.loaded.t ? `<div class="empty"><h3>Este perfil ya no existe</h3><button class="btn" data-go="trabajadores">Ver trabajadores</button></div>` : `<p class="loading">Cargando perfil…</p>`; return; }
+    const key = "t~" + id, own = S.uid === id;
+    app.innerHTML = `<div class="profile">
+      <button class="link" data-go="trabajadores">${ICON.back} Trabajadores</button>
+      <header class="phead"><div class="band ${w.portada ? "img" : ""}">${w.portada ? `<img src="${w.portada}" alt="">` : ""}</div>
+        <div class="phead-in">${avatar(id, w, "xl")}<div>
+          <h1>${esc(w.nombre)} ${dniBadge(w.dni)}</h1>
+          <p class="meta"><span>${ICON.pin}${esc(w.zona)}</span>${w.dni ? `<span style="color:var(--ok)">DNI cargado</span>` : ""}${w.matricula ? `<span>Matrícula ${esc(w.matricula)}</span>` : ""}</p>
+          ${rateHtml(key)}
+        </div></div></header>
+      <div class="pgrid">
+        <div class="pmain">
+          <section class="panel"><h2>Sobre mí</h2><p class="prose">${esc(w.sobre)}</p></section>
+          <section class="panel"><h2>Trabajos realizados</h2><div id="gal">${photos === null ? `<p class="loading" style="padding:0">Cargando fotos…</p>` : photos.length ? `<div class="gallery">${photos.map((p, i) => `<button type="button" data-i="${i}" aria-label="Ver foto ${i + 1}"><img src="${p}" alt="Trabajo ${i + 1}"></button>`).join("")}</div>` : `<p class="muted">Todavía no subió fotos de sus trabajos.</p>`}</div></section>
+          ${reviewsPanel(key, w.nombre.split(" ")[0], id)}
+        </div>
+        <aside class="pside">
+          <div class="panel"><p class="eyebrow">Cobra</p><p class="bigprice" style="margin:6px 0 2px">${money(w.precio)}</p><p class="muted small">${UNIDADES[w.unidad] || ""}</p>
+            <dl class="facts" style="margin:16px 0 0"><div><dt>Oficios</dt><dd>${(w.oficios || []).map(esc).join(", ")}</dd></div><div><dt>Zona</dt><dd>${esc(w.zona)}</dd></div><div><dt>En Workia desde</dt><dd>${new Date(w.creado || Date.now()).toLocaleDateString("es-AR", { month: "long", year: "numeric" })}</dd></div></dl></div>
+          ${own ? ownerTools("t") : contactPanel(w.tel, w.nombre, `Hola ${w.nombre}, te encontré en Workia y quería consultarte por un trabajo.`)}
+        </aside>
+      </div></div>`;
+    $$("#gal button").forEach(b => b.onclick = () => {
+      const lb = document.createElement("div"); lb.className = "lightbox"; lb.innerHTML = `<img src="${photos[+b.dataset.i]}" alt="">`;
+      lb.onclick = () => lb.remove(); document.body.appendChild(lb);
+    });
+    bindCopy(w.tel); bindReviews(key); bindDelete("t");
+  };
+  draw();
+  S.update = () => { if (!$("#revForm") || !$("#revText").value) draw(); };
+  if (S.db) S.db.collection(`trabajadores/${id}/fotos`).get().then(snap => {
+    photos = snap.docs.map(d => d.data()).sort((a, b) => (a.orden || 0) - (b.orden || 0)).map(d => d.img);
+    if (S.view.name === "t" && S.view.id === id) draw();
+  }, () => { photos = []; if (S.view.id === id) draw(); });
+  else photos = [];
+}
+
+function vCompany(app, id) {
+  const draw = () => {
+    const c = S.emp.get(id);
+    if (!c) { app.innerHTML = S.loaded.e ? `<div class="empty"><h3>Esta empresa ya no está en Workia</h3><button class="btn" data-go="empresas">Ver empresas</button></div>` : `<p class="loading">Cargando empresa…</p>`; return; }
+    const key = "e~" + id, own = S.uid === id;
+    app.innerHTML = `<div class="profile">
+      <button class="link" data-go="empresas">${ICON.back} Empresas</button>
+      <header class="phead"><div class="band"></div>
+        <div class="phead-in">${avatar(id, c, "xl sq")}<div>
+          <h1>${esc(c.nombre)}</h1>
+          <p class="meta">${c.rubro ? `<span>${esc(c.rubro)}</span>` : ""}<span>${ICON.pin}${esc(c.zona)}</span></p>
+          ${rateHtml(key)}
+        </div></div></header>
+      <div class="pgrid">
+        <div class="pmain">
+          ${c.sobre ? `<section class="panel"><h2>Quiénes somos</h2><p class="prose">${esc(c.sobre)}</p></section>` : ""}
+          <section class="panel"><h2>Obras y trabajos</h2><p class="prose">${c.obras ? esc(c.obras) : `<span class="muted">Sin datos todavía.</span>`}</p></section>
+          <section class="panel"><h2>Qué ofrecemos</h2>${(c.beneficios || []).length ? `<div class="tags">${c.beneficios.map(b => `<span class="tag">${esc(b)}</span>`).join("")}</div>` : `<p class="muted">Sin datos todavía.</p>`}</section>
+          ${reviewsPanel(key, c.nombre, id)}
+        </div>
+        <aside class="pside">
+          <div class="panel"><h2>Datos</h2><dl class="facts" style="margin:0">
+            <div><dt>Trayectoria</dt><dd>${c.anios ? plural(c.anios, "año", "años") : "—"}</dd></div>
+            <div><dt>Horarios</dt><dd>${esc(c.horario)}</dd></div>
+            <div><dt>Zona</dt><dd>${esc(c.zona)}</dd></div></dl></div>
+          ${(c.buscan || []).length ? `<div class="panel"><h2>Están buscando</h2><div class="tags">${c.buscan.map(o => `<button class="tag vest" data-of="${esc(o)}" style="border:0">${esc(o)}</button>`).join("")}</div><p class="hint" style="margin-top:10px">Tocá un oficio para ver trabajadores de la zona.</p></div>` : ""}
+          ${own ? ownerTools("e") : contactPanel(c.tel, c.nombre, `Hola, los encontré en Workia y me interesa trabajar con ${c.nombre}.`)}
+        </aside>
+      </div></div>`;
+    $$("[data-of]").forEach(b => b.onclick = () => { S.ft.oficio = b.dataset.of; S.ft.zona = c.zona; go("trabajadores"); });
+    bindCopy(c.tel); bindReviews(key); bindDelete("e");
+  };
+  draw();
+  S.update = () => { if (!$("#revForm") || !$("#revText").value) draw(); };
+}
+
+/* ---------- Formulario de trabajador (encuesta en pasos) ---------- */
+let wz = null;
+async function vWorkerForm(app) {
+  const block = writeBlock();
+  if (block) { app.innerHTML = `<div class="form-wrap"><header><p class="eyebrow">Perfil de trabajador</p><h1>Creá tu perfil</h1></header><p class="notice">${esc(block)}</p><div><button class="btn ghost" data-go="home">Volver al inicio</button></div></div>`; return; }
+  if (!wz || wz.uid !== S.uid) {
+    app.innerHTML = `<p class="loading">Preparando el formulario…</p>`;
+    const old = S.trab.get(S.uid);
+    let fotos = [];
+    if (old) { try { const snap = await S.db.collection(`trabajadores/${S.uid}/fotos`).get(); fotos = snap.docs.map(d => ({ k: d.id, img: d.data().img, orden: d.data().orden || 0 })).sort((a, b) => a.orden - b.orden); } catch (e) {} }
+    let nombre = old?.nombre || "";
+    if (!nombre && S.user) { try { nombre = (await S.user.me()).name || ""; } catch (e) {} }
+    wz = { uid: S.uid, step: 0, edit: !!old, creado: old?.creado, nombre, foto: old?.foto || "", dniImg: "", dniOld: !!old?.dni,
+      oficios: (old?.oficios || []).filter(o => OFICIOS.includes(o)), otro: (old?.oficios || []).filter(o => !OFICIOS.includes(o)).join(", "),
+      matricula: old?.matricula || "", zona: old?.zona || "", tel: old?.tel || "", fotos, fotosOld: fotos.map(f => f.k),
+      sobre: old?.sobre || "", precio: old?.precio || "", unidad: old?.unidad || "hora" };
+    if (S.view.name !== "reg-t") return;
+  }
+  drawWizard(app);
+}
+const STEPS = ["Identidad", "Tu oficio", "Dónde y contacto", "Tus trabajos", "Sobre vos", "Tu precio"];
+function drawWizard(app) {
+  const s = wz.step;
+  let body = "";
+  if (s === 0) body = `
+    <div class="field"><label for="wNombre">Nombre y apellido</label><input id="wNombre" type="text" value="${esc(wz.nombre)}" autocomplete="name"></div>
+    <div class="field"><span class="lbl">Foto de tu DNI (frente)</span>
+      <span class="hint">Se guarda en un espacio privado: no aparece en tu perfil ni la ve nadie más. En tu perfil sólo se muestra “DNI cargado”.</span>
+      ${wz.dniOld && !wz.dniImg ? `<span class="ok-line">${ICON.check.replace("<svg", '<svg width="16" height="16"')} Ya cargaste tu DNI</span>` : ""}
+      <label class="drop">${ICON.cam}<span>${wz.dniImg ? "Cambiar foto del DNI" : wz.dniOld ? "Reemplazar foto del DNI" : "Subir foto del DNI"}</span><input id="wDni" type="file" accept="image/*"></label>
+      ${wz.dniImg ? `<img class="preview-img" src="${wz.dniImg}" alt="DNI cargado">` : ""}</div>
+    <div class="field"><span class="lbl">Foto de perfil <span class="muted">(opcional)</span></span>
+      <label class="drop"><span>${wz.foto ? "Cambiar foto" : "Subir una foto tuya"}</span><input id="wFoto" type="file" accept="image/*"></label>
+      ${wz.foto ? `<img class="preview-av" src="${wz.foto}" alt="Tu foto">` : ""}</div>`;
+  if (s === 1) body = `
+    <div class="field"><span class="lbl">¿Qué sabés hacer?</span><span class="hint">Marcá todos los que hagas.</span>
+      <div class="chips" id="wOfi">${OFICIOS.map(o => `<button type="button" class="chip" aria-pressed="${wz.oficios.includes(o)}" data-v="${esc(o)}">${esc(o)}</button>`).join("")}</div></div>
+    <div class="field"><label for="wOtro">¿Otro oficio?</label><input id="wOtro" type="text" value="${esc(wz.otro)}" placeholder="Ej: Tapicero, Vidriero"></div>
+    <div class="field"><label for="wMat">Matrícula <span class="muted">(si tenés)</span></label><input id="wMat" type="text" value="${esc(wz.matricula)}" placeholder="Ej: Gasista matriculado N° 1234"><span class="hint">Electricistas y gasistas: sumar la matrícula da mucha confianza.</span></div>`;
+  if (s === 2) body = `
+    <div class="field"><label for="wZona">¿Dónde trabajás?</label><input id="wZona" type="text" list="zonas" value="${esc(wz.zona)}" placeholder="Ciudad o barrio"></div>
+    <div class="field"><label for="wTel">WhatsApp</label><input id="wTel" type="tel" inputmode="tel" value="${esc(wz.tel)}" placeholder="Ej: 54 9 351 123 4567"><span class="hint">Con código de país (54) y de área. Es el número por el que te van a escribir.</span></div>`;
+  if (s === 3) body = `
+    <div class="field"><span class="lbl">Fotos de trabajos que hiciste</span><span class="hint">Hasta 8 fotos. La primera es la portada de tu perfil.</span>
+      ${wz.fotos.length < 8 ? `<label class="drop">${ICON.cam}<span>Agregar fotos</span><input id="wFotos" type="file" accept="image/*" multiple></label>` : ""}
+      <div class="thumbs">${wz.fotos.map((f, i) => `<div class="th"><img src="${f.img}" alt="Foto ${i + 1}">${i === 0 ? `<span class="first">Portada</span>` : ""}<button type="button" data-rm="${i}" aria-label="Quitar foto ${i + 1}">×</button></div>`).join("")}</div></div>`;
+  if (s === 4) body = `
+    <div class="field"><label for="wSobre">Contá tu historia</label><span class="hint">Hace cuánto trabajás, dónde aprendiste, qué tipo de trabajos hacés, qué te diferencia.</span>
+      <textarea id="wSobre" placeholder="Ej: Trabajo de albañil desde hace 12 años. Hice ampliaciones, losas y revoques en Córdoba y alrededores…">${esc(wz.sobre)}</textarea></div>`;
+  if (s === 5) body = `
+    <div class="two"><div class="field"><label for="wPrecio">¿Cuánto cobrás?</label><input id="wPrecio" type="number" min="0" step="500" value="${esc(wz.precio)}" placeholder="Ej: 45000"></div>
+      <div class="field" style="margin-top:0"><label for="wUnidad">Unidad</label><select id="wUnidad">${Object.entries(UNIDADES).map(([k, v]) => `<option value="${k}" ${wz.unidad === k ? "selected" : ""}>${v}</option>`).join("")}</select></div></div>
+    <p class="muted small" style="margin-top:16px">Al guardar, tu perfil queda publicado en Workia para cuando una empresa busque por estas características. Lo podés editar o borrar cuando quieras.</p>`;
+
+  app.innerHTML = `<div class="form-wrap">
+    <header><p class="eyebrow">${wz.edit ? "Editar perfil" : "Perfil de trabajador"} · Paso ${s + 1} de ${STEPS.length}</p><h1>${STEPS[s]}</h1>
+      <div class="progress">${STEPS.map((_, i) => `<i class="${i <= s ? "on" : ""}"></i>`).join("")}</div></header>
+    <div class="panel">${body}</div>
+    <p class="err" id="wErr"></p>
+    <div class="form-nav">
+      ${s === 0 ? `<button class="btn ghost" type="button" data-go="${wz.edit ? "t" : "home"}" ${wz.edit ? `data-id="${esc(S.uid)}"` : ""}>Cancelar</button>` : `<button class="btn ghost" type="button" id="wBack">← Atrás</button>`}
+      <button class="btn ${s === STEPS.length - 1 ? "vest" : ""}" type="button" id="wNext">${s === STEPS.length - 1 ? (wz.edit ? "Guardar cambios" : "Publicar mi perfil") : "Siguiente →"}</button>
+    </div></div>
+    <datalist id="zonas">${zonaOptions()}</datalist>`;
+
+  const collect = () => {
+    const v = id => $("#" + id)?.value.trim();
+    if (s === 0) wz.nombre = v("wNombre");
+    if (s === 1) { wz.otro = v("wOtro"); wz.matricula = v("wMat"); }
+    if (s === 2) { wz.zona = v("wZona"); wz.tel = v("wTel"); }
+    if (s === 4) wz.sobre = v("wSobre");
+    if (s === 5) { wz.precio = v("wPrecio"); wz.unidad = v("wUnidad"); }
+  };
+  const err = m => { $("#wErr").textContent = m; };
+  const onFile = (id, fn) => { const el = $("#" + id); if (el) el.onchange = async e => {
+    collect(); err("Procesando foto…");
+    try { await fn([...e.target.files]); err(""); drawWizard(app); } catch (x) { err("No se pudo usar esa imagen. Probá con otra foto (JPG o PNG)."); }
+  }; };
+  onFile("wDni", async fs => { if (fs[0]) wz.dniImg = await compress(fs[0], 1200, 190000); });
+  onFile("wFoto", async fs => { if (fs[0]) wz.foto = await compress(fs[0], 260, 26000); });
+  onFile("wFotos", async fs => { for (const f of fs.slice(0, 8 - wz.fotos.length)) wz.fotos.push({ img: await compress(f, 1280, 180000) }); });
+  $$("[data-rm]").forEach(b => b.onclick = () => { wz.fotos.splice(+b.dataset.rm, 1); drawWizard(app); });
+  $$("#wOfi .chip").forEach(c => c.onclick = () => {
+    const o = c.dataset.v, on = !wz.oficios.includes(o);
+    wz.oficios = on ? [...wz.oficios, o] : wz.oficios.filter(x => x !== o);
+    c.setAttribute("aria-pressed", String(on));
+  });
+  if ($("#wBack")) $("#wBack").onclick = () => { collect(); wz.step--; drawWizard(app); window.scrollTo(0, 0); };
+  $("#wNext").onclick = async () => {
+    collect();
+    if (s === 0 && wz.nombre.length < 3) return err("Escribí tu nombre y apellido.");
+    if (s === 0 && !wz.dniImg && !wz.dniOld) return err("Subí la foto de tu DNI para crear el perfil.");
+    if (s === 1 && !wz.oficios.length && !wz.otro) return err("Elegí al menos un oficio.");
+    if (s === 2 && !wz.zona) return err("Decinos en qué zona trabajás.");
+    if (s === 2 && wz.tel && wz.tel.replace(/\D/g, "").length < 10) return err("El número parece incompleto. Poné código de país y de área.");
+    if (s === 4 && wz.sobre.length < 30) return err("Contá un poco más sobre vos (al menos un par de líneas).");
+    if (s === 5 && !(Number(wz.precio) > 0)) return err("Poné cuánto cobrás.");
+    if (s < STEPS.length - 1) { wz.step++; drawWizard(app); window.scrollTo(0, 0); return; }
+    const btn = $("#wNext"); btn.disabled = true; btn.textContent = "Guardando…"; err("");
+    try { await saveWorker(); const id = S.uid; wz = null; toast("¡Tu perfil está publicado!"); go("t", id); }
+    catch (x) { err(dbMsg(x)); btn.disabled = false; btn.textContent = "Intentar de nuevo"; }
+  };
+}
+async function saveWorker() {
+  const uid = S.uid, fotos = wz.fotos;
+  const oficios = [...wz.oficios, ...wz.otro.split(",").map(x => x.trim()).filter(Boolean)];
+  const portada = fotos[0] ? await compress(fotos[0].img, 640, 48000) : "";
+  if (wz.dniImg) await S.db.doc(`data/users/${uid}/dni`).set({ img: wz.dniImg, fecha: Date.now() });
+  await S.db.doc("trabajadores/" + uid).set({
+    nombre: wz.nombre, foto: wz.foto, dni: true, oficios, matricula: wz.matricula, zona: wz.zona, tel: wz.tel,
+    sobre: wz.sobre, precio: Number(wz.precio), unidad: wz.unidad, portada, nFotos: fotos.length,
+    creado: wz.creado || Date.now(), actualizado: Date.now(),
+  });
+  const keep = new Set(fotos.filter(f => f.k).map(f => f.k));
+  for (const k of wz.fotosOld) if (!keep.has(k)) await S.db.doc(`trabajadores/${uid}/fotos/${k}`).delete();
+  for (let i = 0; i < fotos.length; i++) {
+    const f = fotos[i];
+    if (!f.k) { f.k = "f" + Date.now().toString(36) + i; await S.db.doc(`trabajadores/${uid}/fotos/${f.k}`).set({ img: f.img, orden: i }); }
+    else if (f.orden !== i) await S.db.doc(`trabajadores/${uid}/fotos/${f.k}`).update({ orden: i });
+  }
+}
+
+/* ---------- Formulario de empresa ---------- */
+function vCompanyForm(app) {
+  const block = writeBlock();
+  if (block) { app.innerHTML = `<div class="form-wrap"><header><p class="eyebrow">Perfil de empresa</p><h1>Sumá tu empresa</h1></header><p class="notice">${esc(block)}</p><div><button class="btn ghost" data-go="home">Volver al inicio</button></div></div>`; return; }
+  const old = S.emp.get(S.uid) || {};
+  let logo = old.logo || "";
+  const chips = (list, sel, id) => `<div class="chips" id="${id}">${list.map(o => `<button type="button" class="chip" aria-pressed="${(sel || []).includes(o)}" data-v="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
+  app.innerHTML = `<div class="form-wrap">
+    <header><p class="eyebrow">${old.nombre ? "Editar empresa" : "Perfil de empresa"}</p><h1>${old.nombre ? esc(old.nombre) : "Sumá tu empresa"}</h1><p class="muted">Contale a los trabajadores quiénes son, qué hicieron y qué ofrecen.</p></header>
+    <div class="panel">
+      <div class="field"><label for="cNombre">Nombre de la empresa</label><input id="cNombre" type="text" value="${esc(old.nombre)}"></div>
+      <div class="field"><span class="lbl">Logo <span class="muted">(opcional)</span></span><label class="drop"><span id="cLogoTxt">${logo ? "Cambiar logo" : "Subir logo"}</span><input id="cLogo" type="file" accept="image/*"></label><div id="cLogoPrev">${logo ? `<img class="preview-av" style="border-radius:12px" src="${logo}" alt="Logo">` : ""}</div></div>
+      <div class="two" style="margin-top:18px"><div class="field"><label for="cRubro">Rubro</label><input id="cRubro" type="text" value="${esc(old.rubro)}" placeholder="Ej: Construcción"></div>
+        <div class="field" style="margin-top:0"><label for="cAnios">Años de trayectoria</label><input id="cAnios" type="number" min="0" value="${esc(old.anios || "")}"></div></div>
+      <div class="field"><label for="cZona">¿De dónde son?</label><input id="cZona" type="text" list="zonas" value="${esc(old.zona)}"></div>
+      <div class="field"><label for="cHorario">Horarios</label><input id="cHorario" type="text" value="${esc(old.horario)}" placeholder="Ej: Lunes a viernes de 7 a 16 h"></div>
+    </div>
+    <div class="panel">
+      <div class="field"><label for="cObras">Obras y trabajos realizados</label><textarea id="cObras" placeholder="Proyectos, clientes, locales, obras terminadas…">${esc(old.obras)}</textarea></div>
+      <div class="field"><label for="cSobre">Quiénes son</label><textarea id="cSobre" placeholder="Historia, valores, cómo es trabajar con ustedes…">${esc(old.sobre)}</textarea></div>
+    </div>
+    <div class="panel">
+      <div class="field"><span class="lbl">¿Qué le ofrecen a sus trabajadores?</span>${chips(BENEFICIOS, old.beneficios, "cBen")}</div>
+      <div class="field"><span class="lbl">¿Qué oficios están buscando?</span>${chips(OFICIOS, old.buscan, "cBusc")}</div>
+      <div class="field"><label for="cTel">WhatsApp de contacto</label><input id="cTel" type="tel" inputmode="tel" value="${esc(old.tel)}" placeholder="Ej: 54 9 11 1234 5678"></div>
+    </div>
+    <p class="err" id="cErr"></p>
+    <div class="form-nav"><button class="btn ghost" type="button" data-go="${old.nombre ? "e" : "home"}" ${old.nombre ? `data-id="${esc(S.uid)}"` : ""}>Cancelar</button><button class="btn vest" type="button" id="cSave">${old.nombre ? "Guardar cambios" : "Publicar empresa"}</button></div>
+  </div><datalist id="zonas">${zonaOptions()}</datalist>`;
+  $("#cLogo").onchange = async e => {
+    if (!e.target.files[0]) return;
+    try { logo = await compress(e.target.files[0], 260, 26000); $("#cLogoPrev").innerHTML = `<img class="preview-av" style="border-radius:12px" src="${logo}" alt="Logo">`; $("#cLogoTxt").textContent = "Cambiar logo"; }
+    catch (x) { $("#cErr").textContent = "No se pudo usar esa imagen. Probá con otra."; }
+  };
+  $$(".chip", app).forEach(c => c.onclick = () => c.setAttribute("aria-pressed", String(c.getAttribute("aria-pressed") !== "true")));
+  $("#cSave").onclick = async () => {
+    const v = id => $("#" + id).value.trim();
+    const picked = id => $$(`#${id} .chip[aria-pressed="true"]`).map(c => c.dataset.v);
+    const err = m => { $("#cErr").textContent = m; };
+    const c = { nombre: v("cNombre"), logo, rubro: v("cRubro"), anios: Math.max(0, parseInt(v("cAnios")) || 0), zona: v("cZona"), horario: v("cHorario"),
+      obras: v("cObras"), sobre: v("cSobre"), beneficios: picked("cBen"), buscan: picked("cBusc"), tel: v("cTel"), creado: old.creado || Date.now(), actualizado: Date.now() };
+    if (c.nombre.length < 2) return err("Poné el nombre de la empresa.");
+    if (!c.zona) return err("Decinos de dónde son.");
+    if (!c.horario) return err("Indicá los horarios de trabajo.");
+    if (c.tel && c.tel.replace(/\D/g, "").length < 10) return err("El número parece incompleto. Poné código de país y de área.");
+    const btn = $("#cSave"); btn.disabled = true; btn.textContent = "Guardando…"; err("");
+    try { await S.db.doc("empresas/" + S.uid).set(c); toast("Empresa publicada"); go("e", S.uid); }
+    catch (x) { err(dbMsg(x)); btn.disabled = false; btn.textContent = "Intentar de nuevo"; }
+  };
+}
+
+/* ---------- Arranque ---------- */
+mount();
+(async () => {
+  if (!window.claude || !window.claude.use) { S.offline = true; Object.keys(S.loaded).forEach(k => S.loaded[k] = true); refresh(); return; }
+  const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+  S.db = db; S.user = user;
+  if (user) { S.uid = await user.id(); S.canWrite = await user.can("data.write"); }
+  if (!db) { S.offline = true; Object.keys(S.loaded).forEach(k => S.loaded[k] = true); mount(); return; }
+  const onErr = () => {};
+  db.collection("trabajadores").onSnapshot(snap => { S.trab = new Map(snap.docs.map(d => [d.id, d.data()])); S.loaded.t = true; refresh(); }, onErr);
+  db.collection("empresas").onSnapshot(snap => { S.emp = new Map(snap.docs.map(d => [d.id, d.data()])); S.loaded.e = true; refresh(); }, onErr);
+  db.collection("resenas").onSnapshot(snap => {
+    S.res = new Map(snap.docs.map(d => [d.id, d.data()]));
+    const rev = new Map();
+    for (const [a, doc] of S.res) for (const [k, r] of Object.entries(doc.items || {})) {
+      if (!rev.has(k)) rev.set(k, []);
+      rev.get(k).push({ a, e: r.e, t: r.t, f: r.f });
+    }
+    S.rev = rev; S.loaded.r = true; refresh();
+  }, onErr);
+  mount();
+})();
+</script>
