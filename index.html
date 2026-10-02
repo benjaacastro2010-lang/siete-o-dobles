@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Juego de azar con dos dados: reglas, contador, espacio muestral, casos favorables, probabilidad y simulaciones.">
+<title>Siete o Dobles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: una mesa de juego arriba (dados + contador), debajo el trabajo práctico a–d en bloques apilados */
+:root {
+  --bg: #eef1ec;
+  --surface: #ffffff;
+  --felt: #1f5c45;
+  --felt-ink: #f3efe2;
+  --fg: #1b2420;
+  --muted: #5d6b64;
+  --line: #d3dbd5;
+  --accent: #c8452c;
+  --win: #1f7a4f;
+  --win-soft: #d6efe1;
+  --lose: #9b3a2a;
+  --die: #fbf8ef;
+  --pip: #1b2420;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111814; --surface: #19221d; --felt: #174634; --felt-ink: #f3efe2;
+    --fg: #e6ece8; --muted: #9aaba2; --line: #2c3a33; --accent: #ef7558;
+    --win: #5fd39a; --win-soft: #1d3a2c; --lose: #f08a74; --die: #f6f1e3; --pip: #1b2420;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111814; --surface: #19221d; --felt: #174634; --felt-ink: #f3efe2;
+  --fg: #e6ece8; --muted: #9aaba2; --line: #2c3a33; --accent: #ef7558;
+  --win: #5fd39a; --win-soft: #1d3a2c; --lose: #f08a74; --die: #f6f1e3; --pip: #1b2420;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.1; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.5rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow { font-size: .78rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); font-weight: 700; }
+.mono, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+header { display: grid; gap: 10px; }
+header p { color: var(--muted); }
+
+/* Reglas */
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.rule { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 8px; align-content: start; }
+.rule ol, .rule ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+.win-text { color: var(--win); font-weight: 700; }
+
+/* Mesa */
+.table { background: var(--felt); color: var(--felt-ink); border-radius: 18px; padding: 24px; display: grid; gap: 22px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center;
+  background-image: radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.08), transparent 65%); }
+@media (max-width: 720px) { .table { grid-template-columns: 1fr; } }
+.stage { display: grid; justify-items: center; gap: 16px; }
+.dice { display: flex; gap: 22px; }
+.die { width: 96px; height: 96px; background: var(--die); border-radius: 18px; padding: 14px;
+  display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  box-shadow: inset 0 -5px 0 rgba(0,0,0,.12), 0 8px 18px rgba(0,0,0,.3); }
+.pip { width: 16px; height: 16px; border-radius: 50%; background: var(--pip); place-self: center; visibility: hidden; }
+.pip.on { visibility: visible; }
+.die.rolling { animation: tumble .5s ease-out; }
+@keyframes tumble { 0% { transform: rotate(0) translateY(0); } 30% { transform: rotate(-200deg) translateY(-18px); } 70% { transform: rotate(-330deg) translateY(4px);} 100% { transform: rotate(-360deg) translateY(0);} }
+@media (prefers-reduced-motion: reduce) { .die.rolling { animation: none; } }
+.verdict { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; min-height: 2.2rem; text-align: center; }
+.verdict small { display: block; font-family: var(--font-body); font-size: .95rem; font-weight: 400; opacity: .85; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+button { font: inherit; font-weight: 700; border-radius: 999px; padding: 10px 18px; cursor: pointer; border: 2px solid var(--felt-ink); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-size: 1.05rem; padding: 12px 26px; }
+button.ghost { background: transparent; color: var(--felt-ink); }
+button:hover { filter: brightness(1.08); }
+button:focus-visible { outline: 3px solid var(--felt-ink); outline-offset: 3px; }
+
+.counter { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.stat { background: rgba(0,0,0,.18); border-radius: 12px; padding: 12px; display: grid; gap: 2px; }
+.stat .label { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; opacity: .8; }
+.stat .value { font-family: var(--font-mono); font-size: 1.9rem; font-variant-numeric: tabular-nums; }
+.stat.wide { grid-column: 1 / -1; }
+.bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,.18); position: relative; overflow: hidden; margin-top: 6px; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--felt-ink); width: 0; transition: width .3s; }
+.bar .mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--accent); left: 33.33%; }
+.goal { font-size: .85rem; opacity: .85; }
+
+/* Bloques del TP */
+section.part { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 14px; }
+.part-head { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.letter { font-family: var(--font-display); font-weight: 800; color: var(--accent); font-size: 1.5rem; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.space th, .space td { border: 1px solid var(--line); text-align: center; padding: 6px 8px; min-width: 64px; }
+.space th { background: var(--bg); font-family: var(--font-display); }
+.space td { font-family: var(--font-mono); font-size: .9rem; }
+.space td.fav { background: var(--win-soft); color: var(--win); font-weight: 700; }
+.space td .seen { display: block; font-size: .7rem; color: var(--muted); font-weight: 400; }
+.space td.last { outline: 3px solid var(--accent); outline-offset: -3px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .9rem; color: var(--muted); }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
+
+.cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.case { border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--font-mono); font-size: .85rem; padding: 3px 8px; border-radius: 6px; background: var(--win-soft); color: var(--win); }
+.chip.lose { background: var(--bg); color: var(--muted); }
+.formula { font-family: var(--font-mono); font-size: 1.15rem; background: var(--bg); border-radius: 10px; padding: 14px 16px; overflow-x: auto; }
+.formula b { color: var(--win); }
+
+.compare { width: 100%; }
+.compare th, .compare td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+.compare th:first-child, .compare td:first-child { text-align: left; }
+.compare th { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+
+.hist { display: grid; grid-template-columns: repeat(11, minmax(28px, 1fr)); gap: 6px; align-items: end; height: 180px; min-width: 380px; }
+.col { display: grid; grid-template-rows: 1fr auto; height: 100%; gap: 4px; }
+.col .bars { position: relative; }
+.col .obs { position: absolute; bottom: 0; left: 15%; right: 15%; background: var(--felt); border-radius: 4px 4px 0 0; transition: height .3s; }
+.col .obs.fav { background: var(--win); }
+.col .theo { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--accent); }
+.col .x { text-align: center; font-family: var(--font-mono); font-size: .8rem; color: var(--muted); }
+
+.log { display: flex; flex-wrap: wrap; gap: 6px; max-height: 180px; overflow-y: auto; }
+.log span { font-family: var(--font-mono); font-size: .8rem; padding: 3px 7px; border-radius: 6px; border: 1px solid var(--line); }
+.log span.w { background: var(--win-soft); color: var(--win); border-color: transparent; }
+.empty { color: var(--muted); font-style: italic; }
+.conclusion { border-left: 4px solid var(--accent); padding-left: 14px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Momento 3 · Actividad 3 · Juego de azar con dos dados</span>
+    <h1>Siete o Dobles</h1>
+    <p>Un juego para dos o más jugadores. Se tiran dos dados comunes de seis caras y se mira si la tirada es ganadora.</p>
+  </header>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="eyebrow">Condición para ganar</span>
+      <h3>Ganás la tirada si pasa una de estas dos cosas:</h3>
+      <ul>
+        <li>La <span class="win-text">suma de los dados es 7</span>, o</li>
+        <li>Salen <span class="win-text">dobles</span> (los dos dados muestran el mismo número).</li>
+      </ul>
+      <p>En cualquier otro caso, perdés la tirada.</p>
+    </div>
+    <div class="rule">
+      <span class="eyebrow">Cómo se juega una partida</span>
+      <ol>
+        <li>Los jugadores se turnan para tirar los dos dados a la vez.</li>
+        <li>Si la tirada es ganadora, el jugador suma 1 punto.</li>
+        <li>Cada jugador tira 10 veces.</li>
+        <li>Gana la partida quien junte más puntos. Si empatan, cada uno tira una vez más hasta desempatar.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="table" aria-label="Mesa de juego">
+    <div class="stage">
+      <div class="dice">
+        <div class="die" id="d1" role="img" aria-label="Dado 1"></div>
+        <div class="die" id="d2" role="img" aria-label="Dado 2"></div>
+      </div>
+      <div class="verdict" id="verdict" aria-live="polite">Tocá «Tirar dados»<small>para empezar a contar</small></div>
+      <div class="controls">
+        <button class="primary" id="btnRoll">Tirar dados</button>
+        <button class="ghost" id="btn30">Simular 30 tiradas</button>
+        <button class="ghost" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <div class="counter">
+      <div class="stat"><span class="label">Tiradas</span><span class="value" id="cTotal">0</span></div>
+      <div class="stat"><span class="label">Ganadas</span><span class="value" id="cWin">0</span></div>
+      <div class="stat"><span class="label">Perdidas</span><span class="value" id="cLose">0</span></div>
+      <div class="stat wide">
+        <span class="label">Frecuencia de victorias</span>
+        <span class="value" id="cFreq">—</span>
+        <div class="bar"><i id="freqBar"></i><span class="mark" title="Probabilidad teórica 33,3 %"></span></div>
+        <span class="goal">La raya naranja marca la probabilidad teórica (33,3 %). <span id="goal">Faltan 30 tiradas para llegar al mínimo del punto d.</span></span>
+      </div>
+    </div>
+  </div>
+
+  <section class="part">
+    <div class="part-head"><span class="letter">a)</span><h2>Todos los resultados posibles</h2></div>
+    <p>Cada dado puede salir de 1 a 6, así que el espacio muestral tiene <b>6 × 6 = 36</b> resultados igualmente probables. Las filas son el dado 1 y las columnas el dado 2. Debajo de cada par aparece cuántas veces salió en tus tiradas.</p>
+    <div class="scroll"><table class="space" id="space"></table></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--win-soft)"></span>Caso favorable (gana)</span>
+      <span><span class="swatch" style="background:var(--surface)"></span>Caso desfavorable (pierde)</span>
+      <span><span class="swatch" style="background:var(--surface);outline:3px solid var(--accent);outline-offset:-3px"></span>Última tirada</span>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-head"><span class="letter">b)</span><h2>Casos favorables de cada resultado</h2></div>
+    <div class="cases" id="cases"></div>
+  </section>
+
+  <section class="part">
+    <div class="part-head"><span class="letter">c)</span><h2>Probabilidad de ganar</h2></div>
+    <p>Usamos la regla de Laplace: casos favorables sobre casos posibles.</p>
+    <div class="formula">P(ganar) = <b>12</b> / 36 = <b>1/3</b> ≈ 0,333 = <b>33,3 %</b><br>
+      P(perder) = 24 / 36 = 2/3 ≈ 0,667 = 66,7 %</div>
+    <p>Como 6 + 6 = 12 y ninguna tirada que suma 7 es doble (7 es impar), los dos eventos no se pisan y se pueden sumar directamente. En promedio se gana 1 de cada 3 tiradas, así que en una partida de 10 tiradas se esperan unos 3 puntos.</p>
+  </section>
+
+  <section class="part">
+    <div class="part-head"><span class="letter">d)</span><h2>Simulaciones y comparación</h2></div>
+    <p>Hacé al menos 30 tiradas (de a una o con «Simular 30 tiradas») y compará lo que pasó con lo que predice la teoría.</p>
+    <div class="scroll">
+      <table class="compare">
+        <thead><tr><th>Resultado</th><th>Veces</th><th>Frecuencia relativa</th><th>Probabilidad teórica</th><th>Diferencia</th></tr></thead>
+        <tbody id="cmp"></tbody>
+      </table>
+    </div>
+    <h3>Suma de los dados: observado vs. esperado</h3>
+    <div class="scroll"><div class="hist" id="hist"></div></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--felt)"></span>Frecuencia observada</span>
+      <span><span class="swatch" style="background:var(--win)"></span>Suma 7</span>
+      <span><span class="swatch" style="border:none;border-top:2px dashed var(--accent);border-radius:0;height:8px"></span>Frecuencia esperada</span>
+    </div>
+    <h3>Registro de tiradas</h3>
+    <div class="log" id="log"></div>
+    <p class="conclusion" id="conclusion"></p>
+  </section>
+</div>
+
+<script>
+(function () {
+  const PIPS = { 1:[4], 2:[0,8], 3:[0,4,8], 4:[0,2,6,8], 5:[0,2,4,6,8], 6:[0,2,3,5,6,8] };
+  const isWin = (a, b) => a + b === 7 || a === b;
+  const fmtPct = x => (x * 100).toFixed(1).replace('.', ',') + ' %';
+  const $ = id => document.getElementById(id);
+
+  let rolls = [];
+  let face = [3, 4];
+
+  function drawDie(el, n) {
+    el.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+      const p = document.createElement('span');
+      p.className = 'pip' + (PIPS[n].includes(i) ? ' on' : '');
+      el.appendChild(p);
+    }
+    el.setAttribute('aria-label', 'Dado mostrando ' + n);
+  }
+
+  function rand() { return 1 + Math.floor(Math.random() * 6); }
+
+  function roll(animate) {
+    const a = rand(), b = rand();
+    rolls.push({ a, b, win: isWin(a, b) });
+    face = [a, b];
+    if (animate) {
+      [$('d1'), $('d2')].forEach(d => { d.classList.remove('rolling'); void d.offsetWidth; d.classList.add('rolling'); });
+    }
+  }
+
+  function render() {
+    drawDie($('d1'), face[0]);
+    drawDie($('d2'), face[1]);
+    const n = rolls.length;
+    const w = rolls.filter(r => r.win).length;
+    $('cTotal').textContent = n;
+    $('cWin').textContent = w;
+    $('cLose').textContent = n - w;
+    $('cFreq').textContent = n ? w + '/' + n + ' = ' + fmtPct(w / n) : '—';
+    $('freqBar').style.width = n ? (w / n * 100) + '%' : '0';
+    $('goal').textContent = n >= 30 ? 'Ya hiciste ' + n + ' tiradas: alcanza para el punto d.' : 'Faltan ' + (30 - n) + ' tiradas para llegar al mínimo del punto d.';
+
+    const last = rolls[n - 1];
+    if (last) {
+      const s = last.a + last.b;
+      const why = last.a === last.b ? 'Salieron dobles de ' + last.a : s === 7 ? 'La suma es 7' : 'Suma ' + s + ', no son dobles';
+      $('verdict').innerHTML = (last.win ? '¡Ganaste!' : 'Perdiste') + '<small>' + last.a + ' + ' + last.b + ' · ' + why + '</small>';
+    } else {
+      $('verdict').innerHTML = 'Tocá «Tirar dados»<small>para empezar a contar</small>';
+    }
+
+    // a) espacio muestral
+    const seen = {};
+    rolls.forEach(r => { const k = r.a + ',' + r.b; seen[k] = (seen[k] || 0) + 1; });
+    let html = '<tr><th>D1 \\ D2</th>' + [1,2,3,4,5,6].map(j => '<th>' + j + '</th>').join('') + '</tr>';
+    for (let i = 1; i <= 6; i++) {
+      html += '<tr><th>' + i + '</th>';
+      for (let j = 1; j <= 6; j++) {
+        const k = i + ',' + j;
+        const cls = [isWin(i, j) ? 'fav' : '', last && last.a === i && last.b === j ? 'last' : ''].join(' ').trim();
+        html += '<td class="' + cls + '">(' + k + ')<span class="seen">' + (seen[k] ? seen[k] + '×' : '·') + '</span></td>';
+      }
+      html += '</tr>';
+    }
+    $('space').innerHTML = html;
+
+    // d) comparación
+    const theo = { win: 12/36, lose: 24/36 };
+    const row = (name, k, p) => {
+      const f = n ? k / n : null;
+      return '<tr><td>' + name + '</td><td class="num">' + k + '</td><td class="num">' + (f === null ? '—' : fmtPct(f)) +
+        '</td><td class="num">' + fmtPct(p) + '</td><td class="num">' + (f === null ? '—' : (f - p >= 0 ? '+' : '') + ((f - p) * 100).toFixed(1).replace('.', ',') + ' pts') + '</td></tr>';
+    };
+    $('cmp').innerHTML = row('Gana', w, theo.win) + row('Pierde', n - w, theo.lose);
+
+    // histograma de sumas
+    const counts = Array(13).fill(0);
+    rolls.forEach(r => counts[r.a + r.b]++);
+    const ways = s => 6 - Math.abs(s - 7);
+    const maxF = Math.max(6/36, ...counts.map(c => n ? c / n : 0)) * 1.1;
+    let h = '';
+    for (let s = 2; s <= 12; s++) {
+      const f = n ? counts[s] / n : 0;
+      h += '<div class="col" title="Suma ' + s + ': ' + counts[s] + ' veces; esperado ' + ways(s) + '/36"><div class="bars">' +
+        '<div class="obs' + (s === 7 ? ' fav' : '') + '" style="height:' + (f / maxF * 100) + '%"></div>' +
+        '<div class="theo" style="bottom:' + (ways(s) / 36 / maxF * 100) + '%"></div></div><div class="x">' + s + '</div></div>';
+    }
+    $('hist').innerHTML = h;
+
+    // registro
+    $('log').innerHTML = n ? rolls.map((r, i) => '<span class="' + (r.win ? 'w' : '') + '">#' + (i + 1) + ' ' + r.a + '+' + r.b + '</span>').join('')
+      : '<span class="empty" style="border:none">Todavía no hay tiradas.</span>';
+
+    // conclusión
+    let c;
+    if (n === 0) c = 'Cuando tengas tiradas, acá aparece la comparación entre lo experimental y lo teórico.';
+    else if (n < 30) c = 'Llevás ' + n + ' tiradas. Con pocas tiradas la frecuencia puede alejarse bastante de 33,3 %. Seguí hasta 30 o más.';
+    else {
+      const diff = Math.abs(w / n - 1/3) * 100;
+      c = 'Con ' + n + ' tiradas se ganó ' + w + ' veces (' + fmtPct(w / n) + '), frente al 33,3 % teórico: una diferencia de ' +
+        diff.toFixed(1).replace('.', ',') + ' puntos. ' +
+        (diff <= 8 ? 'El resultado experimental se parece bastante al teórico.' : 'La diferencia es notable, algo normal con pocas tiradas por el azar.') +
+        ' Cuantas más tiradas se hacen, más se acerca la frecuencia relativa a la probabilidad (ley de los grandes números).';
+    }
+    $('conclusion').textContent = c;
+  }
+
+  function renderCases() {
+    const all = [];
+    for (let i = 1; i <= 6; i++) for (let j = 1; j <= 6; j++) all.push([i, j]);
+    const seven = all.filter(([a, b]) => a + b === 7);
+    const dbl = all.filter(([a, b]) => a === b);
+    const lose = all.filter(([a, b]) => !isWin(a, b));
+    const chips = (arr, cls) => '<div class="chips">' + arr.map(([a, b]) => '<span class="chip ' + (cls || '') + '">(' + a + ',' + b + ')</span>').join('') + '</div>';
+    $('cases').innerHTML =
+      '<div class="case"><h3>Gana por suma 7 · 6 casos</h3>' + chips(seven) + '</div>' +
+      '<div class="case"><h3>Gana por dobles · 6 casos</h3>' + chips(dbl) + '</div>' +
+      '<div class="case"><h3>Ganar en total · 12 casos</h3><p>6 de suma 7 + 6 dobles = 12 casos favorables de 36.</p></div>' +
+      '<div class="case" style="grid-column:1/-1"><h3>Perder · 24 casos</h3>' + chips(lose, 'lose') + '</div>';
+  }
+
+  $('btnRoll').addEventListener('click', () => { roll(true); render(); });
+  $('btn30').addEventListener('click', () => { for (let i = 0; i < 29; i++) roll(false); roll(true); render(); });
+  $('btnReset').addEventListener('click', () => { rolls = []; face = [3, 4]; render(); });
+
+  window.claude?.hot?.snapshot?.(() => ({ rolls, face }));
+  function start(data) {
+    if (data && Array.isArray(data.rolls)) { rolls = data.rolls; face = data.face || face; }
+    renderCases();
+    render();
+  }
+  window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+</body>
+</html>
