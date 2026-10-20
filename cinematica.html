@@ -447,8 +447,6 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
       <div><div class="formula" style="font-size:1.3rem"><i>v</i> = <i>v</i>₀ + <i>a</i> · <i>t</i></div><div class="live" id="v_l1"></div></div>
       <div><div class="formula" style="font-size:1.3rem"><i>x</i> = <i>x</i>₀ + <i>v</i>₀ · <i>t</i> + ½ · <i>a</i> · <i>t</i>²</div><div class="live" id="v_l2"></div></div>
     </div>
-    <div class="formula" style="font-size:1.2rem"><i>a</i> = (<i>v</i> − <i>v</i>₀) / <i>t</i> <span class="note" style="font-family:var(--sans)">(si t ≠ 0)</span></div>
-    <div class="live" id="v_l3"></div>
   </div>
 </div>
 </section>
@@ -936,7 +934,7 @@ function frameS1(dt){
     if (m === 'distancia'){
       ctx.save(); ctx.setLineDash([7,6]); ctx.strokeStyle = C.violet; ctx.lineWidth = 2.5; seg(ctx, P.poly[0][0], P.poly[0][1], q.x, q.y); ctx.restore();
       const disp = Math.hypot(q.x-P.poly[0][0], q.y-P.poly[0][1])*k;
-      hud(ctx, 14, 14, [`Distancia recorrida: ${fmt(sNow*k,0)} m`, `Desplazamiento:      ${fmt(disp,0)} m`], C.amber);
+      hud(ctx, 14, 14, [`Distancia: ${fmt(sNow*k,0)} m`], C.amber); void disp;
     }
     if (m === 'tiempo'){
       for (let i = 0; i <= Math.floor(tm+1e-9); i++){ const p = pathAt(P, i/DUR*P.len); dot(ctx, p.x, p.y, 6, C.pink); text(ctx, i+' s', p.x, p.y-20, {color:C.pink, font:'700 12px '+MONO, bg:'rgba(6,10,28,.85)'}); }
@@ -979,15 +977,14 @@ function frameS1(dt){
     if (pxk - lastLbl > 26){ text(ctx, i+' s', pxk, yc-rh/2-14, {color:isV ? C.violet : C.amber, font:'700 12px '+MONO}); lastLbl = pxk; }
     if (i > 0){
       const a = X(xOf(i-1)), b = pxk;
-      if (b - a > 34){ ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.2; seg(ctx, a, yc-rh/2-32, b, yc-rh/2-32); ctx.restore();
-        text(ctx, fs(xOf(i)-xOf(i-1)) + ' m', (a+b)/2, yc-rh/2-44, {color:C.text, font:'600 11px '+MONO}); }
+
     }
   }
   drawCar(ctx, X(x), yc+rh*0.3, s, isV ? C.violet : C.amber, 1, X(x)/(WHEEL_R*s));
   posMarker(ctx, X(x), yc+rh/2+16, isV ? C.violet : C.amber);
   hud(ctx, 14, 12, isV
-    ? [`t = ${fmt(tm,1)} s`, `x = ${fmt(x,1)} m`, `v = Δx/Δt = 10 m/s`]
-    : [`t = ${fmt(tm,1)} s`, `v = ${fmt(v,1)} m/s`, `a = Δv/Δt = 2 m/s²`], isV ? C.violet : C.amber);
+    ? [`v = 10 m/s (constante)`]
+    : [`v = ${fmt(v,0)} m/s (aumenta)`], isV ? C.violet : C.amber);
 }
 
 /* =========================================================
@@ -1002,7 +999,7 @@ for (const pre of ['m','g']){
   bind(pre+'_v',  () => MRU.v,  v => setMRU('v', v),  v => fs(v)+' m/s');
   bind(pre+'_T',  () => MRU.T,  v => setMRU('T', v),  v => fs(v)+' s');
 }
-bind('m_t', () => MRU.t, v => { MRU.t = v; MRU.running = false; }, v => fmt(v,2)+' s', () => MRU.T);
+bind('m_t', () => MRU.t, v => { MRU.t = v; MRU.running = false; }, v => fmt(v,1)+' s', () => MRU.T);
 wirePlay('m_play','m_reset',MRU); wirePlay('g_play','g_reset',MRU); wireSpeed('m_speed', MRU);
 $('m_example').addEventListener('click', () => { MRU.x0 = 0; MRU.v = 5; MRU.T = 8; MRU.t = 0; MRU.running = true; });
 const G3 = {compare:true};
@@ -1015,12 +1012,11 @@ function drawMRUTrack(cv, compact){
   const X = makeScale(w, MRU.XMIN, MRU.XMAX);
   const s = clamp(w/1000, .7, 1.1)*(compact ? .85 : 1);
   const rh = Math.min(66, h*(compact ? .38 : .3)), yc = compact ? h*0.4 : h*0.46, ry = yc+rh/2+16;
-  drawRoad(ctx, X, yc, rh); drawRuler(ctx, X, ry, w < 700 ? 20 : 10);
+  drawRoad(ctx, X, yc, rh); drawRuler(ctx, X, ry, 20);
   if (!compact) flag(ctx, X(MRU.x0), yc-rh/2-34, yc+rh/2, 'x₀ = '+fs(MRU.x0)+' m', C.green);
   let last = -1e9;
   for (let k = 1; k <= Math.floor(MRU.t+1e-9); k++){
     const px = X(mruX(k)); dot(ctx, px, yc, 4.5, C.pink);
-    if (!compact && Math.abs(px-last) > 24){ text(ctx, k+' s', px, yc-rh/2-12, {color:C.pink, font:'700 11px '+MONO}); last = px; }
   }
   const x = mruX(MRU.t), px = X(x), dir = MRU.v < 0 ? -1 : 1;
   if (MRU.v !== 0) arrow(ctx, px, yc-rh/2-(compact?8:30), px + dir*clamp(Math.abs(MRU.v)*7, 14, 80), yc-rh/2-(compact?8:30), C.violet, 3);
@@ -1045,26 +1041,25 @@ function hlTable(el, t){
 function frameS2(dt){
   simStep(MRU, dt); drawMRUTrack($('cvMRU'), false);
   const x = mruX(MRU.t);
-  setTxt('m_ro_t', fmt(MRU.t,2)+' s'); setTxt('m_ro_x', fmt(x,2)+' m'); setTxt('m_ro_v', fs(MRU.v)+' m/s'); setTxt('m_ro_a', '0 m/s²');
-  setHTML('m_live', `x = x₀ + v · t = ${fsp(MRU.x0)} + ${fsp(MRU.v)} · ${fmt(MRU.t,2)} = <b>${fmt(x,2)} m</b>`);
+  setTxt('m_ro_t', fmt(MRU.t,1)+' s'); setTxt('m_ro_x', fmt(x,1)+' m'); setTxt('m_ro_v', fs(MRU.v)+' m/s'); setTxt('m_ro_a', '0 m/s²');
+  setHTML('m_live', `x = ${fsp(MRU.x0)} + ${fsp(MRU.v)} · ${fmt(MRU.t,1)} = <b>${fmt(x,1)} m</b>`);
   setTxt('m_dx', fs(MRU.v)+' m');
 }
 function frameS3(dt){
   simStep(MRU, dt);
   drawMRUTrack($('cvG3t'), true);
   const {ctx,w,h} = fitCanvas($('cvG3'));
-  const P = Plot(ctx, w, h, {xmin:0, xmax:10, ymin:MRU.XMIN, ymax:MRU.XMAX, xstep:1, ystep:20, xlabel:'tiempo t (s)', ylabel:'posición x (m)'});
+  const P = Plot(ctx, w, h, {xmin:0, xmax:10, ymin:MRU.XMIN, ymax:MRU.XMAX, xstep:2, ystep:20, xlabel:'tiempo t (s)', ylabel:'posición x (m)'});
   P.axes();
   if (G3.compare) PRESETS.forEach(p => {
     const f = t => MRU.x0 + p.v*t; P.curve(f, 0, 10, p.color+'66', 2, [7,6], false);
-    const tl = Math.min(9.5, (MRU.XMAX - 6 - MRU.x0)/p.v); text(ctx, p.name+' ('+p.v+' m/s)', P.X(tl), P.Y(f(tl))-12, {color:p.color, font:'700 12px '+MONO, align:'right'});
+    const tl = Math.min(9.5, (MRU.XMAX - 6 - MRU.x0)/p.v); text(ctx, p.name, P.X(tl), P.Y(f(tl))-12, {color:p.color, font:'700 12px '+MONO, align:'right'});
   });
   P.curve(mruX, 0, MRU.T, 'rgba(34,211,238,.28)', 2, [3,6], false);
   P.curve(mruX, 0, MRU.t, C.cyan, 4.5);
   const pw1 = P.pw/10; let lastY = null;
   for (let k = 0; k <= Math.floor(MRU.t+1e-9); k++){
     const xk = mruX(k); dot(ctx, P.X(k), P.Y(xk), 5.5, C.cyan);
-    if (pw1 > 38 || k % 2 === 0) text(ctx, fs(xk)+' m', P.X(k)-6, P.Y(xk)-15, {color:C.text, font:'600 11px '+MONO, align:'right', bg:'rgba(6,10,28,.7)'});
   }
   if (MRU.t >= 2 && MRU.v !== 0){
     const a = 1, b = 2, ya = mruX(a), yb = mruX(b);
@@ -1074,8 +1069,7 @@ function frameS3(dt){
     text(ctx, 'Δx = '+fs(MRU.v)+' m', P.X(b)+8, (P.Y(ya)+P.Y(yb))/2, {color:C.amber, font:'700 12px '+MONO, align:'left', bg:'rgba(6,10,28,.8)'});
   }
   const xn = mruX(MRU.t); P.guides(MRU.t, xn, C.cyan); dot(ctx, P.X(MRU.t), P.Y(xn), 8, '#fff');
-  text(ctx, `(${fmt(MRU.t,1)} s ; ${fmt(xn,1)} m)`, P.X(MRU.t)+12, P.Y(xn)+ (MRU.v >= 0 ? 18 : -18), {color:C.cyan, font:'700 13px '+MONO, align:'left', bg:'rgba(6,10,28,.85)'});
-  hud(ctx, P.x0+10, P.y0+10, ['x = ' + linTxt(MRU.v, MRU.x0), 'pendiente m = v = ' + fs(MRU.v) + ' m/s'], C.cyan);
+  hud(ctx, P.x0+10, P.y0+10, ['pendiente = v = ' + fs(MRU.v) + ' m/s'], C.cyan);
   setHTML('g_live', `Ahora: <b>x = ${linTxt(MRU.v, MRU.x0)}</b> &nbsp;→&nbsp; m = <span class="lv">${fs(MRU.v)} m/s</span>, b = <span class="lv">${fs(MRU.x0)} m</span>`);
   document.querySelectorAll('#g_presets [data-v], #g_neg').forEach(b => b.classList.toggle('sel', parseFloat(b.dataset.v) === MRU.v));
 }
@@ -1111,7 +1105,7 @@ $('p_reset').addEventListener('click', () => { S4.tA = 2; S4.tB = 6; });
 })();
 function frameS4(){
   const {ctx,w,h} = fitCanvas($('cv4'));
-  const P = Plot(ctx, w, h, {xmin:0, xmax:10, ymin:-40, ymax:100, xstep:1, ystep:20, xlabel:'tiempo t (s)', ylabel:'posición x (m)'}); S4.P = P;
+  const P = Plot(ctx, w, h, {xmin:0, xmax:10, ymin:-40, ymax:100, xstep:2, ystep:20, xlabel:'tiempo t (s)', ylabel:'posición x (m)'}); S4.P = P;
   P.axes(); P.curve(s4x, 0, 10, C.violet, 4);
   const xA = s4x(S4.tA), xB = s4x(S4.tB);
   if (S4.tA !== S4.tB){
@@ -1125,13 +1119,12 @@ function frameS4(){
     P.guides(t, x, col);
     ctx.save(); ctx.globalAlpha = .25 + .1*Math.sin(performance.now()/300); dot(ctx, P.X(t), P.Y(x), 18, col, false); ctx.restore();
     dot(ctx, P.X(t), P.Y(x), 10, col); text(ctx, n, P.X(t), P.Y(x), {color:'#0b0f26', font:'700 13px '+SANS});
-    text(ctx, `${n} (${fs(t)} s ; ${fs(x)} m)`, P.X(t)-14, P.Y(x)-24, {color:col, font:'700 12px '+MONO, align:'right', bg:'rgba(6,10,28,.85)'});
   });
-  setTxt('p_A', `t=${fmt(S4.tA,1)} s · x=${fmt(xA,1)} m`); setTxt('p_B', `t=${fmt(S4.tB,1)} s · x=${fmt(xB,1)} m`);
+  setTxt('p_A', `${fmt(xA,0)} m`); setTxt('p_B', `${fmt(xB,0)} m`);
   const dT = S4.tB - S4.tA, dX = xB - xA;
   setTxt('p_dt', fmt(dT,1)+' s'); setTxt('p_dx', fmt(dX,1)+' m');
   if (Math.abs(dT) < 1e-9) setHTML('p_live', 'Δt = 0 → no se puede dividir. Separá los puntos A y B.');
-  else setHTML('p_live', `v = Δx / Δt = ${par(dX,1)} m / ${par(dT,1)} s = <b>${fmt(dX/dT,2)} m/s</b><br><span class="note" style="font-family:var(--sans)">¡Coincide con la pendiente de la recta (m = ${fs(S4.v)})!</span>`);
+  else setHTML('p_live', `v = Δx / Δt = ${par(dX,1)} m / ${par(dT,1)} s = <b>${fmt(dX/dT,1)} m/s</b><br><span class="note" style="font-family:var(--sans)">= pendiente de la recta</span>`);
 }
 
 /* =========================================================
@@ -1145,7 +1138,7 @@ bind('v_x0', () => MV.x0, v => MV.x0 = v, v => fs(v)+' m');
 bind('v_v0', () => MV.v0, v => MV.v0 = v, v => fs(v)+' m/s');
 bind('v_a',  () => MV.a,  v => MV.a = v,  v => fs(v)+' m/s²');
 bind('v_T',  () => MV.T,  v => { MV.T = v; MV.t = Math.min(MV.t, v); }, v => fs(v)+' s');
-bind('v_t',  () => MV.t,  v => { MV.t = v; MV.running = false; }, v => fmt(v,2)+' s', () => MV.T);
+bind('v_t',  () => MV.t,  v => { MV.t = v; MV.running = false; }, v => fmt(v,1)+' s', () => MV.T);
 wirePlay('v_play','v_reset',MV); wireSpeed('v_speed', MV);
 document.querySelectorAll('[data-ex]').forEach(b => b.addEventListener('click', () => {
   Object.assign(MV, b.dataset.ex === 'acel' ? {x0:0, v0:0, a:2, T:8} : {x0:0, v0:8, a:-2, T:8}, {t:0, running:true});
@@ -1161,7 +1154,7 @@ function frameS5(dt){
   simStep(MV, dt);
   const {ctx,w,h} = fitCanvas($('cvMV'));
   const [mn, mx] = motionRange(mvX, MV.T, [MV.x0]);
-  const R = niceRange(mn, mx, Math.max(4, Math.floor(w/95)));
+  const R = niceRange(mn, mx, Math.max(3, Math.floor(w/160)));
   const X = makeScale(w, R.min, R.max);
   const s = clamp(w/1000, .7, 1.1), rh = Math.min(64, h*.24), yc = h*0.56, ry = yc+rh/2+16;
   drawRoad(ctx, X, yc, rh); drawRuler(ctx, X, ry, R.step);
@@ -1169,12 +1162,10 @@ function frameS5(dt){
   const ts = stopTime(MV.v0, MV.a);
   if (ts !== null && ts < MV.T){
     const pxs = X(mvX(ts)); ctx.save(); ctx.strokeStyle = C.amber; ctx.setLineDash([3,5]); ctx.lineWidth = 1.5; seg(ctx, pxs, yc-rh/2-6, pxs, yc+rh/2+6); ctx.restore();
-    text(ctx, `v = 0 en t = ${fs(ts)} s`, pxs, yc+rh/2-8, {color:C.amber, font:'700 11px '+MONO, bg:'rgba(6,10,28,.85)'});
   }
   let last = -1e9;
   for (let k = 1; k <= Math.floor(MV.t+1e-9); k++){
     const px = X(mvX(k)); dot(ctx, px, yc, 4.5, C.pink);
-    if (Math.abs(px-last) > 24){ text(ctx, k+' s', px, yc-rh/2-12, {color:C.pink, font:'700 11px '+MONO}); last = px; }
   }
   const x = mvX(MV.t), v = mvV(MV.t), px = X(x);
   if (Math.abs(v) > 1e-6) MV.dir = Math.sign(v); else if (MV.a !== 0 && MV.t < 1e-9) MV.dir = Math.sign(MV.a);
@@ -1184,18 +1175,17 @@ function frameS5(dt){
   if (MV.a !== 0){ arrow(ctx, px, ay, px + MV.a*22, ay, C.amber, 3.5); text(ctx, 'a', px + MV.a*22 + Math.sign(MV.a)*12, ay, {color:C.amber, font:'700 14px '+MONO}); }
   else text(ctx, 'a = 0', px, ay, {color:C.amber, font:'700 13px '+MONO});
   drawCar(ctx, px, yc+rh*0.3, s, C.cyan, MV.dir, px/(WHEEL_R*s));
-  posMarker(ctx, px, ry, C.cyan, 'x = '+fmt(x,1)+' m');
-  setTxt('v_ro_t', fmt(MV.t,2)+' s'); setTxt('v_ro_x', fmt(x,2)+' m'); setTxt('v_ro_v', fmt(v,2)+' m/s'); setTxt('v_ro_a', fs(MV.a)+' m/s²');
-  const tt = fmt(MV.t,2);
-  setHTML('v_l1', `v = ${fsp(MV.v0)} + ${fsp(MV.a)} · ${tt} = <b>${fmt(v,2)} m/s</b>`);
-  setHTML('v_l2', `x = ${fsp(MV.x0)} + ${fsp(MV.v0)} · ${tt} + ½ · ${fsp(MV.a)} · ${tt}² = <b>${fmt(x,2)} m</b>`);
+  posMarker(ctx, px, ry, C.cyan);
+  setTxt('v_ro_t', fmt(MV.t,1)+' s'); setTxt('v_ro_x', fmt(x,1)+' m'); setTxt('v_ro_v', fmt(v,1)+' m/s'); setTxt('v_ro_a', fs(MV.a)+' m/s²');
+  const tt = fmt(MV.t,1);
+  setHTML('v_l1', `v = ${fsp(MV.v0)} + ${fsp(MV.a)} · ${tt} = <b>${fmt(v,1)} m/s</b>`);
+  setHTML('v_l2', `x = ${fsp(MV.x0)} + ${fsp(MV.v0)} · ${tt} + ½ · ${fsp(MV.a)} · ${tt}² = <b>${fmt(x,1)} m</b>`);
   setHTML('v_l3', MV.t < 1e-9 ? 't = 0 → todavía no se puede calcular (no se divide por cero). Iniciá la simulación.'
     : `a = (${par(v,2)} − ${fsp(MV.v0)}) / ${tt} = <b>${fmt((v-MV.v0)/MV.t,2)} m/s²</b> &nbsp;<span class="note" style="font-family:var(--sans)">← siempre igual: ¡es constante!</span>`);
   let ev;
   if (MV.a === 0) ev = 'a = 0 → la velocidad no cambia: es un MRU.';
-  else if (ts !== null && ts < MV.T) ev = MV.t < ts ? `⚠️ La velocidad y la aceleración tienen sentidos opuestos: el auto frena. Se detendrá en t = ${fs(ts)} s y después cambiará de sentido.`
-    : `↩ En t = ${fs(ts)} s el auto se detuvo (v = 0) en x = ${fs(mvX(ts))} m y cambió de sentido. Ahora la velocidad tiene el mismo signo que la aceleración: acelera hacia el otro lado.`;
-  else if (ts !== null) ev = `El auto frena: llegaría a v = 0 en t = ${fs(ts)} s (después del final de la simulación).`;
+  else if (ts !== null && ts < MV.T) ev = MV.t < ts ? '⚠️ El auto frena: se va a detener y cambiar de sentido.' : '↩ Se detuvo (v = 0) y cambió de sentido.';
+  else if (ts !== null) ev = 'El auto frena.';
   else if (MV.v0 === 0) ev = 'Parte del reposo (v₀ = 0) y la velocidad crece uniformemente.';
   else ev = 'La velocidad y la aceleración tienen el mismo sentido: el auto va cada vez más rápido.';
   setTxt('v_event', ev);
@@ -1217,7 +1207,7 @@ function frameS6(dt){
   const fx = (a,t) => AC.v0*t + 0.5*a*t*t, fv = (a,t) => AC.v0 + a*t;
   let mn = 0, mx = 0;
   LANES.forEach(L => { const [a,b] = motionRange(t => fx(L.a(),t), AC.T, [0]); mn = Math.min(mn,a); mx = Math.max(mx,b); });
-  const R = niceRange(mn, mx, Math.max(4, Math.floor(w/95)));
+  const R = niceRange(mn, mx, Math.max(3, Math.floor(w/160)));
   const X = makeScale(w, R.min, R.max);
   const s = clamp(w/1000, .6, 1)*.85, rh = Math.min(48, h*.17), gap = (h-60)/3;
   LANES.forEach((L,i) => {
@@ -1227,7 +1217,7 @@ function frameS6(dt){
     const x = fx(a, AC.t), v = fv(a, AC.t);
     if (Math.abs(v) > 1e-6) AC.dirs[i] = Math.sign(v);
     drawCar(ctx, X(x), yc+rh*0.32, s, L.color, AC.dirs[i], X(x)/(WHEEL_R*s));
-    text(ctx, `${L.name} · a = ${signed(a)} m/s² · v = ${fmt(v,1)} m/s`, X.L-30, yc-rh/2-10, {color:L.color, font:'700 12px '+MONO, align:'left'});
+    text(ctx, `${L.name} · ${a > 0 ? 'acelera (a > 0)' : a < 0 ? 'frena (a < 0)' : 'velocidad constante (a = 0)'}`, X.L-30, yc-rh/2-10, {color:L.color, font:'700 12px '+MONO, align:'left'});
   });
   drawRuler(ctx, X, h-26, R.step);
   // gráfica v-t
@@ -1240,10 +1230,10 @@ function frameS6(dt){
     const a = L.a(), f = t => fv(a,t);
     P.curve(f, 0, AC.T, L.color+'40', 2, [4,6], false); P.curve(f, 0, AC.t, L.color, 4);
     dot(g.ctx, P.X(AC.t), P.Y(f(AC.t)), 6, L.color);
-    text(g.ctx, 'pendiente = a = '+signed(a), P.X(AC.T)-6, P.Y(f(AC.T)) + (a >= 0 ? -14 : 14), {color:L.color, font:'700 12px '+MONO, align:'right', bg:'rgba(6,10,28,.8)'});
+    text(g.ctx, a > 0 ? 'sube: a > 0' : a < 0 ? 'baja: a < 0' : 'horizontal: a = 0', P.X(AC.T)-6, P.Y(f(AC.T)) + (a >= 0 ? -14 : 14), {color:L.color, font:'700 12px '+MONO, align:'right', bg:'rgba(6,10,28,.8)'});
   });
   const ts = AC.v0/(-AC.aN);
-  if (ts > 0 && ts < AC.T && AC.t >= ts){ dot(g.ctx, P.X(ts), P.Y(0), 7, '#fff'); text(g.ctx, `Auto 3 se detiene (t = ${fs(ts)} s) y cambia de sentido`, P.X(ts)+10, P.Y(0)+16, {color:C.pink, font:'700 12px '+MONO, align:'left', bg:'rgba(6,10,28,.85)'}); }
+  if (ts > 0 && ts < AC.T && AC.t >= ts){ dot(g.ctx, P.X(ts), P.Y(0), 7, '#fff'); text(g.ctx, 'Auto 3 se detiene y cambia de sentido', P.X(ts)+10, P.Y(0)+16, {color:C.pink, font:'700 12px '+MONO, align:'left', bg:'rgba(6,10,28,.85)'}); }
   drawAQ();
 }
 function drawAQ(){
@@ -1283,9 +1273,9 @@ function frameS7(dt){
   const cmpA = [-2, 0, 2];
   let mn = Infinity, mx = -Infinity;
   [...cmpA, PB.a].forEach(a => { const [p,q] = motionRange(t => pbX(t,a), PB.T, [PB.x0]); mn = Math.min(mn,p); mx = Math.max(mx,q); });
-  const R = niceRange(mn, mx, 7);
+  const R = niceRange(mn, mx, 5);
   const railW = Math.min(90, w*0.12);
-  const P = Plot(ctx, w, h, {xmin:0, xmax:PB.T, ymin:R.min, ymax:R.max, xstep:1, ystep:R.step, xlabel:'tiempo t (s)', ylabel:'posición x (m)', pad:{l:railW+72}});
+  const P = Plot(ctx, w, h, {xmin:0, xmax:PB.T, ymin:R.min, ymax:R.max, xstep:2, ystep:R.step, xlabel:'tiempo t (s)', ylabel:'posición x (m)', pad:{l:railW+72}});
   P.axes();
   // riel vertical: el auto se mueve sobre el eje de posiciones
   const rx = railW/2 + 6;
@@ -1311,17 +1301,15 @@ function frameS7(dt){
   ctx.save(); ctx.strokeStyle = 'rgba(251,191,36,.7)'; ctx.setLineDash([5,5]); ctx.lineWidth = 1.5; seg(ctx, rx+railW*0.32, py, pxp, py);
   const yAx = (R.min <= 0 && R.max >= 0) ? P.Y(0) : P.y0+P.ph; seg(ctx, pxp, py, pxp, yAx); ctx.restore();
   dot(ctx, pxp, py, 8, '#fff');
-  text(ctx, `(${fmt(PB.t,1)} s ; ${fmt(x,1)} m)`, pxp+12, py + (PB.a >= 0 ? 16 : -16), {color:C.amber, font:'700 13px '+MONO, align:'left', bg:'rgba(6,10,28,.85)'});
   if (Math.abs(v) > 1e-6) PB.dir = Math.sign(v); else if (PB.a !== 0 && PB.t < 1e-9) PB.dir = Math.sign(PB.a);
   const s = clamp(railW/90, .55, 1)*0.75;
   ctx.save(); ctx.translate(rx, py); ctx.rotate(-Math.PI/2); drawCar(ctx, 0, 15*s, s, C.cyan, PB.dir, py/(WHEEL_R*s)); ctx.restore();
-  hud(ctx, P.x0+10, P.y0+10, [`t = ${fmt(PB.t,2)} s`, `x = ${fmt(x,2)} m`, `v = ${fmt(v,2)} m/s`], C.amber);
   const A = PB.a/2;
   setTxt('pb_A', `= ½ · ${fsp(PB.a)} = ${fs(A)}`); setTxt('pb_B', `= ${fs(PB.v0)}`); setTxt('pb_C', `= ${fs(PB.x0)}`);
   setHTML('pb_live', `x = <b>${fs(A)}</b>·t² + <b>${fsp(PB.v0)}</b>·t + <b>${fsp(PB.x0)}</b>`);
   let ev;
   if (PB.a === 0) ev = 'a = 0 → A = 0: no hay término t². La posición es lineal y la gráfica es una RECTA (MRU).';
-  else if (ts !== null && ts < PB.T) ev = `a ${PB.a > 0 ? '> 0: la parábola abre hacia arriba' : '< 0: la parábola abre hacia abajo'}. El vértice está en t = −v₀/a = ${fs(ts)} s: ahí el auto se detiene y cambia de sentido.`;
+  else if (ts !== null && ts < PB.T) ev = `a ${PB.a > 0 ? '> 0: abre hacia arriba' : '< 0: abre hacia abajo'}. En el vértice el auto se detiene y cambia de sentido.`;
   else ev = `a ${PB.a > 0 ? '> 0: la parábola abre hacia arriba (la curva se empina cada vez más)' : '< 0: la parábola abre hacia abajo'}.`;
   setTxt('pb_event', ev);
 }
@@ -1398,8 +1386,8 @@ function frameS9(dt){
   END.t += dt;
   const {ctx,w,h} = fitCanvas($('cvEnd'));
   const T = 8, tm = Math.min(END.t % 10.5, T);
-  const mru = {x:t => 5*t, v:() => 5, color:C.cyan, name:'MRU · v = 5 m/s (constante)'};
-  const mruv = {x:t => 0.75*t*t, v:t => 1.5*t, color:C.violet, name:'MRUV · a = 1,5 m/s² (desde el reposo)'};
+  const mru = {x:t => 5*t, v:() => 5, color:C.cyan, name:'MRU · velocidad constante'};
+  const mruv = {x:t => 0.75*t*t, v:t => 1.5*t, color:C.violet, name:'MRUV · acelera'};
   const laneH = Math.min(170, h*0.36);
   const X = makeScale(w, 0, 50);
   const s = clamp(w/1100, .6, 1)*.85, rh = Math.min(40, laneH*.26);
@@ -1415,9 +1403,9 @@ function frameS9(dt){
   const narrow = w < 640;
   const r1 = narrow ? {rx:0, ry:top, rw:w, rh:ph/2} : {rx:0, ry:top, rw:half, rh:ph};
   const r2 = narrow ? {rx:0, ry:top+ph/2, rw:w, rh:ph/2} : {rx:half, ry:top, rw:half, rh:ph};
-  const P1 = Plot(ctx, w, h, Object.assign({xmin:0, xmax:8, ymin:0, ymax:50, xstep:1, ystep:10, xlabel:'t (s)', ylabel:'x (m)', title:'Posición: recta vs parábola', pad:{t:26}}, r1));
+  const P1 = Plot(ctx, w, h, Object.assign({xmin:0, xmax:8, ymin:0, ymax:50, xstep:2, ystep:25, xlabel:'t (s)', ylabel:'x (m)', title:'Posición: recta vs parábola', pad:{t:26}}, r1));
   P1.axes(); [mru, mruv].forEach(M => { P1.curve(M.x, 0, T, M.color+'30', 2, [4,6], false); P1.curve(M.x, 0, tm, M.color, 4); dot(ctx, P1.X(tm), P1.Y(M.x(tm)), 5, M.color); });
-  const P2 = Plot(ctx, w, h, Object.assign({xmin:0, xmax:8, ymin:0, ymax:14, xstep:1, ystep:2, xlabel:'t (s)', ylabel:'v (m/s)', title:'Velocidad: constante vs lineal', pad:{t:26}}, r2));
+  const P2 = Plot(ctx, w, h, Object.assign({xmin:0, xmax:8, ymin:0, ymax:14, xstep:2, ystep:7, xlabel:'t (s)', ylabel:'v (m/s)', title:'Velocidad: constante vs lineal', pad:{t:26}}, r2));
   P2.axes(); [mru, mruv].forEach(M => { P2.curve(M.v, 0, T, M.color+'30', 2, [4,6], false); P2.curve(M.v, 0, tm, M.color, 4); dot(ctx, P2.X(tm), P2.Y(M.v(tm)), 5, M.color); });
 }
 
