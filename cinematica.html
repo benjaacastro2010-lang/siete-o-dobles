@@ -1,0 +1,1646 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinemática interactiva</title>
+<meta name="description" content="Clase interactiva de Cinemática: MRU, MRUV, funciones afines y cuadráticas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060914; --panel:rgba(16,22,50,.74); --panel2:rgba(6,10,28,.78);
+  --line:rgba(120,140,255,.2); --text:#e8ecff; --muted:#9aa5d1;
+  --cyan:#22d3ee; --violet:#a78bfa; --blue:#60a5fa; --pink:#f472b6;
+  --amber:#fbbf24; --green:#34d399; --red:#f87171;
+  --r:18px;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+  --sans:"Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --math:"Cambria Math","STIX Two Math","Cambria","Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+@media (min-width:1500px){html{font-size:19px}}
+html.big{font-size:22px}
+@media (min-width:1500px){html.big{font-size:24px}}
+body{
+  margin:0; height:100vh; overflow:hidden; color:var(--text); font-family:var(--sans);
+  background:
+    radial-gradient(1100px 700px at 85% -10%, rgba(124,58,237,.22), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(34,211,238,.14), transparent 60%),
+    var(--bg);
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.35;
+  background-image:linear-gradient(rgba(120,140,255,.07) 1px, transparent 1px),linear-gradient(90deg, rgba(120,140,255,.07) 1px, transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(ellipse at center, #000 30%, transparent 80%);
+}
+b,strong{color:#fff}
+button{font-family:inherit}
+
+/* ---------- barra superior ---------- */
+.topbar{position:fixed; top:0; left:0; right:0; height:60px; display:flex; align-items:center; gap:14px; padding:0 16px;
+  background:rgba(6,9,20,.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); z-index:30}
+.brand{font-weight:700; letter-spacing:.2em; font-size:1rem; white-space:nowrap;
+  background:linear-gradient(90deg,var(--cyan),var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.brand small{letter-spacing:.06em; font-weight:500; margin-left:8px; -webkit-text-fill-color:var(--muted); font-size:.75rem}
+.top-actions{margin-left:auto; display:flex; gap:8px}
+.progress{position:absolute; left:0; right:0; bottom:-2px; height:3px; background:rgba(255,255,255,.05)}
+#progressBar{height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--violet)); box-shadow:0 0 12px var(--cyan); transition:width .5s}
+
+.btn{font:inherit; font-weight:700; font-size:.92rem; border:1px solid var(--line); background:rgba(30,40,90,.55); color:var(--text);
+  padding:.6rem 1rem; border-radius:12px; cursor:pointer; transition:border-color .2s, box-shadow .2s, transform .1s, background .2s; white-space:nowrap}
+.btn:hover{border-color:var(--cyan); box-shadow:0 0 0 3px rgba(34,211,238,.14), 0 0 18px rgba(34,211,238,.25)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45; cursor:not-allowed; box-shadow:none}
+.btn.primary{background:linear-gradient(135deg,#0ea5e9,#7c3aed); border-color:transparent}
+.btn.primary.running{background:linear-gradient(135deg,#f59e0b,#db2777)}
+.btn.sel{border-color:var(--cyan); background:rgba(34,211,238,.18); box-shadow:0 0 16px rgba(34,211,238,.3)}
+.btn.ghost{background:transparent}
+.btn-row{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0}
+@media (max-width:820px){ .top-actions .lbl{display:none} .brand small{display:none} }
+
+/* ---------- menú lateral ---------- */
+#drawer{position:fixed; top:60px; left:0; bottom:0; width:min(360px,88vw); z-index:40; background:rgba(8,12,30,.97); border-right:1px solid var(--line);
+  transform:translateX(-102%); transition:transform .35s cubic-bezier(.2,.8,.2,1); padding:14px; overflow-y:auto}
+#drawer.open{transform:none}
+#drawer button{display:flex; gap:12px; align-items:center; width:100%; text-align:left; font:inherit; font-size:1rem; color:var(--text);
+  background:transparent; border:1px solid transparent; border-radius:12px; padding:.75rem .9rem; cursor:pointer}
+#drawer button:hover{background:rgba(34,211,238,.08); border-color:var(--line)}
+#drawer button.on{background:rgba(124,58,237,.2); border-color:rgba(167,139,250,.5)}
+#drawer .num{font-family:var(--mono); color:var(--cyan); width:1.6em}
+#scrim{position:fixed; inset:60px 0 0 0; background:rgba(0,0,0,.45); z-index:35; opacity:0; pointer-events:none; transition:opacity .3s}
+#scrim.on{opacity:1; pointer-events:auto}
+
+/* ---------- escenario y diapositivas ---------- */
+#stage{position:fixed; top:60px; bottom:64px; left:0; right:0; overflow:hidden}
+.slide{position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; padding:22px clamp(16px,3vw,48px) 40px;
+  opacity:0; visibility:hidden; transform:translateX(60px) scale(.985);
+  transition:opacity .55s ease, transform .6s cubic-bezier(.2,.8,.2,1), visibility 0s linear .6s}
+.slide.back{transform:translateX(-60px) scale(.985)}
+.slide.active{opacity:1; visibility:visible; transform:none; transition:opacity .55s ease, transform .6s cubic-bezier(.2,.8,.2,1)}
+.inner{max-width:1500px; margin:0 auto}
+.head{margin-bottom:16px}
+.tag{display:inline-block; font-family:var(--mono); font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--cyan);
+  border:1px solid rgba(34,211,238,.4); border-radius:99px; padding:.25rem .7rem; background:rgba(34,211,238,.08)}
+h2{font-size:clamp(1.7rem,3vw,2.6rem); margin:.35rem 0 .3rem; line-height:1.1}
+h3{margin:.2rem 0 .6rem; font-size:1.2rem}
+.grad{background:linear-gradient(90deg,var(--cyan),var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.lead{color:var(--muted); font-size:1.12rem; max-width:80ch; margin:.2rem 0; line-height:1.45}
+.grid{display:grid; gap:18px}
+.g2{grid-template-columns:minmax(320px,.82fr) 1.6fr}
+.g2b{grid-template-columns:1fr 1fr}
+@media (max-width:1050px){.g2,.g2b{grid-template-columns:1fr}}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:18px; box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 10px 40px rgba(0,0,0,.25); min-width:0}
+.mt{margin-top:18px}
+.cv{width:100%; display:block; border-radius:14px; background:rgba(4,7,20,.55); border:1px solid rgba(120,140,255,.12); touch-action:none}
+.pills{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 10px}
+.pill{font-size:.88rem; font-weight:600; padding:.3rem .75rem; border-radius:99px; border:1px solid var(--line); background:rgba(255,255,255,.04)}
+.pill.c{border-color:rgba(34,211,238,.5); color:var(--cyan)} .pill.v{border-color:rgba(167,139,250,.5); color:var(--violet)} .pill.a{border-color:rgba(251,191,36,.5); color:var(--amber)}
+
+/* controles */
+.ctrl{margin:10px 0 14px}
+.ctrl label{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-weight:600; font-size:1rem}
+.ctrl output{font-family:var(--mono); color:var(--c,var(--cyan)); font-size:1.05rem}
+.ctrl small{color:var(--muted); font-weight:400}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:30px; background:transparent; cursor:pointer; margin:2px 0}
+input[type=range]::-webkit-slider-runnable-track{height:8px; border-radius:8px; background:linear-gradient(90deg, rgba(34,211,238,.25), var(--c,var(--cyan)))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:26px; height:26px; border-radius:50%; background:#fff; border:5px solid var(--c,var(--cyan)); margin-top:-9px; box-shadow:0 0 14px var(--c,var(--cyan))}
+input[type=range]::-moz-range-track{height:8px; border-radius:8px; background:linear-gradient(90deg, rgba(34,211,238,.25), var(--c,var(--cyan)))}
+input[type=range]::-moz-range-thumb{width:18px; height:18px; border-radius:50%; background:#fff; border:5px solid var(--c,var(--cyan)); box-shadow:0 0 14px var(--c,var(--cyan))}
+input[type=range]:focus-visible{outline:2px solid var(--violet); outline-offset:4px; border-radius:8px}
+
+/* lecturas */
+.readouts{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:12px}
+@media (max-width:640px){.readouts{grid-template-columns:repeat(2,1fr)}}
+.ro{background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:10px 12px; min-width:0}
+.ro span{display:block; font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em}
+.ro b{font-family:var(--mono); font-size:clamp(1.05rem,1.9vw,1.55rem); white-space:nowrap}
+.ro.c b{color:var(--cyan)} .ro.v b{color:var(--violet)} .ro.p b{color:var(--pink)} .ro.a b{color:var(--amber)} .ro.g b{color:var(--green)}
+
+.formula{font-family:var(--math); font-size:1.55rem; text-align:center; padding:12px 16px; border-radius:14px;
+  background:linear-gradient(135deg,rgba(124,58,237,.16),rgba(34,211,238,.08)); border:1px solid rgba(167,139,250,.4); margin:10px 0; box-shadow:0 0 30px rgba(124,58,237,.12)}
+.formula i{font-style:italic}
+.live{font-family:var(--mono); font-size:1rem; background:var(--panel2); border:1px dashed rgba(34,211,238,.35); border-radius:12px; padding:10px 12px; margin:8px 0; line-height:1.7; overflow-x:auto; white-space:nowrap}
+.live b{color:var(--cyan)}
+.live .lv{color:var(--violet)}
+.note{color:var(--muted); font-size:.95rem; line-height:1.45}
+.event{margin-top:10px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.35); color:#fde68a; font-weight:600}
+
+.tbl-wrap{overflow-x:auto; margin-top:12px}
+.tbl{border-collapse:separate; border-spacing:3px; font-family:var(--mono); font-size:.92rem; width:100%}
+.tbl th{color:var(--muted); text-align:left; font-weight:600; padding:4px 8px; white-space:nowrap}
+.tbl td{text-align:center; padding:6px 6px; background:rgba(255,255,255,.04); border-radius:8px; transition:background .25s, color .25s; white-space:nowrap}
+.tbl td.past{background:rgba(34,211,238,.12)}
+.tbl td.now{background:rgba(34,211,238,.38); color:#fff; box-shadow:0 0 12px rgba(34,211,238,.5)}
+
+.flow{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:12px 0}
+.flow span{padding:.55rem 1rem; border-radius:12px; font-weight:700; background:rgba(255,255,255,.05); border:1px solid var(--line)}
+.flow span:nth-child(1){border-color:rgba(34,211,238,.6); color:var(--cyan)}
+.flow span:nth-child(3){border-color:rgba(167,139,250,.6); color:var(--violet)}
+.flow span:nth-child(5){border-color:rgba(244,114,182,.6); color:var(--pink)}
+.flow em{font-style:normal; color:var(--muted); font-size:1.4rem; animation:pulseArrow 1.6s infinite}
+@keyframes pulseArrow{50%{transform:translateX(4px); color:#fff}}
+.corr{display:grid; grid-template-columns:1fr auto 1fr; gap:6px 10px; align-items:center; font-size:1.02rem; margin:10px 0}
+.corr .l{text-align:right} .corr .m{color:var(--muted)}
+.corr .k{font-family:var(--math); font-style:italic; font-size:1.2rem}
+ul.tight{margin:8px 0; padding-left:1.2em; line-height:1.55}
+ul.tight li{margin:3px 0}
+
+/* sección 1 */
+.concepts{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px}
+@media (max-width:520px){.concepts{grid-template-columns:repeat(2,1fr)}}
+.concept{font:inherit; color:var(--text); cursor:pointer; text-align:center; padding:14px 8px; border-radius:16px; border:1px solid var(--line);
+  background:rgba(255,255,255,.04); transition:.2s; font-weight:700; font-size:.98rem}
+.concept .ic{display:block; font-size:1.8rem; margin-bottom:4px}
+.concept:hover{border-color:var(--cyan); transform:translateY(-2px)}
+.concept.on{background:linear-gradient(135deg,rgba(14,165,233,.3),rgba(124,58,237,.3)); border-color:var(--cyan); box-shadow:0 0 22px rgba(34,211,238,.3)}
+.def{margin-top:14px; padding:14px; border-radius:14px; background:var(--panel2); border-left:4px solid var(--cyan); font-size:1.08rem; line-height:1.5; min-height:5.5em}
+.def h4{margin:0 0 6px; font-size:1.2rem; color:var(--cyan)}
+.hint{margin-top:10px; color:var(--muted); font-size:.98rem}
+
+.challenge .scene{font-size:1.3rem; padding:16px 18px; border-radius:14px; background:var(--panel2); border:1px solid var(--line); margin:10px 0; line-height:1.4}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{font:inherit; font-weight:700; color:var(--text); background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:99px; padding:.55rem 1rem; cursor:pointer; font-size:1rem; transition:.2s}
+.chip:hover{border-color:var(--cyan)}
+.chip.right{background:rgba(52,211,153,.25); border-color:var(--green)}
+.chip.wrong{background:rgba(248,113,113,.2); border-color:var(--red); animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* preguntas */
+.q-text{font-size:1.25rem; font-weight:600; margin:6px 0 12px; line-height:1.35}
+.opts{display:grid; gap:10px}
+.opt{font:inherit; text-align:left; color:var(--text); display:flex; gap:12px; align-items:center; cursor:pointer; font-size:1.05rem;
+  padding:12px 14px; border-radius:14px; border:1px solid var(--line); background:rgba(255,255,255,.04); transition:.2s}
+.opt:hover:not(:disabled){border-color:var(--cyan); background:rgba(34,211,238,.08)}
+.opt:disabled{cursor:default}
+.opt .let{flex:none; width:2em; height:2em; display:grid; place-items:center; border-radius:10px; background:rgba(124,58,237,.3); font-family:var(--mono); font-weight:700}
+.opt.right{border-color:var(--green); background:rgba(52,211,153,.18)}
+.opt.right .let{background:var(--green); color:#04110c}
+.opt.wrong{border-color:var(--red); background:rgba(248,113,113,.15); animation:shake .35s}
+.opt.wrong .let{background:var(--red); color:#1a0505}
+.opt.soft{border-color:rgba(52,211,153,.6); border-style:dashed}
+.fb{margin-top:12px; padding:0 14px; border-radius:12px; max-height:0; overflow:hidden; transition:max-height .4s, padding .4s; line-height:1.5; font-size:1.02rem}
+.fb.show{max-height:400px; padding:12px 14px}
+.fb.good{background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.4)}
+.fb.bad{background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.35)}
+.qsvg{display:block; width:100%; max-width:440px; margin:6px auto 14px; background:rgba(4,7,20,.6); border-radius:12px; border:1px solid var(--line)}
+
+/* juego final */
+.quiz-top{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px}
+.dots{display:flex; gap:6px}
+.dots i{width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid var(--line)}
+.dots i.ok{background:var(--green)} .dots i.no{background:var(--red)} .dots i.cur{box-shadow:0 0 0 3px rgba(34,211,238,.6)}
+.score{font-family:var(--mono); font-size:1.2rem; color:var(--amber)}
+.result{text-align:center; padding:20px}
+.result .big{font-size:4rem; font-weight:700; font-family:var(--mono)}
+.stars{font-size:2.4rem; letter-spacing:.2em}
+
+/* para la clase */
+details.ask{margin-top:18px; border-radius:16px; border:1px solid rgba(251,191,36,.35); background:rgba(251,191,36,.06)}
+details.ask summary{cursor:pointer; padding:12px 16px; font-weight:700; color:var(--amber); list-style:none}
+details.ask summary::-webkit-details-marker{display:none}
+details.ask summary::before{content:"▸ "; display:inline-block; transition:transform .2s}
+details.ask[open] summary::before{transform:rotate(90deg)}
+details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-size:1.05rem}
+
+/* portada */
+.cover-wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; max-width:1300px; margin:0 auto}
+.kicker{font-family:var(--mono); letter-spacing:.3em; text-transform:uppercase; color:var(--cyan); font-size:.85rem}
+.cover-title{font-size:clamp(3rem,10vw,8rem); margin:0; letter-spacing:.08em; line-height:1; font-weight:700;
+  background:linear-gradient(90deg,#67e8f9,#a78bfa,#f0abfc,#67e8f9); background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:shimmer 6s linear infinite; filter:drop-shadow(0 0 24px rgba(124,58,237,.45))}
+@keyframes shimmer{to{background-position:300% 0}}
+.cover-sub{font-size:clamp(1.1rem,2.2vw,1.6rem); color:#c7d0f5; margin:0 0 6px}
+#cvCover{height:clamp(170px,30vh,290px); background:transparent; border:none}
+.huge{font-size:1.5rem; padding:1rem 2.6rem; border-radius:18px; letter-spacing:.12em; box-shadow:0 0 40px rgba(124,58,237,.55); animation:breathe 2.2s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:0 0 60px rgba(34,211,238,.7); transform:scale(1.03)}}
+.fchips{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:14px}
+.fchips span{font-family:var(--math); font-style:italic; font-size:1.1rem; padding:.4rem .9rem; border-radius:99px; border:1px solid var(--line); background:rgba(255,255,255,.04); animation:float 5s ease-in-out infinite}
+.fchips span:nth-child(2){animation-delay:-1.6s} .fchips span:nth-child(3){animation-delay:-3.2s}
+@keyframes float{50%{transform:translateY(-6px)}}
+.team{color:var(--muted); font-size:.9rem; margin-top:6px}
+
+/* conclusión */
+.sum-card{border-radius:var(--r); padding:18px 20px; border:1px solid var(--line); background:var(--panel)}
+.sum-card.mru{border-color:rgba(34,211,238,.55); box-shadow:0 0 30px rgba(34,211,238,.12)}
+.sum-card.mruv{border-color:rgba(167,139,250,.55); box-shadow:0 0 30px rgba(167,139,250,.12)}
+.sum-card h3{font-size:1.6rem} .sum-card.mru h3{color:var(--cyan)} .sum-card.mruv h3{color:var(--violet)}
+.sum-card li{font-size:1.1rem}
+.slide.active .reveal{animation:rise .7s cubic-bezier(.2,.8,.2,1) both; animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0; transform:translateY(18px)}}
+.closing{text-align:center; font-size:clamp(1.3rem,2.6vw,2.1rem); font-weight:700; line-height:1.35; margin:26px auto 8px; max-width:28em}
+
+/* navegación inferior */
+.navbar{position:fixed; left:0; right:0; bottom:0; height:64px; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:0 16px;
+  background:rgba(6,9,20,.86); backdrop-filter:blur(10px); border-top:1px solid var(--line); z-index:30}
+#slideLabel{color:var(--muted); font-size:.95rem; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+#slideLabel b{color:var(--cyan); font-family:var(--mono)}
+.toast{position:fixed; left:50%; bottom:80px; transform:translateX(-50%) translateY(20px); opacity:0; background:rgba(16,22,50,.95); border:1px solid var(--cyan);
+  padding:.7rem 1.2rem; border-radius:12px; z-index:50; transition:.3s; pointer-events:none; font-weight:600}
+.toast.on{opacity:1; transform:translateX(-50%)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="btn" id="menuBtn" aria-label="Abrir menú de secciones">☰ <span class="lbl">Secciones</span></button>
+  <div class="brand">CINEMÁTICA <small>Física + Matemática</small></div>
+  <div class="top-actions">
+    <button class="btn" id="resetAll" title="Vuelve todas las simulaciones a sus valores iniciales">⟲ <span class="lbl">Reiniciar simulaciones</span></button>
+    <button class="btn" id="fontBtn" title="Agrandar / achicar el texto para el proyector">A±</button>
+    <button class="btn" id="fsBtn" title="Pantalla completa (tecla F)">⛶ <span class="lbl" id="fsLbl">Presentación</span></button>
+  </div>
+  <div class="progress"><div id="progressBar"></div></div>
+</header>
+<nav id="drawer" aria-label="Secciones"></nav>
+<div id="scrim"></div>
+
+<main id="stage">
+
+<!-- ================= 0 · PORTADA ================= -->
+<section class="slide active" id="s0" data-title="Inicio">
+  <div class="cover-wrap">
+    <div class="kicker">Laboratorio virtual · Física y Matemática</div>
+    <h1 class="cover-title">CINEMÁTICA</h1>
+    <p class="cover-sub">¿Cómo podemos representar el movimiento mediante la Matemática?</p>
+    <canvas id="cvCover" class="cv"></canvas>
+    <button class="btn primary huge" id="startBtn">COMENZAR ▶</button>
+    <div class="fchips"><span>x = x₀ + v · t</span><span>v = v₀ + a · t</span><span>x = x₀ + v₀ · t + ½ · a · t²</span></div>
+  </div>
+</section>
+
+<!-- ================= 1 · QUÉ ES ================= -->
+<section class="slide" id="s1" data-title="¿Qué es la cinemática?">
+<div class="inner">
+  <div class="head">
+    <span class="tag">Sección 1</span>
+    <h2>¿Qué es la <span class="grad">cinemática</span>?</h2>
+    <p class="lead">Es la parte de la Física que estudia <b>cómo se mueven los cuerpos</b>, sin centrarse en las <b>fuerzas</b> que producen ese movimiento.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>Tocá un concepto 👇</h3>
+      <div class="concepts" id="concepts"></div>
+      <div class="def" id="c_def"></div>
+    </div>
+    <div class="panel">
+      <canvas id="cv1" class="cv" style="height:clamp(270px,44vh,440px)"></canvas>
+      <div class="hint" id="c_hint"></div>
+    </div>
+  </div>
+  <div class="panel mt challenge">
+    <h3>🧩 Desafío: ¿qué concepto aparece en cada frase?</h3>
+    <p class="note">Situación: <b>Sofía va en bicicleta desde su casa hasta el colegio.</b> Elegí el concepto que describe cada frase.</p>
+    <div class="scene" id="chText"></div>
+    <div class="chips" id="chChips"></div>
+    <div class="fb" id="chFb"></div>
+    <div class="btn-row" style="justify-content:space-between;align-items:center">
+      <span class="score" id="chScore"></span>
+      <button class="btn" id="chNext" disabled>Siguiente frase →</button>
+    </div>
+  </div>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>¿Qué diferencia hay entre <b>posición</b> y <b>distancia recorrida</b>?</li>
+      <li>Si das una vuelta completa a la manzana y volvés al punto de partida, ¿cuánto recorriste? ¿Cambió tu posición?</li>
+      <li>¿Por qué necesitamos elegir un <b>origen</b> (sistema de referencia) para hablar de posición?</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+<!-- ================= 2 · SIMULADOR MRU ================= -->
+<section class="slide" id="s2" data-title="Simulador del MRU">
+<div class="inner">
+  <div class="head">
+    <span class="tag">Sección 2</span>
+    <h2>Simulador del <span class="grad">MRU</span> 🚗</h2>
+    <p class="lead"><b>Movimiento Rectilíneo Uniforme</b>: el cuerpo se mueve en <b>línea recta</b> con <b>velocidad constante</b>. Como la velocidad no cambia, la <b>aceleración es cero</b>.</p>
+    <div class="pills"><span class="pill c">Trayectoria recta</span><span class="pill v">v = constante</span><span class="pill a">a = 0</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <div class="formula"><i>x</i> = <i>x</i>₀ + <i>v</i> · <i>t</i></div>
+      <div class="ctrl"><label>Posición inicial x₀ <output id="m_x0_o"></output></label><input type="range" id="m_x0" min="-10" max="20" step="1"></div>
+      <div class="ctrl" style="--c:var(--violet)"><label>Velocidad v <output id="m_v_o"></output></label><input type="range" id="m_v" min="-3" max="8" step="0.5"></div>
+      <div class="ctrl" style="--c:var(--amber)"><label>Duración del recorrido <output id="m_T_o"></output></label><input type="range" id="m_T" min="1" max="10" step="1"></div>
+      <div class="ctrl" style="--c:var(--pink)"><label>Tiempo transcurrido t <small>(arrastrá para ir a un instante)</small> <output id="m_t_o"></output></label><input type="range" id="m_t" min="0" max="8" step="0.01"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="m_play">▶ Iniciar</button>
+        <button class="btn" id="m_reset">⟲ Reiniciar</button>
+        <button class="btn" id="m_speed" title="Velocidad de reproducción">×1</button>
+      </div>
+      <button class="btn ghost" id="m_example">📘 Cargar ejemplo: x₀ = 0 m, v = 5 m/s</button>
+    </div>
+    <div class="panel">
+      <canvas id="cvMRU" class="cv" style="height:clamp(200px,30vh,280px)"></canvas>
+      <div class="readouts">
+        <div class="ro p"><span>Tiempo</span><b id="m_ro_t"></b></div>
+        <div class="ro c"><span>Posición</span><b id="m_ro_x"></b></div>
+        <div class="ro v"><span>Velocidad</span><b id="m_ro_v"></b></div>
+        <div class="ro a"><span>Aceleración</span><b id="m_ro_a"></b></div>
+      </div>
+      <div class="live" id="m_live"></div>
+      <div class="tbl-wrap"><table class="tbl" id="m_tbl"></table></div>
+      <p class="note">📌 Cada segundo, la posición cambia <b>siempre lo mismo</b>: exactamente <b id="m_dx"></b>. Las marcas sobre la pista muestran dónde estaba el auto en cada segundo.</p>
+    </div>
+  </div>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>Antes de apretar ▶: con x₀ = 0 m y v = 5 m/s, ¿dónde estará el auto a los 6 s? Calculen y después verifiquen.</li>
+      <li>¿Qué pasa si la velocidad es <b>negativa</b>? ¿Hacia dónde se mueve el auto?</li>
+      <li>¿Por qué las marcas de cada segundo quedan <b>igual de separadas</b>?</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+<!-- ================= 3 · GRÁFICA MRU ================= -->
+<section class="slide" id="s3" data-title="Gráfica dinámica del MRU">
+<div class="inner">
+  <div class="head">
+    <span class="tag">Sección 3</span>
+    <h2>Gráfica dinámica del MRU 📈</h2>
+    <p class="lead">Graficamos la <b>posición</b> en función del <b>tiempo</b>. Usa los mismos valores que el simulador anterior: si cambiás algo acá, cambia allá también.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <div class="flow"><span>MRU</span><em>→</em><span>Función afín</span><em>→</em><span>Recta</span></div>
+      <div class="corr">
+        <div class="l k">x = x₀ + v · t</div><div class="m">⟷</div><div class="k">y = m · x + b</div>
+        <div class="l">velocidad <b>v</b></div><div class="m">⟷</div><div>pendiente <b>m</b></div>
+        <div class="l">posición inicial <b>x₀</b></div><div class="m">⟷</div><div>ordenada al origen <b>b</b></div>
+        <div class="l">tiempo <b>t</b></div><div class="m">⟷</div><div>variable <b>x</b></div>
+      </div>
+      <div class="live" id="g_live"></div>
+      <h3 style="margin-top:14px">Compará velocidades</h3>
+      <div class="btn-row" id="g_presets">
+        <button class="btn" data-v="2">🐢 Baja · 2 m/s</button>
+        <button class="btn" data-v="5">🚗 Intermedia · 5 m/s</button>
+        <button class="btn" data-v="8">🏎️ Alta · 8 m/s</button>
+      </div>
+      <button class="btn ghost" data-v="-3" id="g_neg">↩ Probar velocidad negativa · −3 m/s</button>
+      <div class="ctrl" style="--c:var(--violet)"><label>Velocidad v <output id="g_v_o"></output></label><input type="range" id="g_v" min="-3" max="8" step="0.5"></div>
+      <div class="ctrl"><label>Posición inicial x₀ <output id="g_x0_o"></output></label><input type="range" id="g_x0" min="-10" max="20" step="1"></div>
+      <div class="ctrl" style="--c:var(--amber)"><label>Duración <output id="g_T_o"></output></label><input type="range" id="g_T" min="1" max="10" step="1"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="g_play">▶ Iniciar</button>
+        <button class="btn" id="g_reset">⟲ Reiniciar</button>
+        <button class="btn sel" id="g_cmp">👁 Comparación: sí</button>
+      </div>
+    </div>
+    <div class="panel">
+      <canvas id="cvG3t" class="cv" style="height:clamp(130px,18vh,170px)"></canvas>
+      <canvas id="cvG3" class="cv mt" style="height:clamp(300px,46vh,500px)"></canvas>
+    </div>
+  </div>
+  <div class="grid g2b mt">
+    <div class="panel">
+      <h3>¿Qué nos dice la pendiente?</h3>
+      <ul class="tight">
+        <li>Una <b>mayor pendiente en valor absoluto</b> representa una <b>mayor rapidez</b>.</li>
+        <li>Pendiente <b style="color:var(--green)">positiva</b>: la posición <b>aumenta</b> con el tiempo.</li>
+        <li>Pendiente <b style="color:var(--pink)">negativa</b>: la posición <b>disminuye</b> con el tiempo (el auto va hacia el lado negativo del sistema de referencia elegido).</li>
+        <li>Los ejes y las escalas <b>no cambian</b> al comparar, así la diferencia de inclinación es real.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Cómo leer la gráfica</h3>
+      <ul class="tight">
+        <li>Eje horizontal: <b>tiempo (s)</b>. Eje vertical: <b>posición (m)</b>.</li>
+        <li>Cada punto es un instante: “a los 2 s estaba en 10 m”.</li>
+        <li>Donde la recta corta el eje vertical (t = 0) está la <b>posición inicial x₀</b>.</li>
+        <li>El triángulo muestra que en <b>1 s</b> la posición cambia <b>v metros</b>.</li>
+      </ul>
+    </div>
+  </div>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>Si duplicamos la velocidad, ¿qué le pasa a la pendiente de la recta?</li>
+      <li>¿Qué representa el punto donde la recta corta el eje vertical?</li>
+      <li>¿Cómo sería la gráfica de un auto <b>detenido</b> (v = 0)? Pruébenlo con el deslizador.</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+<!-- ================= 4 · PENDIENTE ================= -->
+<section class="slide" id="s4" data-title="¿Qué representa la pendiente?">
+<div class="inner">
+  <div class="head">
+    <span class="tag">Sección 4 · Experimento</span>
+    <h2>¿Qué representa la <span class="grad">pendiente</span>?</h2>
+    <p class="lead">Arrastrá los puntos <b style="color:var(--amber)">A</b> y <b style="color:var(--pink)">B</b> sobre la recta. Observá cuánto cambia la posición (Δx) y cuánto cambia el tiempo (Δt).</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <div class="formula"><i>v</i> = Δ<i>x</i> / Δ<i>t</i></div>
+      <div class="readouts" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+        <div class="ro a"><span>Punto A</span><b id="p_A"></b></div>
+        <div class="ro p"><span>Punto B</span><b id="p_B"></b></div>
+        <div class="ro g"><span>Δt = t<sub>B</sub> − t<sub>A</sub></span><b id="p_dt"></b></div>
+        <div class="ro v"><span>Δx = x<sub>B</sub> − x<sub>A</sub></span><b id="p_dx"></b></div>
+      </div>
+      <div class="live" id="p_live" style="font-size:1.15rem"></div>
+      <div class="ctrl" style="--c:var(--violet)"><label>Inclinación de la recta <output id="p_v_o"></output></label><input type="range" id="p_v" min="-4" max="9" step="0.5"></div>
+      <p class="note">💡 Probá: mové A y B a distintos lugares. ¿Cambia el resultado de Δx / Δt? Después cambiá la inclinación.</p>
+      <button class="btn" id="p_reset">⟲ Reiniciar puntos</button>
+    </div>
+    <div class="panel">
+      <canvas id="cv4" class="cv" style="height:clamp(320px,52vh,540px); cursor:grab"></canvas>
+    </div>
+  </div>
+  <div class="panel mt" id="q4"></div>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>¿El valor de Δx / Δt depende de qué puntos elegimos sobre la recta? ¿Por qué?</li>
+      <li>¿Qué unidad tiene la pendiente de una gráfica posición-tiempo?</li>
+      <li>¿Qué pasa con Δx cuando la recta “baja”?</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+<!-- ================= 5 · SIMULADOR MRUV ================= -->
+<section class="slide" id="s5" data-title="Simulador del MRUV">
+<div class="inner">
+  <div class="head">
+    <span class="tag">Sección 5</span>
+    <h2>Simulador del <span class="grad">MRUV</span> 🏎️</h2>
+    <p class="lead"><b>Movimiento Rectilíneo Uniformemente Variado</b>: trayectoria recta y <b>aceleración constante</b>. La velocidad cambia <b>siempre lo mismo en cada segundo</b>.</p>
+    <div class="pills"><span class="pill c">Trayectoria recta</span><span class="pill a">a = constante</span><span class="pill v">v cambia uniformemente</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <div class="ctrl"><label>Posición inicial x₀ <output id="v_x0_o"></output></label><input type="range" id="v_x0" min="-20" max="20" step="1"></div>
+      <div class="ctrl" style="--c:var(--violet)"><label>Velocidad inicial v₀ <output id="v_v0_o"></output></label><input type="range" id="v_v0" min="-10" max="15" step="0.5"></div>
+      <div class="ctrl" style="--c:var(--amber)"><label>Aceleración a <output id="v_a_o"></output></label><input type="range" id="v_a" min="-4" max="4" step="0.5"></div>
+      <div class="ctrl" style="--c:var(--green)"><label>Duración <output id="v_T_o"></output></label><input type="range" id="v_T" min="1" max="12" step="1"></div>
+      <div class="ctrl" style="--c:var(--pink)"><label>Tiempo transcurrido t <output id="v_t_o"></output></label><input type="range" id="v_t" min="0" max="8" step="0.01"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="v_play">▶ Iniciar</button>
+        <button class="btn" id="v_reset">⟲ Reiniciar</button>
+        <button class="btn" id="v_speed" title="Velocidad de reproducción">×1</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn ghost" data-ex="acel">🚀 Acelera desde el reposo</button>
+        <button class="btn ghost" data-ex="frena">🛑 Frena y cambia de sentido</button>
+      </div>
+    </div>
+    <div class="panel">
+      <canvas id="cvMV" class="cv" style="height:clamp(230px,34vh,320px)"></canvas>
+      <div class="readouts">
+        <div class="ro p"><span>Tiempo</span><b id="v_ro_t"></b></div>
+        <div class="ro c"><span>Posición</span><b id="v_ro_x"></b></div>
+        <div class="ro v"><span>Velocidad</span><b id="v_ro_v"></b></div>
+        <div class="ro a"><span>Aceleración</span><b id="v_ro_a"></b></div>
+      </div>
+      <div class="event" id="v_event"></div>
+    </div>
+  </div>
+  <div class="panel mt">
+    <div class="grid g2b" style="gap:12px">
+      <div><div class="formula" style="font-size:1.3rem"><i>v</i> = <i>v</i>₀ + <i>a</i> · <i>t</i></div><div class="live" id="v_l1"></div></div>
+      <div><div class="formula" style="font-size:1.3rem"><i>x</i> = <i>x</i>₀ + <i>v</i>₀ · <i>t</i> + ½ · <i>a</i> · <i>t</i>²</div><div class="live" id="v_l2"></div></div>
+    </div>
+    <div class="formula" style="font-size:1.2rem"><i>a</i> = (<i>v</i> − <i>v</i>₀) / <i>t</i> <span class="note" style="font-family:var(--sans)">(si t ≠ 0)</span></div>
+    <div class="live" id="v_l3"></div>
+    <div class="tbl-wrap"><table class="tbl" id="v_tbl"></table></div>
+    <p class="note">📌 En la tabla, la velocidad aumenta (o disminuye) <b>siempre lo mismo</b> cada segundo: ese cambio es la aceleración. La posición, en cambio, <b>no</b> cambia lo mismo cada segundo.</p>
+  </div>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>Con v₀ = 6 m/s y a = −2 m/s², ¿en qué instante se detiene el auto? (Pista: v = 0 → t = −v₀ / a)</li>
+      <li>¿Qué pasa con la separación entre las marcas de cada segundo cuando el auto acelera? ¿Y cuando frena?</li>
+      <li>Si la aceleración es negativa, ¿el auto siempre frena? ¿Qué pasa después de detenerse?</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+<!-- ================= 6 · ACELERACIÓN EN ACCIÓN ================= -->
+<section class="slide" id="s6" data-title="La aceleración en acción">
+<div class="inner">
+  <div class="head">
+    <span class="tag">Sección 6</span>
+    <h2>La aceleración en acción ⚡</h2>
+    <p class="lead">Tres autos parten <b>con la misma velocidad inicial</b>. Solo cambia la aceleración. En la gráfica velocidad-tiempo, una aceleración constante es una <b>recta</b>, y su <b>pendiente es la aceleración</b>.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <div class="formula"><i>a</i> = Δ<i>v</i> / Δ<i>t</i> = pendiente de <i>v</i>(<i>t</i>)</div>
+      <div class="ctrl" style="--c:var(--blue)"><label>Velocidad inicial común v₀ <output id="a_v0_o"></output></label><input type="range" id="a_v0" min="0" max="8" step="0.5"></div>
+      <div class="ctrl" style="--c:var(--green)"><label>Auto 1 · aceleración positiva <output id="a_p_o"></output></label><input type="range" id="a_p" min="0.5" max="3" step="0.5"></div>
+      <div class="ctrl" style="--c:var(--blue)"><label>Auto 2 · aceleración nula <output>0 m/s²</output></label><input type="range" min="0" max="0" value="0" disabled></div>
+      <div class="ctrl" style="--c:var(--pink)"><label>Auto 3 · aceleración negativa <output id="a_n_o"></output></label><input type="range" id="a_n" min="-3" max="-0.5" step="0.5"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="a_play">▶ Iniciar</button>
+        <button class="btn" id="a_reset">⟲ Reiniciar</button>
+      </div>
+      <ul class="tight note">
+        <li><b style="color:var(--green)">a &gt; 0</b>: la velocidad crece → la recta sube.</li>
+        <li><b style="color:var(--blue)">a = 0</b>: la velocidad no cambia → recta horizontal (¡es un MRU!).</li>
+        <li><b style="color:var(--pink)">a &lt; 0</b>: la velocidad decrece → la recta baja. Si cruza v = 0, el auto se detiene y cambia de sentido.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <canvas id="cvA" class="cv" style="height:clamp(250px,36vh,330px)"></canvas>
+      <canvas id="cvAg" class="cv mt" style="height:clamp(260px,38vh,380px)"></canvas>
+    </div>
+  </div>
+  <div class="grid g2b mt">
+    <div class="panel"><canvas id="cvAq" class="cv" style="height:300px"></canvas></div>
+    <div class="panel" id="q6"></div>
+  </div>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>¿Puede un auto tener velocidad positiva y aceleración negativa al mismo tiempo? ¿Qué le pasa?</li>
+      <li>¿Cómo se ve en la gráfica v-t el instante en que el auto 3 se detiene?</li>
+      <li>¿Tener mayor velocidad significa tener mayor aceleración?</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+<!-- ================= 7 · PARÁBOLA ================= -->
+<section class="slide" id="s7" data-title="La parábola del MRUV">
+<div class="inner">
+  <div class="head">
+    <span class="tag">Sección 7</span>
+    <h2>La <span class="grad">parábola</span> del MRUV 📊</h2>
+    <p class="lead">Con aceleración constante, la posición depende del tiempo <b>al cuadrado</b>: es una <b>función cuadrática</b>. Mirá cómo se genera la curva mientras el auto avanza por el riel vertical.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <div class="flow"><span>MRUV</span><em>→</em><span>Función cuadrática</span><em>→</em><span>Parábola</span></div>
+      <div class="corr">
+        <div class="l k">x = x₀ + v₀·t + ½·a·t²</div><div class="m">⟷</div><div class="k">y = A·t² + B·t + C</div>
+        <div class="l"><b>A</b></div><div class="m">=</div><div>½ · a <span class="note" id="pb_A"></span></div>
+        <div class="l"><b>B</b></div><div class="m">=</div><div>v₀ <span class="note" id="pb_B"></span></div>
+        <div class="l"><b>C</b></div><div class="m">=</div><div>x₀ <span class="note" id="pb_C"></span></div>
+      </div>
+      <p class="note">⚠️ Usamos <b>A</b> (mayúscula) para el coeficiente cuadrático, para no confundirlo con la aceleración física <b>a</b>.</p>
+      <div class="live" id="pb_live" style="font-size:1.1rem"></div>
+      <div class="ctrl" style="--c:var(--amber)"><label>Aceleración a <output id="pb_a_o"></output></label><input type="range" id="pb_a" min="-3" max="3" step="0.5"></div>
+      <div class="ctrl" style="--c:var(--violet)"><label>Velocidad inicial v₀ <output id="pb_v0_o"></output></label><input type="range" id="pb_v0" min="-4" max="8" step="0.5"></div>
+      <div class="ctrl"><label>Posición inicial x₀ <output id="pb_x0_o"></output></label><input type="range" id="pb_x0" min="-10" max="20" step="1"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="pb_play">▶ Generar parábola</button>
+        <button class="btn" id="pb_reset">⟲ Reiniciar</button>
+        <button class="btn sel" id="pb_cmp">👁 Comparar a = −2, 0, +2</button>
+      </div>
+      <div class="event" id="pb_event"></div>
+    </div>
+    <div class="panel">
+      <canvas id="cvPB" class="cv" style="height:clamp(360px,60vh,620px)"></canvas>
+    </div>
+  </div>
+  <div class="grid g2b mt">
+    <div class="panel">
+      <h3>Lo importante</h3>
+      <ul class="tight">
+        <li>Si <b>a ≠ 0</b>, entonces A = ½·a ≠ 0 → la gráfica x-t es una <b>parábola</b>.</li>
+        <li>Si <b>a &gt; 0</b>, la parábola abre hacia arriba; si <b>a &lt; 0</b>, hacia abajo.</li>
+        <li>Si <b>a = 0</b>, desaparece el término t²: x = x₀ + v₀·t → vuelve a ser una <b>recta</b> (MRU).</li>
+        <li>El <b>vértice</b> de la parábola es el instante en que <b>v = 0</b>: el auto se detiene y cambia de sentido.</li>
+      </ul>
+    </div>
+    <div class="panel" id="q7"></div>
+  </div>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>¿Qué le pasa a la parábola si la aceleración vale 0?</li>
+      <li>¿Qué significa el vértice de la parábola en términos del movimiento del auto?</li>
+      <li>¿Por qué la curva se va “empinando” cada vez más cuando a &gt; 0?</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+<!-- ================= 8 · DESAFÍO FINAL ================= -->
+<section class="slide" id="s8" data-title="Desafío final">
+<div class="inner" style="max-width:980px">
+  <div class="head">
+    <span class="tag">Sección 8</span>
+    <h2>Desafío final 🧠</h2>
+    <p class="lead">Respondan en grupo antes de tocar. ¡Cada respuesta correcta suma un punto!</p>
+  </div>
+  <div class="panel" id="quiz"></div>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>Antes de elegir, pidan a alguien que explique en voz alta por qué cree que su opción es la correcta.</li>
+      <li>Si se equivocan, vuelvan a la sección correspondiente y compruébenlo con la simulación.</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+<!-- ================= 9 · CONCLUSIÓN ================= -->
+<section class="slide" id="s9" data-title="Conclusión">
+<div class="inner">
+  <div class="head" style="text-align:center">
+    <span class="tag">Conclusión</span>
+    <h2>MRU vs MRUV de un vistazo</h2>
+  </div>
+  <div class="grid g2b">
+    <div class="sum-card mru reveal" style="--d:.1s">
+      <h3>🚗 MRU</h3>
+      <ul class="tight">
+        <li class="reveal" style="--d:.2s">Velocidad <b>constante</b>.</li>
+        <li class="reveal" style="--d:.3s">Aceleración <b>nula</b>.</li>
+        <li class="reveal" style="--d:.4s">Posición <b>lineal</b> respecto del tiempo: x = x₀ + v·t</li>
+        <li class="reveal" style="--d:.5s"><b>Función afín</b> → gráfica <b>recta</b>.</li>
+      </ul>
+    </div>
+    <div class="sum-card mruv reveal" style="--d:.25s">
+      <h3>🏎️ MRUV</h3>
+      <ul class="tight">
+        <li class="reveal" style="--d:.35s">Aceleración <b>constante</b>.</li>
+        <li class="reveal" style="--d:.45s">Velocidad <b>lineal</b> respecto del tiempo: v = v₀ + a·t</li>
+        <li class="reveal" style="--d:.55s">Posición <b>cuadrática</b> respecto del tiempo: x = x₀ + v₀·t + ½·a·t²</li>
+        <li class="reveal" style="--d:.65s"><b>Función cuadrática</b> → gráfica <b>parabólica</b> (si a ≠ 0).</li>
+      </ul>
+    </div>
+  </div>
+  <div class="panel mt reveal" style="--d:.7s">
+    <canvas id="cvEnd" class="cv" style="height:clamp(380px,56vh,560px)"></canvas>
+  </div>
+  <p class="closing reveal" style="--d:.9s">«La <span class="grad">Física</span> describe el movimiento; la <span class="grad">Matemática</span> nos permite representarlo, calcularlo y comprenderlo».</p>
+  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
+    <ul>
+      <li>Expliquen con sus palabras: ¿por qué el MRU da una recta y el MRUV una parábola?</li>
+      <li>Piensen un ejemplo de la vida cotidiana para cada tipo de movimiento.</li>
+    </ul>
+  </details>
+</div>
+</section>
+
+</main>
+
+<footer class="navbar">
+  <button class="btn" id="prevBtn">← Anterior</button>
+  <div id="slideLabel"></div>
+  <button class="btn primary" id="nextBtn">Siguiente →</button>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* =========================================================
+   Utilidades generales
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const C = {cyan:'#22d3ee', violet:'#a78bfa', blue:'#60a5fa', pink:'#f472b6', amber:'#fbbf24', green:'#34d399', red:'#f87171',
+  text:'#e8ecff', muted:'#9aa5d1', grid:'rgba(140,160,255,0.11)', axis:'rgba(205,215,255,0.6)'};
+const MONO = '"JetBrains Mono", ui-monospace, Consolas, monospace';
+const SANS = '"Space Grotesk", "Segoe UI", system-ui, sans-serif';
+const MINUS = '−';
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+
+// número con cantidad fija de decimales y coma decimal
+function fmt(n, d=1){ const e = 0.5*Math.pow(10,-d); if (Math.abs(n) < e) n = 0; return n.toFixed(d).replace('.', ',').replace('-', MINUS); }
+// número "limpio" (sin ceros de más)
+function fs(n, d=2){ const k = Math.pow(10,d); let v = Math.round(n*k)/k; if (Object.is(v,-0) || Math.abs(v) < 1/k/2) v = 0; return String(v).replace('.', ',').replace('-', MINUS); }
+// entre paréntesis si es negativo (para reemplazar en fórmulas)
+const par = (n,d=1) => { const s = fmt(n,d); return s.startsWith(MINUS) ? '('+s+')' : s; };
+const fsp = (n,d=2) => { const s = fs(n,d); return s.startsWith(MINUS) ? '('+s+')' : s; };
+function setTxt(id, s){ const e = $(id); if (e && e.textContent !== s) e.textContent = s; }
+function setHTML(id, s){ const e = $(id); if (e && e._h !== s){ e.innerHTML = s; e._h = s; } }
+function signed(n){ return n > 0 ? '+' + fs(n) : fs(n); }
+
+function niceStep(range, target=6){
+  const raw = range/target, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw/p;
+  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+}
+function niceRange(min, max, target=6){
+  if (max - min < 1e-9){ min -= 1; max += 1; }
+  const pad = (max-min)*0.06; min -= pad; max += pad;
+  const st = niceStep(max-min, target);
+  return {min: Math.floor(min/st)*st, max: Math.ceil(max/st)*st, step: st};
+}
+// Ajusta el canvas a su tamaño en pantalla (nítido en pantallas de alta densidad)
+function fitCanvas(c){
+  const w = Math.max(1, c.clientWidth), h = Math.max(1, c.clientHeight), d = window.devicePixelRatio || 1;
+  const W = Math.round(w*d), H = Math.round(h*d);
+  if (c.width !== W || c.height !== H){ c.width = W; c.height = H; }
+  const ctx = c.getContext('2d'); ctx.setTransform(d,0,0,d,0,0); ctx.clearRect(0,0,w,h);
+  return {ctx, w, h};
+}
+function ptr(e, cv){ const r = cv.getBoundingClientRect(); return {px:(e.clientX-r.left)*cv.clientWidth/r.width, py:(e.clientY-r.top)*cv.clientHeight/r.height}; }
+
+/* ---------- dibujo ---------- */
+function rr(ctx,x,y,w,h,r){ w = Math.max(0,w); h = Math.max(0,h); r = Math.max(0, Math.min(r, w/2, h/2)); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function seg(ctx,x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+function dot(ctx,x,y,r,color,glow=true){ ctx.save(); ctx.fillStyle = color; if (glow){ ctx.shadowColor = color; ctx.shadowBlur = 12; } ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+function text(ctx,s,x,y,o={}){
+  ctx.save(); ctx.font = o.font || ('600 13px ' + MONO); ctx.fillStyle = o.color || C.text;
+  ctx.textAlign = o.align || 'center'; ctx.textBaseline = o.base || 'middle';
+  if (o.bg){ const m = ctx.measureText(s), w = m.width + 12, h = parseInt(ctx.font.match(/(\d+)px/)[1]) + 8;
+    let bx = x - (ctx.textAlign==='center' ? w/2 : ctx.textAlign==='right' ? w-6 : 6);
+    let by = y - (ctx.textBaseline==='middle' ? h/2 : ctx.textBaseline==='bottom' ? h-3 : 3);
+    rr(ctx,bx,by,w,h,7); ctx.fillStyle = o.bg; ctx.fill(); ctx.fillStyle = o.color || C.text; }
+  ctx.fillText(s,x,y); ctx.restore();
+}
+function arrow(ctx,x1,y1,x2,y2,color,w=3,head=11){
+  const ang = Math.atan2(y2-y1,x2-x1), len = Math.hypot(x2-x1,y2-y1); if (len < 2) return;
+  const hh = Math.min(head, len*0.7);
+  ctx.save(); ctx.strokeStyle = ctx.fillStyle = color; ctx.lineWidth = w; ctx.shadowColor = color; ctx.shadowBlur = 8;
+  seg(ctx,x1,y1,x2-Math.cos(ang)*hh*0.7,y2-Math.sin(ang)*hh*0.7);
+  ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-Math.cos(ang-0.45)*hh,y2-Math.sin(ang-0.45)*hh); ctx.lineTo(x2-Math.cos(ang+0.45)*hh,y2-Math.sin(ang+0.45)*hh); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function hud(ctx,x,y,lines,color=C.cyan){
+  ctx.save(); ctx.font = '700 15px ' + MONO; const lh = 22;
+  let wmax = 0; lines.forEach(l => wmax = Math.max(wmax, ctx.measureText(l).width));
+  rr(ctx,x,y,wmax+24,lines.length*lh+14,10); ctx.fillStyle = 'rgba(6,10,28,.85)'; ctx.fill();
+  ctx.strokeStyle = color+'99'; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = C.text; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+  lines.forEach((l,i) => ctx.fillText(l, x+12, y+9+i*lh)); ctx.restore();
+}
+// Auto estilizado. (x,y) = punto de apoyo de las ruedas; dir = 1 mira a la derecha, −1 a la izquierda
+function drawCar(ctx,x,y,s,color,dir=1,wheel=0,alpha=1){
+  ctx.save(); ctx.globalAlpha = alpha; ctx.translate(x,y); ctx.scale(dir*s, s);
+  ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.beginPath(); ctx.ellipse(0,0,32,4,0,0,Math.PI*2); ctx.fill();
+  const body = () => { ctx.beginPath(); ctx.moveTo(-31,-9); ctx.lineTo(-31,-18); ctx.quadraticCurveTo(-30,-23,-24,-24); ctx.lineTo(-14,-25);
+    ctx.lineTo(-6,-34); ctx.lineTo(10,-34); ctx.lineTo(19,-24.5); ctx.lineTo(27,-22.5); ctx.quadraticCurveTo(32,-21,32,-14); ctx.lineTo(32,-9); ctx.closePath(); };
+  ctx.shadowColor = color; ctx.shadowBlur = 18; ctx.fillStyle = color; body(); ctx.fill(); ctx.shadowBlur = 0;
+  const g = ctx.createLinearGradient(0,-34,0,-8); g.addColorStop(0,'rgba(255,255,255,.25)'); g.addColorStop(.5,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,30,.45)');
+  ctx.fillStyle = g; body(); ctx.fill();
+  ctx.fillStyle = 'rgba(8,14,36,.9)';
+  ctx.beginPath(); ctx.moveTo(-11,-25); ctx.lineTo(-4.5,-31.5); ctx.lineTo(1,-31.5); ctx.lineTo(1,-25); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(3.5,-25); ctx.lineTo(3.5,-31.5); ctx.lineTo(9,-31.5); ctx.lineTo(15,-25); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#fff7c2'; ctx.fillRect(28.5,-19,3.5,3.5);
+  ctx.fillStyle = '#ff4d6d'; ctx.fillRect(-31,-19,3,3.5);
+  for (const wx of [-19,19]){
+    ctx.save(); ctx.translate(wx,-7); ctx.fillStyle = '#0a0d1a'; ctx.beginPath(); ctx.arc(0,0,7,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#d5dbff'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(0,0,4.3,0,Math.PI*2); ctx.stroke();
+    ctx.rotate(wheel*dir); ctx.lineWidth = 1.3; seg(ctx,-4.3,0,4.3,0); seg(ctx,0,-4.3,0,4.3); ctx.restore();
+  }
+  ctx.restore();
+}
+const WHEEL_R = 7;
+// escala horizontal de una pista
+function makeScale(w, xmin, xmax, L=58, R=58){
+  const X = x => L + (x-xmin)/(xmax-xmin)*(w-L-R);
+  X.inv = px => xmin + (px-L)/(w-L-R)*(xmax-xmin); X.L = L; X.R = w-R; X.min = xmin; X.max = xmax; return X;
+}
+function drawRoad(ctx,X,yc,rh,x1,x2){
+  x1 = x1 ?? X.L-34; x2 = x2 ?? X.R+34;
+  ctx.save(); rr(ctx,x1,yc-rh/2,x2-x1,rh,rh/2.6);
+  const g = ctx.createLinearGradient(0,yc-rh/2,0,yc+rh/2); g.addColorStop(0,'#161d40'); g.addColorStop(1,'#0b0f26');
+  ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = 'rgba(34,211,238,.35)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.setLineDash([16,14]); ctx.strokeStyle = 'rgba(230,236,255,.16)'; ctx.lineWidth = 2; seg(ctx,x1+16,yc,x2-16,yc); ctx.restore();
+}
+function drawRuler(ctx,X,y,step,label='x (m)'){
+  ctx.save(); ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5; seg(ctx,X(X.min),y,X(X.max),y);
+  ctx.font = '600 12px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const dec = step < 1 ? 1 : 0;
+  for (let k = Math.ceil(X.min/step - 1e-9); k*step <= X.max + 1e-9; k++){
+    const v = k*step, px = X(v), zero = Math.abs(v) < 1e-9;
+    ctx.strokeStyle = zero ? C.amber : C.axis; ctx.lineWidth = zero ? 2.5 : 1.2; seg(ctx,px,y-(zero?9:5),px,y+(zero?9:5));
+    ctx.fillStyle = zero ? C.amber : C.muted; ctx.fillText(fmt(v,dec), px, y+10);
+  }
+  ctx.fillStyle = C.muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(label, X.L-16, y);
+  ctx.restore();
+}
+function flag(ctx,px,ytop,ybot,label,color){
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.setLineDash([4,4]); seg(ctx,px,ytop,px,ybot); ctx.setLineDash([]);
+  ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(px,ytop); ctx.lineTo(px+14,ytop+5); ctx.lineTo(px,ytop+10); ctx.closePath(); ctx.fill();
+  text(ctx,label,px+18,ytop+5,{align:'left',color,font:'700 12px '+MONO}); ctx.restore();
+}
+// marcador de posición (triángulo) sobre la regla
+function posMarker(ctx,px,y,color,label){
+  ctx.save(); ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.moveTo(px,y-2); ctx.lineTo(px-7,y-13); ctx.lineTo(px+7,y-13); ctx.closePath(); ctx.fill(); ctx.restore();
+  if (label) text(ctx,label,px,y+34,{color,font:'700 13px '+MONO,bg:'rgba(6,10,28,.9)'});
+}
+
+/* ---------- gráficas cartesianas ---------- */
+function Plot(ctx,w,h,o){
+  const rx = o.rx||0, ry = o.ry||0, rw = o.rw||w, rh = o.rh||h;
+  const pad = Object.assign({l:66,r:22,t:22,b:52}, o.pad||{});
+  const x0 = rx+pad.l, y0 = ry+pad.t, pw = rw-pad.l-pad.r, ph = rh-pad.t-pad.b;
+  const X = t => x0 + (t-o.xmin)/(o.xmax-o.xmin)*pw;
+  const Y = v => y0 + ph - (v-o.ymin)/(o.ymax-o.ymin)*ph;
+  const invX = px => o.xmin + (px-x0)/pw*(o.xmax-o.xmin);
+  const decOf = st => st < 1 ? Math.ceil(-Math.log10(st)-1e-9) : 0;
+  function axes(){
+    ctx.save(); ctx.fillStyle = 'rgba(8,12,32,.55)'; ctx.fillRect(x0,y0,pw,ph);
+    ctx.font = '600 12px ' + MONO; ctx.lineWidth = 1;
+    const xd = decOf(o.xstep), yd = decOf(o.ystep);
+    for (let k = Math.ceil(o.xmin/o.xstep-1e-9); k*o.xstep <= o.xmax+1e-9; k++){
+      const t = k*o.xstep, px = X(t); ctx.strokeStyle = C.grid; seg(ctx,px,y0,px,y0+ph);
+      ctx.fillStyle = C.muted; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(fmt(t,xd), px, y0+ph+6);
+    }
+    for (let k = Math.ceil(o.ymin/o.ystep-1e-9); k*o.ystep <= o.ymax+1e-9; k++){
+      const v = k*o.ystep, py = Y(v); ctx.strokeStyle = C.grid; seg(ctx,x0,py,x0+pw,py);
+      ctx.fillStyle = C.muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(fmt(v,yd), x0-8, py);
+    }
+    const yAx = (o.ymin <= 0 && o.ymax >= 0) ? Y(0) : y0+ph;
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 2; seg(ctx,x0,yAx,x0+pw,yAx); seg(ctx,x0,y0,x0,y0+ph);
+    ctx.fillStyle = C.text; ctx.font = '700 14px ' + SANS;
+    ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText(o.xlabel||'', x0+pw, y0+ph+28);
+    ctx.save(); ctx.translate(rx+pad.l-50, y0+ph/2); ctx.rotate(-Math.PI/2); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(o.ylabel||'',0,0); ctx.restore();
+    if (o.title){ ctx.font = '700 15px ' + SANS; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillStyle = o.titleColor || C.text; ctx.fillText(o.title, x0+8, y0-4); }
+    ctx.restore();
+  }
+  function clip(){ ctx.beginPath(); ctx.rect(x0-2,y0-2,pw+4,ph+4); ctx.clip(); }
+  function curve(f,t0,t1,color,width=3,dash=null,glow=true){
+    if (t1 <= t0) return;
+    ctx.save(); clip(); ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    if (dash) ctx.setLineDash(dash); if (glow){ ctx.shadowColor = color; ctx.shadowBlur = 12; }
+    ctx.beginPath(); const n = Math.max(2, Math.ceil((X(t1)-X(t0))/3));
+    for (let i = 0; i <= n; i++){ const t = t0+(t1-t0)*i/n, px = X(t), py = Y(f(t)); i ? ctx.lineTo(px,py) : ctx.moveTo(px,py); }
+    ctx.stroke(); ctx.restore();
+  }
+  function guides(t,v,color){ ctx.save(); ctx.strokeStyle = color; ctx.globalAlpha = .7; ctx.lineWidth = 1.3; ctx.setLineDash([5,5]);
+    const yAx = (o.ymin <= 0 && o.ymax >= 0) ? Y(0) : y0+ph; seg(ctx,X(t),Y(v),X(t),yAx); seg(ctx,X(t),Y(v),x0,Y(v)); ctx.restore(); }
+  const inside = (t,v) => t >= o.xmin-1e-9 && t <= o.xmax+1e-9 && v >= o.ymin-1e-9 && v <= o.ymax+1e-9;
+  return {X,Y,invX,axes,clip,curve,guides,inside,x0,y0,pw,ph,o};
+}
+
+/* ---------- enlaces de deslizadores y botones de simulación ---------- */
+const binds = [];
+function bind(id, get, set, f, maxGet){
+  const el = $(id), out = $(id+'_o'); binds.push({el,out,get,f,maxGet});
+  el.addEventListener('input', () => set(parseFloat(el.value)));
+}
+function refreshBinds(){
+  for (const b of binds){
+    if (b.maxGet){ const m = String(b.maxGet()); if (b.el.max !== m) b.el.max = m; }
+    const v = b.get();
+    if (!b.el.matches(':active') && Math.abs(parseFloat(b.el.value) - v) > 1e-9) b.el.value = v;
+    if (b.out){ const s = b.f(v); if (b.out.textContent !== s) b.out.textContent = s; }
+  }
+}
+const plays = [];
+function simToggle(m){ if (m.running) m.running = false; else { if (m.t >= m.T - 1e-6) m.t = 0; m.running = true; } }
+function simStep(m, dt){ if (m.running){ m.t += dt*(m.speed||1); if (m.t >= m.T){ m.t = m.T; m.running = false; } } }
+function wirePlay(playId, resetId, m, labels){
+  const p = $(playId); p.addEventListener('click', () => simToggle(m));
+  $(resetId).addEventListener('click', () => { m.t = 0; m.running = false; });
+  plays.push({p, m, labels: labels || ['▶ Iniciar','⏸ Pausar','▶ Continuar','↻ Repetir']});
+}
+function refreshPlays(){
+  for (const {p,m,labels} of plays){
+    const s = m.running ? labels[1] : (m.t >= m.T-1e-6 ? labels[3] : (m.t > 0 ? labels[2] : labels[0]));
+    if (p.textContent !== s) p.textContent = s; p.classList.toggle('running', m.running);
+  }
+}
+function wireSpeed(id, m){
+  const b = $(id), opts = [1, 0.5, 2];
+  b.addEventListener('click', () => { m.speed = opts[(opts.indexOf(m.speed||1)+1) % opts.length]; b.textContent = '×' + fs(m.speed); });
+  b.textContent = '×' + fs(m.speed||1);
+}
+function toast(s){ const t = $('toast'); t.textContent = s; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 1800); }
+
+// Pregunta de opción múltiple con explicación por opción (permite reintentar)
+function makeQuestion(el, data){
+  el.innerHTML = `<h3>❓ Pregunta</h3><div class="q-text">${data.q}</div><div class="opts"></div><div class="fb"></div>`;
+  const opts = el.querySelector('.opts'), fb = el.querySelector('.fb');
+  function render(){
+    opts.innerHTML = ''; fb.className = 'fb'; fb.innerHTML = '';
+    data.opts.forEach((o,i) => {
+      const b = document.createElement('button'); b.className = 'opt';
+      b.innerHTML = `<span class="let">${'ABCD'[i]}</span><span>${o.t}</span>`;
+      b.addEventListener('click', () => answer(i)); opts.appendChild(b);
+    });
+  }
+  function answer(i){
+    const bs = [...opts.children]; bs.forEach(b => b.disabled = true);
+    const o = data.opts[i]; bs[i].classList.add(o.ok ? 'right' : 'wrong');
+    fb.className = 'fb show ' + (o.ok ? 'good' : 'bad');
+    fb.innerHTML = `<b>${o.ok ? '✔ ¡Correcto!' : '✘ No es correcto.'}</b> ${o.why} <div class="btn-row"><button class="btn">${o.ok ? '⟲ Volver a preguntar' : '↺ Intentar de nuevo'}</button></div>`;
+    fb.querySelector('button').addEventListener('click', render);
+  }
+  render(); el._reset = render;
+}
+
+/* =========================================================
+   0 · PORTADA
+   ========================================================= */
+const COV = {t:0, go:false, gt:0, parts:[]};
+function frameCover(dt){
+  COV.t += dt; if (COV.go) COV.gt += dt;
+  const {ctx,w,h} = fitCanvas($('cvCover'));
+  const startX = Math.max(90, w*0.16);
+  const lanes = [{y:h*0.42, color:C.cyan, name:'MRU'}, {y:h*0.8, color:C.violet, name:'MRUV'}];
+  const rh = Math.min(64, h*0.3), s = clamp(w/900, .8, 1.35);
+  const scroll = COV.go ? COV.gt*400 : 0;
+  lanes.forEach(l => {
+    ctx.save(); rr(ctx,-20,l.y-rh/2,w+40,rh,12); ctx.fillStyle = '#0f1430'; ctx.fill(); ctx.strokeStyle = l.color+'66'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.setLineDash([22,18]); ctx.lineDashOffset = scroll; ctx.strokeStyle = 'rgba(230,236,255,.15)'; ctx.lineWidth = 2; seg(ctx,0,l.y,w,l.y); ctx.restore();
+  });
+  // línea de largada a cuadros
+  const lx = startX + 40*s, top = lanes[0].y-rh/2, bot = lanes[1].y+rh/2, sq = 8;
+  for (let yy = top, r = 0; yy < bot; yy += sq, r++){ for (let c = 0; c < 2; c++){ ctx.fillStyle = (r+c)%2 ? 'rgba(255,255,255,.75)' : 'rgba(0,0,0,.6)'; ctx.fillRect(lx+c*sq, yy, sq, Math.min(sq, bot-yy)); } }
+  // semáforo
+  const phase = COV.go ? 4 : Math.floor((COV.t % 3.6)/0.7);
+  const gx = lx + 44, gy = Math.max(16, top - 26);
+  rr(ctx,gx-8,gy-14,3*30+16,28,14); ctx.fillStyle = '#0a0d1d'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.15)'; ctx.stroke();
+  for (let i = 0; i < 3; i++){
+    const on = COV.go ? true : (phase > i && phase <= 3);
+    const col = COV.go ? '#22ff9a' : '#ff3b5c';
+    dot(ctx, gx+8+i*30, gy, 9, on ? col : 'rgba(255,255,255,.08)', on);
+  }
+  // autos
+  lanes.forEach((l,i) => {
+    let x = startX, jitter = 0;
+    if (COV.go){ x = i === 0 ? startX + 520*COV.gt : startX + 0.5*1100*COV.gt*COV.gt; }
+    else jitter = Math.sin(COV.t*55 + i*2)*0.7;
+    // humo
+    if (Math.random() < (COV.go ? .9 : .35)) COV.parts.push({x:x-30*s, y:l.y+rh*0.22-6*s, vx:-30-Math.random()*40, vy:-8-Math.random()*10, life:1});
+    drawCar(ctx, x, l.y+rh*0.3+jitter, s, l.color, 1, x/(WHEEL_R*s));
+    if (!COV.go) text(ctx, l.name, startX, l.y-rh/2-12, {color:l.color, font:'700 13px '+MONO});
+    else if (x < w-40) text(ctx, i === 0 ? 'velocidad constante' : 'acelera…', x, l.y-rh/2-12, {color:l.color, font:'700 13px '+MONO});
+  });
+  COV.parts = COV.parts.filter(p => (p.life -= dt*1.4) > 0);
+  COV.parts.forEach(p => { p.x += p.vx*dt; p.y += p.vy*dt; ctx.fillStyle = `rgba(180,190,255,${p.life*0.22})`; ctx.beginPath(); ctx.arc(p.x,p.y,(1.2-p.life)*10+2,0,Math.PI*2); ctx.fill(); });
+  if (COV.go && COV.gt > 1.6){ COV.go = false; COV.gt = 0; $('startBtn').disabled = false; goTo(1); }
+}
+$('startBtn').addEventListener('click', () => { if (!COV.go){ COV.go = true; COV.gt = 0; $('startBtn').disabled = true; } });
+
+/* =========================================================
+   1 · ¿QUÉ ES LA CINEMÁTICA?
+   ========================================================= */
+const CONCEPTS = {
+  posicion:   {ic:'📍', name:'Posición', def:'Indica <b>dónde está</b> el objeto respecto de un punto de referencia llamado <b>origen</b>. Se mide en metros (m) y puede ser negativa.', hint:'👆 Tocá o arrastrá sobre la pista para cambiar la posición del auto.'},
+  trayectoria:{ic:'〰️', name:'Trayectoria', def:'Es el <b>camino</b> (la línea) que describe el objeto al moverse. Puede ser recta o curva.', hint:'La línea luminosa que deja el auto es su trayectoria.'},
+  tiempo:     {ic:'⏱️', name:'Tiempo', def:'Indica <b>cuándo</b> ocurre cada posición. Se mide en segundos (s). Cada punto marcado es la posición del auto en un instante.', hint:'El cronómetro avanza y marcamos dónde estaba el auto en cada segundo.'},
+  distancia:  {ic:'📏', name:'Distancia recorrida', def:'Es la <b>longitud total del camino</b> recorrido. Nunca disminuye. No es lo mismo que el desplazamiento (la línea recta entre la salida y la llegada).', hint:'Compará la distancia recorrida (amarillo) con el desplazamiento (punteado violeta).'},
+  velocidad:  {ic:'💨', name:'Velocidad', def:'Es el <b>cambio de posición por unidad de tiempo</b>: v = Δx / Δt. Se mide en m/s.', hint:'Cada segundo el auto avanza lo mismo: 10 m. Su velocidad es 10 m/s.'},
+  aceleracion:{ic:'⚡', name:'Aceleración', def:'Es el <b>cambio de velocidad por unidad de tiempo</b>: a = Δv / Δt. Se mide en m/s².', hint:'Cada segundo la velocidad aumenta 2 m/s: las marcas quedan cada vez más separadas.'}
+};
+const S1 = {mode:'posicion', t:0, pos:35, X:null, drag:false};
+(function initS1(){
+  const box = $('concepts');
+  Object.entries(CONCEPTS).forEach(([k,c]) => {
+    const b = document.createElement('button'); b.className = 'concept'; b.dataset.k = k;
+    b.innerHTML = `<span class="ic">${c.ic}</span>${c.name}`;
+    b.addEventListener('click', () => setConcept(k)); box.appendChild(b);
+  });
+  const cv = $('cv1');
+  const place = e => { if (S1.mode !== 'posicion' || !S1.X) return; const {px} = ptr(e,cv); S1.pos = clamp(Math.round(S1.X.inv(px)), -30, 100); };
+  cv.addEventListener('pointerdown', e => { S1.drag = true; cv.setPointerCapture(e.pointerId); place(e); });
+  cv.addEventListener('pointermove', e => { if (S1.drag) place(e); });
+  cv.addEventListener('pointerup', () => S1.drag = false); cv.addEventListener('pointercancel', () => S1.drag = false);
+  setConcept('posicion');
+})();
+function setConcept(k){
+  S1.mode = k; S1.t = 0;
+  document.querySelectorAll('.concept').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+  const c = CONCEPTS[k]; $('c_def').innerHTML = `<h4>${c.ic} ${c.name}</h4>${c.def}`; $('c_hint').textContent = c.hint;
+  $('cv1').style.cursor = k === 'posicion' ? 'pointer' : 'default';
+}
+function catmull(pts, n=26){
+  const out = [];
+  for (let i = 0; i < pts.length-1; i++){
+    const p0 = pts[Math.max(0,i-1)], p1 = pts[i], p2 = pts[i+1], p3 = pts[Math.min(pts.length-1,i+2)];
+    for (let k = 0; k < n; k++){ const t = k/n, t2 = t*t, t3 = t2*t;
+      const f = j => 0.5*((2*p1[j]) + (-p0[j]+p2[j])*t + (2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2 + (-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3);
+      out.push([f(0), f(1)]); }
+  }
+  out.push(pts[pts.length-1]); return out;
+}
+function pathInfo(poly){ const cum = [0]; for (let i = 1; i < poly.length; i++) cum.push(cum[i-1] + Math.hypot(poly[i][0]-poly[i-1][0], poly[i][1]-poly[i-1][1])); return {poly, cum, len:cum[cum.length-1]}; }
+function pathAt(P, s){
+  s = clamp(s, 0, P.len); let i = 1; while (i < P.cum.length-1 && P.cum[i] < s) i++;
+  const a = P.poly[i-1], b = P.poly[i], f = (s-P.cum[i-1])/((P.cum[i]-P.cum[i-1])||1);
+  return {x:a[0]+(b[0]-a[0])*f, y:a[1]+(b[1]-a[1])*f, ang:Math.atan2(b[1]-a[1], b[0]-a[0])};
+}
+function strokePartial(ctx, P, s){
+  ctx.beginPath(); ctx.moveTo(P.poly[0][0], P.poly[0][1]);
+  for (let i = 1; i < P.poly.length; i++){
+    if (P.cum[i] >= s){ const q = pathAt(P, s); ctx.lineTo(q.x, q.y); break; }
+    ctx.lineTo(P.poly[i][0], P.poly[i][1]);
+  }
+  ctx.stroke();
+}
+function frameS1(dt){
+  S1.t += dt;
+  const {ctx,w,h} = fitCanvas($('cv1'));
+  const s = clamp(w/900, .75, 1.15);
+  const m = S1.mode;
+  if (m === 'trayectoria' || m === 'tiempo' || m === 'distancia'){
+    const pts = [[.06,.8],[.22,.55],[.4,.74],[.58,.36],[.76,.58],[.94,.26]].map(([a,b]) => [a*w, b*h]);
+    const P = pathInfo(catmull(pts));
+    const DUR = 8, CYC = 10, tt = S1.t % CYC, tm = Math.min(tt, DUR), sNow = tm/DUR*P.len;
+    const METERS = 160, k = METERS/P.len;
+    ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#121838'; ctx.lineWidth = 44*s; strokePartial(ctx, P, P.len);
+    ctx.strokeStyle = 'rgba(34,211,238,.18)'; ctx.lineWidth = 46*s; ctx.globalCompositeOperation = 'destination-over'; strokePartial(ctx, P, P.len); ctx.globalCompositeOperation = 'source-over';
+    ctx.setLineDash([12,12]); ctx.strokeStyle = 'rgba(230,236,255,.14)'; ctx.lineWidth = 2; strokePartial(ctx, P, P.len); ctx.setLineDash([]);
+    if (m === 'trayectoria'){ ctx.strokeStyle = C.cyan; ctx.lineWidth = 5; ctx.shadowColor = C.cyan; ctx.shadowBlur = 16; strokePartial(ctx, P, sNow); }
+    if (m === 'distancia'){ ctx.strokeStyle = C.amber; ctx.lineWidth = 6; ctx.shadowColor = C.amber; ctx.shadowBlur = 14; strokePartial(ctx, P, sNow); }
+    ctx.restore();
+    const q = pathAt(P, sNow);
+    if (m === 'distancia'){
+      ctx.save(); ctx.setLineDash([7,6]); ctx.strokeStyle = C.violet; ctx.lineWidth = 2.5; seg(ctx, P.poly[0][0], P.poly[0][1], q.x, q.y); ctx.restore();
+      const disp = Math.hypot(q.x-P.poly[0][0], q.y-P.poly[0][1])*k;
+      hud(ctx, 14, 14, [`Distancia recorrida: ${fmt(sNow*k,0)} m`, `Desplazamiento:      ${fmt(disp,0)} m`], C.amber);
+    }
+    if (m === 'tiempo'){
+      for (let i = 0; i <= Math.floor(tm+1e-9); i++){ const p = pathAt(P, i/DUR*P.len); dot(ctx, p.x, p.y, 6, C.pink); text(ctx, i+' s', p.x, p.y-20, {color:C.pink, font:'700 12px '+MONO, bg:'rgba(6,10,28,.85)'}); }
+      const cx = w-70, cy = 70, R = 46;
+      ctx.save(); ctx.fillStyle = 'rgba(6,10,28,.9)'; ctx.strokeStyle = C.pink; ctx.lineWidth = 3; ctx.shadowColor = C.pink; ctx.shadowBlur = 14;
+      ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+      ctx.fillRect(cx-6, cy-R-10, 12, 8);
+      for (let i = 0; i < 8; i++){ const a = i/8*Math.PI*2 - Math.PI/2; ctx.strokeStyle = C.muted; ctx.lineWidth = 2; seg(ctx, cx+Math.cos(a)*(R-8), cy+Math.sin(a)*(R-8), cx+Math.cos(a)*(R-3), cy+Math.sin(a)*(R-3)); }
+      const a = tm/DUR*Math.PI*2 - Math.PI/2; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; seg(ctx, cx, cy, cx+Math.cos(a)*(R-12), cy+Math.sin(a)*(R-12));
+      ctx.restore(); text(ctx, 't = ' + fmt(tm,1) + ' s', cx, cy+R+18, {color:C.pink, font:'700 16px '+MONO});
+    }
+    if (m === 'trayectoria') text(ctx, 'trayectoria', P.poly[Math.floor(P.poly.length*0.3)][0], P.poly[Math.floor(P.poly.length*0.3)][1]-38*s, {color:C.cyan, font:'700 15px '+SANS, bg:'rgba(6,10,28,.8)'});
+    dot(ctx, P.poly[0][0], P.poly[0][1], 6, C.green); text(ctx, 'salida', P.poly[0][0], P.poly[0][1]+24, {color:C.green, font:'700 12px '+MONO});
+    ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.ang); drawCar(ctx, 0, 14*s, s*0.9, C.cyan, 1, sNow/(WHEEL_R*s)); ctx.restore();
+    return;
+  }
+  // modos sobre pista recta
+  const xmin = m === 'posicion' ? -30 : 0, xmax = 100;
+  const X = makeScale(w, xmin, xmax); S1.X = X;
+  const yc = h*0.5, rh = Math.min(70, h*0.2);
+  drawRoad(ctx, X, yc, rh); drawRuler(ctx, X, yc+rh/2+16, w < 700 ? 20 : 10);
+  if (m === 'posicion'){
+    const px = X(S1.pos);
+    text(ctx, 'Origen (0 m)', X(0), yc-rh/2-62, {color:C.amber, font:'700 13px '+MONO});
+    ctx.save(); ctx.strokeStyle = C.amber; ctx.setLineDash([4,4]); seg(ctx, X(0), yc-rh/2-50, X(0), yc+rh/2+8); ctx.restore();
+    arrow(ctx, X(0), yc-rh/2-34, px, yc-rh/2-34, C.cyan, 3.5);
+    text(ctx, 'x = ' + fs(S1.pos) + ' m', (X(0)+px)/2, yc-rh/2-50, {color:C.cyan, font:'700 18px '+MONO, bg:'rgba(6,10,28,.85)'});
+    drawCar(ctx, px, yc+rh*0.3, s, C.cyan, 1, px/(WHEEL_R*s));
+    posMarker(ctx, px, yc+rh/2+16, C.cyan);
+    dot(ctx, px, yc+rh/2+16, 5, '#fff');
+    return;
+  }
+  const DUR = 10, CYC = 12.5, tt = S1.t % CYC, tm = Math.min(tt, DUR);
+  const isV = m === 'velocidad';
+  const xOf = t => isV ? 10*t : t*t;    // v = 10 m/s   |   a = 2 m/s² → x = ½·2·t² = t²
+  const x = xOf(tm), v = isV ? 10 : 2*tm;
+  let lastLbl = -1e9;
+  for (let i = 0; i <= Math.floor(tm+1e-9); i++){
+    const pxk = X(xOf(i)); dot(ctx, pxk, yc, 5, isV ? C.violet : C.amber);
+    if (pxk - lastLbl > 26){ text(ctx, i+' s', pxk, yc-rh/2-14, {color:isV ? C.violet : C.amber, font:'700 12px '+MONO}); lastLbl = pxk; }
+    if (i > 0){
+      const a = X(xOf(i-1)), b = pxk;
+      if (b - a > 34){ ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.2; seg(ctx, a, yc-rh/2-32, b, yc-rh/2-32); ctx.restore();
+        text(ctx, fs(xOf(i)-xOf(i-1)) + ' m', (a+b)/2, yc-rh/2-44, {color:C.text, font:'600 11px '+MONO}); }
+    }
+  }
+  drawCar(ctx, X(x), yc+rh*0.3, s, isV ? C.violet : C.amber, 1, X(x)/(WHEEL_R*s));
+  posMarker(ctx, X(x), yc+rh/2+16, isV ? C.violet : C.amber);
+  hud(ctx, 14, 12, isV
+    ? [`t = ${fmt(tm,1)} s`, `x = ${fmt(x,1)} m`, `v = Δx/Δt = 10 m/s`]
+    : [`t = ${fmt(tm,1)} s`, `v = ${fmt(v,1)} m/s`, `a = Δv/Δt = 2 m/s²`], isV ? C.violet : C.amber);
+}
+/* desafío */
+const CH = {i:0, score:0, tried:false, items:[
+  {s:'“La bici está a <b>300 m de la puerta del colegio</b>.”', k:'posicion', tip:'Dice <i>dónde</i> está, respecto de un punto de referencia.'},
+  {s:'“Va por la avenida, dobla en la esquina y sigue por la calle del colegio: ese es <b>el camino que dibuja</b>.”', k:'trayectoria', tip:'Habla de la línea o camino que sigue.'},
+  {s:'“Sale a las 7:40 y llega a las 7:46: <b>tarda 6 minutos</b>.”', k:'tiempo', tip:'Habla de <i>cuándo</i> y de <i>cuánto dura</i>.'},
+  {s:'“Entre ida y vuelta, el cuentakilómetros marca que <b>pedaleó 2,4 km en total</b>.”', k:'distancia', tip:'Es la longitud total del camino, aunque haya vuelto al lugar de partida.'},
+  {s:'“En la avenida avanza unos <b>5 metros cada segundo</b>.”', k:'velocidad', tip:'Es un cambio de posición por cada unidad de tiempo.'},
+  {s:'“En la bajada, <b>cada segundo va un poco más rápido</b> que en el segundo anterior.”', k:'aceleracion', tip:'Lo que cambia con el tiempo es la velocidad.'}
+]};
+function renderCH(){
+  const it = CH.items[CH.i], chips = $('chChips');
+  if (!it){
+    $('chText').innerHTML = `🏁 ¡Desafío completado! Acertaron <b>${CH.score} de ${CH.items.length}</b> al primer intento.`;
+    chips.innerHTML = ''; $('chFb').className = 'fb';
+    $('chNext').textContent = '⟲ Reiniciar desafío'; $('chNext').disabled = false; setTxt('chScore', ''); return;
+  }
+  CH.tried = false; $('chText').innerHTML = `<span class="note">Frase ${CH.i+1} de ${CH.items.length}:</span><br>${it.s}`;
+  $('chFb').className = 'fb'; $('chNext').disabled = true; $('chNext').textContent = 'Siguiente frase →';
+  chips.innerHTML = '';
+  Object.entries(CONCEPTS).forEach(([k,c]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = `${c.ic} ${c.name}`;
+    b.addEventListener('click', () => {
+      const fb = $('chFb');
+      if (k === it.k){
+        if (!CH.tried) CH.score++;
+        b.classList.add('right'); chips.querySelectorAll('.chip').forEach(x => x.disabled = true);
+        fb.className = 'fb show good'; fb.innerHTML = `<b>✔ ¡Bien!</b> Es <b>${c.name.toLowerCase()}</b>. ${it.tip}`; $('chNext').disabled = false;
+      } else {
+        CH.tried = true; b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong');
+        fb.className = 'fb show bad'; fb.innerHTML = `<b>✘ Todavía no.</b> Pista: ${it.tip}`;
+      }
+      setTxt('chScore', `Aciertos al primer intento: ${CH.score}`);
+    });
+    chips.appendChild(b);
+  });
+  setTxt('chScore', `Aciertos al primer intento: ${CH.score}`);
+}
+$('chNext').addEventListener('click', () => { if (CH.i >= CH.items.length){ CH.i = 0; CH.score = 0; } else CH.i++; renderCH(); });
+renderCH();
+
+/* =========================================================
+   2 y 3 · MRU (modelo compartido)
+   ========================================================= */
+const MRU_DEF = {x0:0, v:5, T:8};
+const MRU = Object.assign({t:0, running:false, speed:1, XMIN:-40, XMAX:100}, MRU_DEF);
+const mruX = t => MRU.x0 + MRU.v*t;
+const setMRU = (k, v) => { MRU[k] = v; if (k === 'T') MRU.t = Math.min(MRU.t, MRU.T); };
+for (const pre of ['m','g']){
+  bind(pre+'_x0', () => MRU.x0, v => setMRU('x0', v), v => fs(v)+' m');
+  bind(pre+'_v',  () => MRU.v,  v => setMRU('v', v),  v => fs(v)+' m/s');
+  bind(pre+'_T',  () => MRU.T,  v => setMRU('T', v),  v => fs(v)+' s');
+}
+bind('m_t', () => MRU.t, v => { MRU.t = v; MRU.running = false; }, v => fmt(v,2)+' s', () => MRU.T);
+wirePlay('m_play','m_reset',MRU); wirePlay('g_play','g_reset',MRU); wireSpeed('m_speed', MRU);
+$('m_example').addEventListener('click', () => { MRU.x0 = 0; MRU.v = 5; MRU.T = 8; MRU.t = 0; MRU.running = true; });
+const G3 = {compare:true};
+document.querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => { MRU.v = parseFloat(b.dataset.v); MRU.t = 0; MRU.running = true; }));
+$('g_cmp').addEventListener('click', () => { G3.compare = !G3.compare; $('g_cmp').textContent = '👁 Comparación: ' + (G3.compare ? 'sí' : 'no'); $('g_cmp').classList.toggle('sel', G3.compare); });
+const PRESETS = [{v:2, color:C.green, name:'baja'}, {v:5, color:C.amber, name:'intermedia'}, {v:8, color:C.pink, name:'alta'}];
+
+function drawMRUTrack(cv, compact){
+  const {ctx,w,h} = fitCanvas(cv);
+  const X = makeScale(w, MRU.XMIN, MRU.XMAX);
+  const s = clamp(w/1000, .7, 1.1)*(compact ? .85 : 1);
+  const rh = Math.min(66, h*(compact ? .38 : .3)), yc = compact ? h*0.4 : h*0.46, ry = yc+rh/2+16;
+  drawRoad(ctx, X, yc, rh); drawRuler(ctx, X, ry, w < 700 ? 20 : 10);
+  if (!compact) flag(ctx, X(MRU.x0), yc-rh/2-34, yc+rh/2, 'x₀ = '+fs(MRU.x0)+' m', C.green);
+  let last = -1e9;
+  for (let k = 1; k <= Math.floor(MRU.t+1e-9); k++){
+    const px = X(mruX(k)); dot(ctx, px, yc, 4.5, C.pink);
+    if (!compact && Math.abs(px-last) > 24){ text(ctx, k+' s', px, yc-rh/2-12, {color:C.pink, font:'700 11px '+MONO}); last = px; }
+  }
+  const x = mruX(MRU.t), px = X(x), dir = MRU.v < 0 ? -1 : 1;
+  if (MRU.v !== 0) arrow(ctx, px, yc-rh/2-(compact?8:30), px + dir*clamp(Math.abs(MRU.v)*7, 14, 80), yc-rh/2-(compact?8:30), C.violet, 3);
+  drawCar(ctx, px, yc+rh*0.3, s, C.cyan, dir, px/(WHEEL_R*s));
+  posMarker(ctx, px, ry, C.cyan, compact ? null : 'x = '+fmt(x,1)+' m');
+}
+function updMRUTable(){
+  const el = $('m_tbl'), key = [MRU.x0, MRU.v, MRU.T].join('|');
+  if (el._key !== key){
+    el._key = key; el._hl = -1;
+    let r1 = '<tr><th>t (s)</th>', r2 = '<tr><th>x (m)</th>';
+    for (let k = 0; k <= MRU.T; k++){ r1 += `<td data-k="${k}">${k}</td>`; r2 += `<td data-k="${k}">${fs(mruX(k))}</td>`; }
+    el.innerHTML = r1 + '</tr>' + r2 + '</tr>';
+  }
+  hlTable(el, MRU.t);
+}
+function hlTable(el, t){
+  const k = Math.floor(t + 1e-9);
+  if (el._hl === k) return; el._hl = k;
+  el.querySelectorAll('td').forEach(td => { const j = +td.dataset.k; td.classList.toggle('now', j === k); td.classList.toggle('past', j < k); });
+}
+function frameS2(dt){
+  simStep(MRU, dt); drawMRUTrack($('cvMRU'), false);
+  const x = mruX(MRU.t);
+  setTxt('m_ro_t', fmt(MRU.t,2)+' s'); setTxt('m_ro_x', fmt(x,2)+' m'); setTxt('m_ro_v', fs(MRU.v)+' m/s'); setTxt('m_ro_a', '0 m/s²');
+  setHTML('m_live', `x = x₀ + v · t = ${fsp(MRU.x0)} + ${fsp(MRU.v)} · ${fmt(MRU.t,2)} = <b>${fmt(x,2)} m</b>`);
+  setTxt('m_dx', fs(MRU.v)+' m');
+  updMRUTable();
+}
+function frameS3(dt){
+  simStep(MRU, dt);
+  drawMRUTrack($('cvG3t'), true);
+  const {ctx,w,h} = fitCanvas($('cvG3'));
+  const P = Plot(ctx, w, h, {xmin:0, xmax:10, ymin:MRU.XMIN, ymax:MRU.XMAX, xstep:1, ystep:20, xlabel:'tiempo t (s)', ylabel:'posición x (m)'});
+  P.axes();
+  if (G3.compare) PRESETS.forEach(p => {
+    const f = t => MRU.x0 + p.v*t; P.curve(f, 0, 10, p.color+'66', 2, [7,6], false);
+    const tl = Math.min(9.5, (MRU.XMAX - 6 - MRU.x0)/p.v); text(ctx, p.name+' ('+p.v+' m/s)', P.X(tl), P.Y(f(tl))-12, {color:p.color, font:'700 12px '+MONO, align:'right'});
+  });
+  P.curve(mruX, 0, MRU.T, 'rgba(34,211,238,.28)', 2, [3,6], false);
+  P.curve(mruX, 0, MRU.t, C.cyan, 4.5);
+  const pw1 = P.pw/10; let lastY = null;
+  for (let k = 0; k <= Math.floor(MRU.t+1e-9); k++){
+    const xk = mruX(k); dot(ctx, P.X(k), P.Y(xk), 5.5, C.cyan);
+    if (pw1 > 38 || k % 2 === 0) text(ctx, fs(xk)+' m', P.X(k)-6, P.Y(xk)-15, {color:C.text, font:'600 11px '+MONO, align:'right', bg:'rgba(6,10,28,.7)'});
+  }
+  if (MRU.t >= 2 && MRU.v !== 0){
+    const a = 1, b = 2, ya = mruX(a), yb = mruX(b);
+    ctx.save(); ctx.strokeStyle = C.amber; ctx.lineWidth = 2.5; ctx.shadowColor = C.amber; ctx.shadowBlur = 8;
+    seg(ctx, P.X(a), P.Y(ya), P.X(b), P.Y(ya)); seg(ctx, P.X(b), P.Y(ya), P.X(b), P.Y(yb)); ctx.restore();
+    text(ctx, 'Δt = 1 s', (P.X(a)+P.X(b))/2, P.Y(ya) + (MRU.v > 0 ? 14 : -14), {color:C.amber, font:'700 12px '+MONO});
+    text(ctx, 'Δx = '+fs(MRU.v)+' m', P.X(b)+8, (P.Y(ya)+P.Y(yb))/2, {color:C.amber, font:'700 12px '+MONO, align:'left', bg:'rgba(6,10,28,.8)'});
+  }
+  const xn = mruX(MRU.t); P.guides(MRU.t, xn, C.cyan); dot(ctx, P.X(MRU.t), P.Y(xn), 8, '#fff');
+  text(ctx, `(${fmt(MRU.t,1)} s ; ${fmt(xn,1)} m)`, P.X(MRU.t)+12, P.Y(xn)+ (MRU.v >= 0 ? 18 : -18), {color:C.cyan, font:'700 13px '+MONO, align:'left', bg:'rgba(6,10,28,.85)'});
+  hud(ctx, P.x0+10, P.y0+10, ['x = ' + linTxt(MRU.v, MRU.x0), 'pendiente m = v = ' + fs(MRU.v) + ' m/s'], C.cyan);
+  setHTML('g_live', `Ahora: <b>x = ${linTxt(MRU.v, MRU.x0)}</b> &nbsp;→&nbsp; m = <span class="lv">${fs(MRU.v)} m/s</span>, b = <span class="lv">${fs(MRU.x0)} m</span>`);
+  document.querySelectorAll('#g_presets [data-v], #g_neg').forEach(b => b.classList.toggle('sel', parseFloat(b.dataset.v) === MRU.v));
+}
+function linTxt(m, b){ let s = fs(m) + ' · t'; if (b > 0) s += ' + ' + fs(b); else if (b < 0) s += ' ' + MINUS + ' ' + fs(-b); else s += ' + 0'; return s; }
+
+/* =========================================================
+   4 · PENDIENTE
+   ========================================================= */
+const S4_DEF = {v:5, tA:2, tB:6};
+const S4 = Object.assign({x0:10, drag:null, P:null}, S4_DEF);
+const s4x = t => S4.x0 + S4.v*t;
+bind('p_v', () => S4.v, v => S4.v = v, v => 'm = ' + fs(v));
+$('p_reset').addEventListener('click', () => { S4.tA = 2; S4.tB = 6; });
+(function initS4(){
+  const cv = $('cv4');
+  const move = px => { const t = Math.round(clamp(S4.P.invX(px), 0, 10)*10)/10; if (S4.drag === 'A') S4.tA = t; else S4.tB = t; };
+  cv.addEventListener('pointerdown', e => {
+    const P = S4.P; if (!P) return; const {px,py} = ptr(e,cv);
+    const dA = Math.hypot(px-P.X(S4.tA), py-P.Y(s4x(S4.tA))), dB = Math.hypot(px-P.X(S4.tB), py-P.Y(s4x(S4.tB)));
+    let pick = null;
+    if (Math.min(dA,dB) < 40) pick = dA <= dB ? 'A' : 'B';
+    else { const t = P.invX(px); if (t >= 0 && t <= 10) pick = Math.abs(t-S4.tA) < Math.abs(t-S4.tB) ? 'A' : 'B'; }
+    if (pick){ S4.drag = pick; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; move(px); }
+  });
+  cv.addEventListener('pointermove', e => { if (S4.drag) move(ptr(e,cv).px); });
+  const up = () => { S4.drag = null; cv.style.cursor = 'grab'; };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  makeQuestion($('q4'), {q:'«Si la recta se vuelve más inclinada, ¿qué ocurre con la velocidad?»', opts:[
+    {t:'La velocidad no cambia: la inclinación es solo un dibujo.', ok:false, why:'La inclinación sí tiene significado físico: es Δx/Δt. Probá con el deslizador: al inclinar más la recta, Δx/Δt aumenta.'},
+    {t:'La velocidad aumenta (en valor absoluto).', ok:true, why:'Una recta más inclinada recorre más metros (Δx) en el mismo tiempo (Δt). Como v = Δx/Δt, la pendiente es la velocidad: más pendiente, más rapidez.'},
+    {t:'La velocidad disminuye.', ok:false, why:'Es al revés: con más inclinación, en cada segundo la posición cambia más metros. Eso significa mayor rapidez, no menor.'}
+  ]});
+})();
+function frameS4(){
+  const {ctx,w,h} = fitCanvas($('cv4'));
+  const P = Plot(ctx, w, h, {xmin:0, xmax:10, ymin:-40, ymax:100, xstep:1, ystep:20, xlabel:'tiempo t (s)', ylabel:'posición x (m)'}); S4.P = P;
+  P.axes(); P.curve(s4x, 0, 10, C.violet, 4);
+  const xA = s4x(S4.tA), xB = s4x(S4.tB);
+  if (S4.tA !== S4.tB){
+    ctx.save(); ctx.lineWidth = 3; ctx.shadowBlur = 8;
+    ctx.strokeStyle = C.green; ctx.shadowColor = C.green; seg(ctx, P.X(S4.tA), P.Y(xA), P.X(S4.tB), P.Y(xA));
+    ctx.strokeStyle = C.violet; ctx.shadowColor = C.violet; ctx.setLineDash([6,4]); seg(ctx, P.X(S4.tB), P.Y(xA), P.X(S4.tB), P.Y(xB)); ctx.restore();
+    text(ctx, 'Δt = '+fs(S4.tB-S4.tA)+' s', (P.X(S4.tA)+P.X(S4.tB))/2, P.Y(xA) + ((xB-xA)*(S4.tB-S4.tA) >= 0 ? 16 : -16), {color:C.green, font:'700 13px '+MONO, bg:'rgba(6,10,28,.85)'});
+    if (Math.abs(P.Y(xB)-P.Y(xA)) > 10) text(ctx, 'Δx = '+fs(xB-xA)+' m', P.X(S4.tB) + (S4.tB > S4.tA ? 10 : -10), (P.Y(xA)+P.Y(xB))/2, {color:C.violet, font:'700 13px '+MONO, align:S4.tB > S4.tA ? 'left' : 'right', bg:'rgba(6,10,28,.85)'});
+  }
+  [['A',S4.tA,xA,C.amber],['B',S4.tB,xB,C.pink]].forEach(([n,t,x,col]) => {
+    P.guides(t, x, col);
+    ctx.save(); ctx.globalAlpha = .25 + .1*Math.sin(performance.now()/300); dot(ctx, P.X(t), P.Y(x), 18, col, false); ctx.restore();
+    dot(ctx, P.X(t), P.Y(x), 10, col); text(ctx, n, P.X(t), P.Y(x), {color:'#0b0f26', font:'700 13px '+SANS});
+    text(ctx, `${n} (${fs(t)} s ; ${fs(x)} m)`, P.X(t)-14, P.Y(x)-24, {color:col, font:'700 12px '+MONO, align:'right', bg:'rgba(6,10,28,.85)'});
+  });
+  setTxt('p_A', `t=${fmt(S4.tA,1)} s · x=${fmt(xA,1)} m`); setTxt('p_B', `t=${fmt(S4.tB,1)} s · x=${fmt(xB,1)} m`);
+  const dT = S4.tB - S4.tA, dX = xB - xA;
+  setTxt('p_dt', fmt(dT,1)+' s'); setTxt('p_dx', fmt(dX,1)+' m');
+  if (Math.abs(dT) < 1e-9) setHTML('p_live', 'Δt = 0 → no se puede dividir. Separá los puntos A y B.');
+  else setHTML('p_live', `v = Δx / Δt = ${par(dX,1)} m / ${par(dT,1)} s = <b>${fmt(dX/dT,2)} m/s</b><br><span class="note" style="font-family:var(--sans)">¡Coincide con la pendiente de la recta (m = ${fs(S4.v)})!</span>`);
+}
+
+/* =========================================================
+   5 · SIMULADOR MRUV
+   ========================================================= */
+const MV_DEF = {x0:0, v0:2, a:1.5, T:8};
+const MV = Object.assign({t:0, running:false, speed:1, dir:1}, MV_DEF);
+const mvX = t => MV.x0 + MV.v0*t + 0.5*MV.a*t*t;
+const mvV = t => MV.v0 + MV.a*t;
+bind('v_x0', () => MV.x0, v => MV.x0 = v, v => fs(v)+' m');
+bind('v_v0', () => MV.v0, v => MV.v0 = v, v => fs(v)+' m/s');
+bind('v_a',  () => MV.a,  v => MV.a = v,  v => fs(v)+' m/s²');
+bind('v_T',  () => MV.T,  v => { MV.T = v; MV.t = Math.min(MV.t, v); }, v => fs(v)+' s');
+bind('v_t',  () => MV.t,  v => { MV.t = v; MV.running = false; }, v => fmt(v,2)+' s', () => MV.T);
+wirePlay('v_play','v_reset',MV); wireSpeed('v_speed', MV);
+document.querySelectorAll('[data-ex]').forEach(b => b.addEventListener('click', () => {
+  Object.assign(MV, b.dataset.ex === 'acel' ? {x0:0, v0:0, a:2, T:8} : {x0:0, v0:8, a:-2, T:8}, {t:0, running:true});
+}));
+function motionRange(fx, T, extra=[]){
+  let mn = Infinity, mx = -Infinity;
+  for (let i = 0; i <= 200; i++){ const x = fx(T*i/200); mn = Math.min(mn,x); mx = Math.max(mx,x); }
+  extra.forEach(x => { mn = Math.min(mn,x); mx = Math.max(mx,x); });
+  return [mn, mx];
+}
+function stopTime(v0, a){ if (a === 0) return null; const ts = -v0/a; return ts > 1e-9 ? ts : null; }
+function frameS5(dt){
+  simStep(MV, dt);
+  const {ctx,w,h} = fitCanvas($('cvMV'));
+  const [mn, mx] = motionRange(mvX, MV.T, [MV.x0]);
+  const R = niceRange(mn, mx, Math.max(4, Math.floor(w/95)));
+  const X = makeScale(w, R.min, R.max);
+  const s = clamp(w/1000, .7, 1.1), rh = Math.min(64, h*.24), yc = h*0.56, ry = yc+rh/2+16;
+  drawRoad(ctx, X, yc, rh); drawRuler(ctx, X, ry, R.step);
+  flag(ctx, X(MV.x0), yc-rh/2-26, yc+rh/2, 'x₀', C.green);
+  const ts = stopTime(MV.v0, MV.a);
+  if (ts !== null && ts < MV.T){
+    const pxs = X(mvX(ts)); ctx.save(); ctx.strokeStyle = C.amber; ctx.setLineDash([3,5]); ctx.lineWidth = 1.5; seg(ctx, pxs, yc-rh/2-6, pxs, yc+rh/2+6); ctx.restore();
+    text(ctx, `v = 0 en t = ${fs(ts)} s`, pxs, yc+rh/2-8, {color:C.amber, font:'700 11px '+MONO, bg:'rgba(6,10,28,.85)'});
+  }
+  let last = -1e9;
+  for (let k = 1; k <= Math.floor(MV.t+1e-9); k++){
+    const px = X(mvX(k)); dot(ctx, px, yc, 4.5, C.pink);
+    if (Math.abs(px-last) > 24){ text(ctx, k+' s', px, yc-rh/2-12, {color:C.pink, font:'700 11px '+MONO}); last = px; }
+  }
+  const x = mvX(MV.t), v = mvV(MV.t), px = X(x);
+  if (Math.abs(v) > 1e-6) MV.dir = Math.sign(v); else if (MV.a !== 0 && MV.t < 1e-9) MV.dir = Math.sign(MV.a);
+  const ay = Math.max(18, yc-rh/2-78), vy = yc-rh/2-44;
+  if (Math.abs(v) > 1e-6){ arrow(ctx, px, vy, px + clamp(v*8, -170, 170), vy, C.violet, 3.5); text(ctx, 'v', px + clamp(v*8,-170,170) + Math.sign(v)*12, vy, {color:C.violet, font:'700 14px '+MONO}); }
+  else text(ctx, 'v = 0', px, vy, {color:C.violet, font:'700 13px '+MONO});
+  if (MV.a !== 0){ arrow(ctx, px, ay, px + MV.a*22, ay, C.amber, 3.5); text(ctx, 'a', px + MV.a*22 + Math.sign(MV.a)*12, ay, {color:C.amber, font:'700 14px '+MONO}); }
+  else text(ctx, 'a = 0', px, ay, {color:C.amber, font:'700 13px '+MONO});
+  drawCar(ctx, px, yc+rh*0.3, s, C.cyan, MV.dir, px/(WHEEL_R*s));
+  posMarker(ctx, px, ry, C.cyan, 'x = '+fmt(x,1)+' m');
+  setTxt('v_ro_t', fmt(MV.t,2)+' s'); setTxt('v_ro_x', fmt(x,2)+' m'); setTxt('v_ro_v', fmt(v,2)+' m/s'); setTxt('v_ro_a', fs(MV.a)+' m/s²');
+  const tt = fmt(MV.t,2);
+  setHTML('v_l1', `v = ${fsp(MV.v0)} + ${fsp(MV.a)} · ${tt} = <b>${fmt(v,2)} m/s</b>`);
+  setHTML('v_l2', `x = ${fsp(MV.x0)} + ${fsp(MV.v0)} · ${tt} + ½ · ${fsp(MV.a)} · ${tt}² = <b>${fmt(x,2)} m</b>`);
+  setHTML('v_l3', MV.t < 1e-9 ? 't = 0 → todavía no se puede calcular (no se divide por cero). Iniciá la simulación.'
+    : `a = (${par(v,2)} − ${fsp(MV.v0)}) / ${tt} = <b>${fmt((v-MV.v0)/MV.t,2)} m/s²</b> &nbsp;<span class="note" style="font-family:var(--sans)">← siempre igual: ¡es constante!</span>`);
+  let ev;
+  if (MV.a === 0) ev = 'a = 0 → la velocidad no cambia: es un MRU.';
+  else if (ts !== null && ts < MV.T) ev = MV.t < ts ? `⚠️ La velocidad y la aceleración tienen sentidos opuestos: el auto frena. Se detendrá en t = ${fs(ts)} s y después cambiará de sentido.`
+    : `↩ En t = ${fs(ts)} s el auto se detuvo (v = 0) en x = ${fs(mvX(ts))} m y cambió de sentido. Ahora la velocidad tiene el mismo signo que la aceleración: acelera hacia el otro lado.`;
+  else if (ts !== null) ev = `El auto frena: llegaría a v = 0 en t = ${fs(ts)} s (después del final de la simulación).`;
+  else if (MV.v0 === 0) ev = 'Parte del reposo (v₀ = 0) y la velocidad crece uniformemente.';
+  else ev = 'La velocidad y la aceleración tienen el mismo sentido: el auto va cada vez más rápido.';
+  setTxt('v_event', ev);
+  const el = $('v_tbl'), key = [MV.x0, MV.v0, MV.a, MV.T].join('|');
+  if (el._key !== key){
+    el._key = key; el._hl = -1;
+    let r1 = '<tr><th>t (s)</th>', r2 = '<tr><th>v (m/s)</th>', r3 = '<tr><th>x (m)</th>';
+    for (let k = 0; k <= MV.T; k++){ r1 += `<td data-k="${k}">${k}</td>`; r2 += `<td data-k="${k}">${fs(mvV(k))}</td>`; r3 += `<td data-k="${k}">${fs(mvX(k))}</td>`; }
+    el.innerHTML = r1+'</tr>'+r2+'</tr>'+r3+'</tr>';
+  }
+  hlTable(el, MV.t);
+}
+
+/* =========================================================
+   6 · LA ACELERACIÓN EN ACCIÓN
+   ========================================================= */
+const AC_DEF = {v0:4, aP:1.5, aN:-1.5};
+const AC = Object.assign({T:8, t:0, running:false, dirs:[1,1,1]}, AC_DEF);
+bind('a_v0', () => AC.v0, v => AC.v0 = v, v => fs(v)+' m/s');
+bind('a_p',  () => AC.aP, v => AC.aP = v, v => '+'+fs(v)+' m/s²');
+bind('a_n',  () => AC.aN, v => AC.aN = v, v => fs(v)+' m/s²');
+wirePlay('a_play','a_reset',AC);
+const LANES = [{a:() => AC.aP, color:C.green, name:'Auto 1'}, {a:() => 0, color:C.blue, name:'Auto 2'}, {a:() => AC.aN, color:C.pink, name:'Auto 3'}];
+function frameS6(dt){
+  simStep(AC, dt);
+  const {ctx,w,h} = fitCanvas($('cvA'));
+  const fx = (a,t) => AC.v0*t + 0.5*a*t*t, fv = (a,t) => AC.v0 + a*t;
+  let mn = 0, mx = 0;
+  LANES.forEach(L => { const [a,b] = motionRange(t => fx(L.a(),t), AC.T, [0]); mn = Math.min(mn,a); mx = Math.max(mx,b); });
+  const R = niceRange(mn, mx, Math.max(4, Math.floor(w/95)));
+  const X = makeScale(w, R.min, R.max);
+  const s = clamp(w/1000, .6, 1)*.85, rh = Math.min(48, h*.17), gap = (h-60)/3;
+  LANES.forEach((L,i) => {
+    const yc = 26 + gap*i + gap/2, a = L.a();
+    drawRoad(ctx, X, yc, rh);
+    for (let k = 1; k <= Math.floor(AC.t+1e-9); k++) dot(ctx, X(fx(a,k)), yc, 3.5, L.color);
+    const x = fx(a, AC.t), v = fv(a, AC.t);
+    if (Math.abs(v) > 1e-6) AC.dirs[i] = Math.sign(v);
+    drawCar(ctx, X(x), yc+rh*0.32, s, L.color, AC.dirs[i], X(x)/(WHEEL_R*s));
+    text(ctx, `${L.name} · a = ${signed(a)} m/s² · v = ${fmt(v,1)} m/s`, X.L-30, yc-rh/2-10, {color:L.color, font:'700 12px '+MONO, align:'left'});
+  });
+  drawRuler(ctx, X, h-26, R.step);
+  // gráfica v-t
+  const g = fitCanvas($('cvAg'));
+  const vmin = Math.min(0, AC.v0 + AC.aN*AC.T), vmax = AC.v0 + AC.aP*AC.T;
+  const VR = niceRange(vmin, vmax, 6);
+  const P = Plot(g.ctx, g.w, g.h, {xmin:0, xmax:AC.T, ymin:VR.min, ymax:VR.max, xstep:1, ystep:VR.step, xlabel:'tiempo t (s)', ylabel:'velocidad v (m/s)', title:'Gráfica velocidad-tiempo'});
+  P.axes();
+  LANES.forEach(L => {
+    const a = L.a(), f = t => fv(a,t);
+    P.curve(f, 0, AC.T, L.color+'40', 2, [4,6], false); P.curve(f, 0, AC.t, L.color, 4);
+    dot(g.ctx, P.X(AC.t), P.Y(f(AC.t)), 6, L.color);
+    text(g.ctx, 'pendiente = a = '+signed(a), P.X(AC.T)-6, P.Y(f(AC.T)) + (a >= 0 ? -14 : 14), {color:L.color, font:'700 12px '+MONO, align:'right', bg:'rgba(6,10,28,.8)'});
+  });
+  const ts = AC.v0/(-AC.aN);
+  if (ts > 0 && ts < AC.T && AC.t >= ts){ dot(g.ctx, P.X(ts), P.Y(0), 7, '#fff'); text(g.ctx, `Auto 3 se detiene (t = ${fs(ts)} s) y cambia de sentido`, P.X(ts)+10, P.Y(0)+16, {color:C.pink, font:'700 12px '+MONO, align:'left', bg:'rgba(6,10,28,.85)'}); }
+  drawAQ();
+}
+function drawAQ(){
+  const {ctx,w,h} = fitCanvas($('cvAq'));
+  const P = Plot(ctx, w, h, {xmin:0, xmax:8, ymin:0, ymax:20, xstep:1, ystep:4, xlabel:'t (s)', ylabel:'v (m/s)', title:'¿Cuál tiene mayor aceleración?'});
+  P.axes();
+  [{n:'A', v0:4, v1:12, c:C.green}, {n:'B', v0:0, v1:16, c:C.amber}, {n:'C', v0:12, v1:18, c:C.pink}].forEach(L => {
+    const f = t => L.v0 + (L.v1-L.v0)/8*t; P.curve(f, 0, 8, L.c, 3.5);
+    text(ctx, L.n, P.X(8)+12, P.Y(L.v1), {color:L.c, font:'700 15px '+SANS, align:'left'});
+  });
+}
+makeQuestion($('q6'), {q:'«¿Cuál de estos vehículos tiene mayor aceleración?» (mirá la gráfica v-t de la izquierda)', opts:[
+  {t:'El vehículo A', ok:false, why:'A pasa de 4 a 12 m/s en 8 s: a = 8/8 = 1 m/s². No es la recta más inclinada.'},
+  {t:'El vehículo B', ok:true, why:'B pasa de 0 a 16 m/s en 8 s: a = Δv/Δt = 16/8 = 2 m/s². Es la recta más inclinada (mayor pendiente) de la gráfica v-t.'},
+  {t:'El vehículo C', ok:false, why:'C es el más <b>rápido</b>, pero no el que más acelera: pasa de 12 a 18 m/s en 8 s → a = 6/8 = 0,75 m/s². ¡Velocidad alta no es lo mismo que aceleración alta!'}
+]});
+
+/* =========================================================
+   7 · LA PARÁBOLA DEL MRUV
+   ========================================================= */
+const PB_DEF = {x0:0, v0:2, a:2};
+const PB = Object.assign({T:8, t:0, running:false, compare:true, dir:1}, PB_DEF);
+const pbX = (t, a=PB.a) => PB.x0 + PB.v0*t + 0.5*a*t*t;
+bind('pb_a',  () => PB.a,  v => PB.a = v,  v => fs(v)+' m/s²');
+bind('pb_v0', () => PB.v0, v => PB.v0 = v, v => fs(v)+' m/s');
+bind('pb_x0', () => PB.x0, v => PB.x0 = v, v => fs(v)+' m');
+wirePlay('pb_play','pb_reset',PB, ['▶ Generar parábola','⏸ Pausar','▶ Continuar','↻ Generar de nuevo']);
+$('pb_cmp').addEventListener('click', () => { PB.compare = !PB.compare; $('pb_cmp').classList.toggle('sel', PB.compare); $('pb_cmp').textContent = (PB.compare ? '👁 ' : '🚫 ') + 'Comparar a = −2, 0, +2'; });
+makeQuestion($('q7'), {q:'Si la posición de un auto es <span style="font-family:var(--math);font-style:italic">x = 3 + 2·t + 4·t²</span> (en metros y segundos), ¿cuánto vale su aceleración?', opts:[
+  {t:'a = 4 m/s²', ok:false, why:'¡Cuidado! 4 es el coeficiente <b>A</b>, y A = ½·a. Entonces a = 2·A = 2·4 = 8 m/s².'},
+  {t:'a = 8 m/s²', ok:true, why:'El coeficiente de t² es A = ½·a = 4, por lo tanto a = 2·4 = 8 m/s². Además, B = v₀ = 2 m/s y C = x₀ = 3 m.'},
+  {t:'a = 2 m/s²', ok:false, why:'2 es el coeficiente <b>B</b>, que corresponde a la velocidad inicial v₀, no a la aceleración.'}
+]});
+function frameS7(dt){
+  simStep(PB, dt);
+  const {ctx,w,h} = fitCanvas($('cvPB'));
+  const cmpA = [-2, 0, 2];
+  let mn = Infinity, mx = -Infinity;
+  [...cmpA, PB.a].forEach(a => { const [p,q] = motionRange(t => pbX(t,a), PB.T, [PB.x0]); mn = Math.min(mn,p); mx = Math.max(mx,q); });
+  const R = niceRange(mn, mx, 7);
+  const railW = Math.min(90, w*0.12);
+  const P = Plot(ctx, w, h, {xmin:0, xmax:PB.T, ymin:R.min, ymax:R.max, xstep:1, ystep:R.step, xlabel:'tiempo t (s)', ylabel:'posición x (m)', pad:{l:railW+72}});
+  P.axes();
+  // riel vertical: el auto se mueve sobre el eje de posiciones
+  const rx = railW/2 + 6;
+  rr(ctx, rx-railW*0.32, P.y0-6, railW*0.64, P.ph+12, 14); ctx.fillStyle = '#10163a'; ctx.fill(); ctx.strokeStyle = 'rgba(34,211,238,.35)'; ctx.stroke();
+  ctx.save(); ctx.setLineDash([12,10]); ctx.strokeStyle = 'rgba(230,236,255,.15)'; ctx.lineWidth = 2; seg(ctx, rx, P.y0, rx, P.y0+P.ph); ctx.restore();
+  text(ctx, 'riel', rx, P.y0+P.ph+18, {color:C.muted, font:'600 11px '+MONO});
+  if (PB.compare){
+    const cols = {'-2':C.pink, '0':C.blue, '2':C.green};
+    cmpA.forEach(a => {
+      P.curve(t => pbX(t,a), 0, PB.T, cols[a]+'70', 2, [7,6], false);
+      let tl = PB.T; while (tl > 0.5 && !P.inside(tl, pbX(tl,a))) tl -= 0.05;
+      text(ctx, a === 0 ? 'a = 0 (recta)' : 'a = '+signed(a), P.X(tl)-4, P.Y(pbX(tl,a)) + (a < 0 ? 14 : -12), {color:cols[a], font:'700 12px '+MONO, align:'right'});
+    });
+  }
+  P.curve(t => pbX(t), 0, PB.T, 'rgba(251,191,36,.25)', 2, [3,6], false);
+  P.curve(t => pbX(t), 0, PB.t, C.amber, 5);
+  const ts = stopTime(PB.v0, PB.a);
+  if (ts !== null && ts < PB.T && PB.t >= ts){
+    dot(ctx, P.X(ts), P.Y(pbX(ts)), 7, '#fff');
+    text(ctx, 'vértice: v = 0', P.X(ts), P.Y(pbX(ts)) + (PB.a > 0 ? 22 : -22), {color:'#fff', font:'700 12px '+MONO, bg:'rgba(6,10,28,.85)'});
+  }
+  const x = pbX(PB.t), v = PB.v0 + PB.a*PB.t, py = P.Y(x), pxp = P.X(PB.t);
+  ctx.save(); ctx.strokeStyle = 'rgba(251,191,36,.7)'; ctx.setLineDash([5,5]); ctx.lineWidth = 1.5; seg(ctx, rx+railW*0.32, py, pxp, py);
+  const yAx = (R.min <= 0 && R.max >= 0) ? P.Y(0) : P.y0+P.ph; seg(ctx, pxp, py, pxp, yAx); ctx.restore();
+  dot(ctx, pxp, py, 8, '#fff');
+  text(ctx, `(${fmt(PB.t,1)} s ; ${fmt(x,1)} m)`, pxp+12, py + (PB.a >= 0 ? 16 : -16), {color:C.amber, font:'700 13px '+MONO, align:'left', bg:'rgba(6,10,28,.85)'});
+  if (Math.abs(v) > 1e-6) PB.dir = Math.sign(v); else if (PB.a !== 0 && PB.t < 1e-9) PB.dir = Math.sign(PB.a);
+  const s = clamp(railW/90, .55, 1)*0.75;
+  ctx.save(); ctx.translate(rx, py); ctx.rotate(-Math.PI/2); drawCar(ctx, 0, 15*s, s, C.cyan, PB.dir, py/(WHEEL_R*s)); ctx.restore();
+  hud(ctx, P.x0+10, P.y0+10, [`t = ${fmt(PB.t,2)} s`, `x = ${fmt(x,2)} m`, `v = ${fmt(v,2)} m/s`], C.amber);
+  const A = PB.a/2;
+  setTxt('pb_A', `= ½ · ${fsp(PB.a)} = ${fs(A)}`); setTxt('pb_B', `= ${fs(PB.v0)}`); setTxt('pb_C', `= ${fs(PB.x0)}`);
+  setHTML('pb_live', `x = <b>${fs(A)}</b>·t² + <b>${fsp(PB.v0)}</b>·t + <b>${fsp(PB.x0)}</b>`);
+  let ev;
+  if (PB.a === 0) ev = 'a = 0 → A = 0: no hay término t². La posición es lineal y la gráfica es una RECTA (MRU).';
+  else if (ts !== null && ts < PB.T) ev = `a ${PB.a > 0 ? '> 0: la parábola abre hacia arriba' : '< 0: la parábola abre hacia abajo'}. El vértice está en t = −v₀/a = ${fs(ts)} s: ahí el auto se detiene y cambia de sentido.`;
+  else ev = `a ${PB.a > 0 ? '> 0: la parábola abre hacia arriba (la curva se empina cada vez más)' : '< 0: la parábola abre hacia abajo'}.`;
+  setTxt('pb_event', ev);
+}
+
+/* =========================================================
+   8 · DESAFÍO FINAL
+   ========================================================= */
+const SVG_GRAPH = `<svg class="qsvg" viewBox="0 0 340 210" font-family="JetBrains Mono, monospace" font-size="11">
+  <g stroke="rgba(140,160,255,.15)">${[0,1,2,3,4,5].map(i=>`<line x1="${50+i*54}" y1="20" x2="${50+i*54}" y2="175"/>`).join('')}${[0,10,20,30,40].map(v=>`<line x1="50" y1="${175-v*3.75}" x2="320" y2="${175-v*3.75}"/>`).join('')}</g>
+  <g stroke="#cdd7ff" stroke-width="2"><line x1="50" y1="175" x2="322" y2="175"/><line x1="50" y1="175" x2="50" y2="16"/></g>
+  <g fill="#9aa5d1" text-anchor="middle">${[0,1,2,3,4,5].map(i=>`<text x="${50+i*54}" y="190">${i}</text>`).join('')}</g>
+  <g fill="#9aa5d1" text-anchor="end">${[0,10,20,30,40].map(v=>`<text x="44" y="${179-v*3.75}">${v}</text>`).join('')}</g>
+  <text x="322" y="204" fill="#e8ecff" text-anchor="end">t (s)</text><text x="14" y="14" fill="#e8ecff">x (m)</text>
+  <line x1="50" y1="137.5" x2="320" y2="43.75" stroke="#22d3ee" stroke-width="3.5"/>
+  <g stroke="#fbbf24" stroke-dasharray="4 4"><line x1="320" y1="43.75" x2="320" y2="175"/><line x1="50" y1="43.75" x2="320" y2="43.75"/></g>
+  <circle cx="50" cy="137.5" r="5" fill="#fff"/><circle cx="320" cy="43.75" r="5" fill="#fff"/>
+</svg>`;
+const SVG_STROBE = `<svg class="qsvg" viewBox="0 0 340 90" font-family="JetBrains Mono, monospace" font-size="12">
+  <rect x="8" y="30" width="324" height="34" rx="12" fill="#121838" stroke="rgba(34,211,238,.4)"/>
+  ${[[24,0],[40,1],[88,2],[168,3],[280,4]].map(([x,k])=>`<circle cx="${x}" cy="47" r="6" fill="#f472b6"/><text x="${x}" y="22" fill="#f472b6" text-anchor="middle">${k} s</text>`).join('')}
+  <g fill="#9aa5d1" text-anchor="middle" font-size="10"><text x="32" y="80">1</text><text x="64" y="80">3</text><text x="128" y="80">5</text><text x="224" y="80">7</text></g>
+</svg>`;
+const QUIZ = [
+  {q:'¿Qué tipo de función representa la posición en función del tiempo en un MRU?', o:['Una función cuadrática (parábola)','Una función afín (su gráfica es una recta)','Una función exponencial','Ninguna: no se puede representar'], ok:1,
+   why:'En el MRU, x = x₀ + v·t. Tiene la forma y = m·x + b: es una función afín y su gráfica es una recta.'},
+  {q:'¿Qué representa la pendiente de una gráfica posición-tiempo?', o:['La aceleración','La distancia total recorrida','La velocidad','La posición inicial'], ok:2,
+   why:'Pendiente = Δx / Δt, que es justamente la definición de velocidad.'},
+  {q:'¿Qué magnitud permanece constante en el MRUV?', o:['La aceleración','La velocidad','La posición','La distancia recorrida en cada segundo'], ok:0,
+   why:'En el MRUV la velocidad cambia, pero siempre al mismo ritmo: la aceleración es constante.'},
+  {q:'¿Qué forma tiene la gráfica posición-tiempo del MRUV cuando la aceleración es distinta de cero?', o:['Una recta horizontal','Una recta inclinada','Una circunferencia','Una parábola'], ok:3,
+   why:'x = x₀ + v₀·t + ½·a·t² es una función cuadrática (A = ½·a ≠ 0), y su gráfica es una parábola.'},
+  {q:'Si un auto se desplaza a 4 m/s durante 5 segundos desde la posición 0 m (MRU), ¿qué posición alcanza?', o:['9 m','0,8 m','20 m','45 m'], ok:2,
+   why:'x = x₀ + v·t = 0 + 4 · 5 = 20 m.'},
+  {q:'Observá la gráfica posición-tiempo de un móvil. ¿Cuál es su velocidad?', svg:SVG_GRAPH, o:['7 m/s','5 m/s','25 m/s','35 m/s'], ok:1,
+   why:'v = Δx / Δt = (35 m − 10 m) / (5 s − 0 s) = 25 / 5 = 5 m/s. (7 m/s sale de olvidarse de que el móvil no partió de 0 m.)'},
+  {q:'Las marcas muestran dónde estaba un auto en cada segundo. ¿Qué tipo de movimiento tiene?', svg:SVG_STROBE, o:['MRU: avanza siempre lo mismo','MRUV: está frenando (a < 0)','MRUV: está acelerando (a > 0)','Está en reposo'], ok:2,
+   why:'En cada segundo recorre más que en el anterior (1, 3, 5, 7 unidades): la velocidad aumenta siempre lo mismo → MRUV con aceleración positiva.'}
+];
+const QZ = {i:0, score:0, res:[]};
+function renderQuiz(){
+  const box = $('quiz');
+  const dots = QUIZ.map((_,j) => `<i class="${QZ.res[j] === true ? 'ok' : QZ.res[j] === false ? 'no' : ''} ${j === QZ.i ? 'cur' : ''}"></i>`).join('');
+  if (QZ.i >= QUIZ.length){
+    const n = QUIZ.length, sc = QZ.score, stars = sc === n ? 3 : sc >= n*0.7 ? 2 : sc >= n*0.4 ? 1 : 0;
+    const msg = sc === n ? '¡Perfecto! Dominan la cinemática y su relación con las funciones. 🏆' : sc >= n*0.7 ? '¡Muy bien! Repasen las preguntas que fallaron.' : sc >= n*0.4 ? 'Buen intento. Vuelvan a las simulaciones y prueben otra vez.' : 'A repasar: recorran de nuevo las secciones y vuelvan a jugar.';
+    box.innerHTML = `<div class="quiz-top"><div class="dots">${dots}</div><div class="score">Puntos: ${sc} / ${n}</div></div>
+      <div class="result"><div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div><div class="big grad">${sc} / ${n}</div><p class="q-text">${msg}</p>
+      <button class="btn primary big" id="qzAgain">⟲ Volver a jugar</button></div>`;
+    $('qzAgain').addEventListener('click', () => { QZ.i = 0; QZ.score = 0; QZ.res = []; renderQuiz(); });
+    return;
+  }
+  const q = QUIZ[QZ.i];
+  box.innerHTML = `<div class="quiz-top"><div class="dots">${dots}</div><div class="score">Pregunta ${QZ.i+1} de ${QUIZ.length} · Puntos: ${QZ.score}</div></div>
+    <div class="q-text">${q.q}</div>${q.svg || ''}<div class="opts" id="qzOpts"></div><div class="fb" id="qzFb"></div>`;
+  q.o.forEach((t,j) => {
+    const b = document.createElement('button'); b.className = 'opt'; b.innerHTML = `<span class="let">${'ABCD'[j]}</span><span>${t}</span>`;
+    b.addEventListener('click', () => {
+      const bs = [...$('qzOpts').children]; bs.forEach(x => x.disabled = true);
+      const ok = j === q.ok; QZ.res[QZ.i] = ok; if (ok) QZ.score++;
+      b.classList.add(ok ? 'right' : 'wrong'); if (!ok) bs[q.ok].classList.add('right', 'soft');
+      const fb = $('qzFb'); fb.className = 'fb show ' + (ok ? 'good' : 'bad');
+      fb.innerHTML = `<b>${ok ? '✔ ¡Correcto! +1 punto' : '✘ Incorrecto. La respuesta correcta es la ' + 'ABCD'[q.ok] + '.'}</b> ${q.why}
+        <div class="btn-row"><button class="btn primary" id="qzNext">${QZ.i === QUIZ.length-1 ? 'Ver resultado 🏁' : 'Siguiente pregunta →'}</button></div>`;
+      $('qzNext').addEventListener('click', () => { QZ.i++; renderQuiz(); });
+      box.querySelector('.score').textContent = `Pregunta ${QZ.i+1} de ${QUIZ.length} · Puntos: ${QZ.score}`;
+      box.querySelector('.dots').children[QZ.i].className = (ok ? 'ok' : 'no') + ' cur';
+    });
+    $('qzOpts').appendChild(b);
+  });
+}
+renderQuiz();
+
+/* =========================================================
+   9 · CONCLUSIÓN (comparación animada)
+   ========================================================= */
+const END = {t:0};
+function frameS9(dt){
+  END.t += dt;
+  const {ctx,w,h} = fitCanvas($('cvEnd'));
+  const T = 8, tm = Math.min(END.t % 10.5, T);
+  const mru = {x:t => 5*t, v:() => 5, color:C.cyan, name:'MRU · v = 5 m/s (constante)'};
+  const mruv = {x:t => 0.75*t*t, v:t => 1.5*t, color:C.violet, name:'MRUV · a = 1,5 m/s² (desde el reposo)'};
+  const laneH = Math.min(170, h*0.36);
+  const X = makeScale(w, 0, 50);
+  const s = clamp(w/1100, .6, 1)*.85, rh = Math.min(40, laneH*.26);
+  [mru, mruv].forEach((M,i) => {
+    const yc = 30 + i*(laneH-30)/2 + (laneH-30)/4;
+    drawRoad(ctx, X, yc, rh);
+    for (let k = 1; k <= Math.floor(tm+1e-9); k++) dot(ctx, X(M.x(k)), yc, 3.5, M.color);
+    drawCar(ctx, X(M.x(tm)), yc+rh*0.32, s, M.color, 1, X(M.x(tm))/(WHEEL_R*s));
+    text(ctx, M.name, X.L-30, yc-rh/2-9, {color:M.color, font:'700 12px '+MONO, align:'left'});
+  });
+  text(ctx, 't = '+fmt(tm,1)+' s', w-20, 14, {color:C.pink, font:'700 14px '+MONO, align:'right'});
+  const top = laneH + 6, ph = h - top, half = w/2;
+  const narrow = w < 640;
+  const r1 = narrow ? {rx:0, ry:top, rw:w, rh:ph/2} : {rx:0, ry:top, rw:half, rh:ph};
+  const r2 = narrow ? {rx:0, ry:top+ph/2, rw:w, rh:ph/2} : {rx:half, ry:top, rw:half, rh:ph};
+  const P1 = Plot(ctx, w, h, Object.assign({xmin:0, xmax:8, ymin:0, ymax:50, xstep:1, ystep:10, xlabel:'t (s)', ylabel:'x (m)', title:'Posición: recta vs parábola', pad:{t:26}}, r1));
+  P1.axes(); [mru, mruv].forEach(M => { P1.curve(M.x, 0, T, M.color+'30', 2, [4,6], false); P1.curve(M.x, 0, tm, M.color, 4); dot(ctx, P1.X(tm), P1.Y(M.x(tm)), 5, M.color); });
+  const P2 = Plot(ctx, w, h, Object.assign({xmin:0, xmax:8, ymin:0, ymax:14, xstep:1, ystep:2, xlabel:'t (s)', ylabel:'v (m/s)', title:'Velocidad: constante vs lineal', pad:{t:26}}, r2));
+  P2.axes(); [mru, mruv].forEach(M => { P2.curve(M.v, 0, T, M.color+'30', 2, [4,6], false); P2.curve(M.v, 0, tm, M.color, 4); dot(ctx, P2.X(tm), P2.Y(M.v(tm)), 5, M.color); });
+}
+
+/* =========================================================
+   Navegación, pantalla completa y bucle de animación
+   ========================================================= */
+const slides = [...document.querySelectorAll('.slide')];
+const frames = [frameCover, frameS1, frameS2, frameS3, frameS4, frameS5, frameS6, frameS7, null, frameS9];
+let cur = 0;
+const drawer = $('drawer');
+slides.forEach((s,i) => {
+  const b = document.createElement('button'); b.innerHTML = `<span class="num">${i === 0 ? '★' : i}</span>${s.dataset.title}`;
+  b.addEventListener('click', () => { goTo(i); toggleDrawer(false); }); drawer.appendChild(b);
+});
+function goTo(i){
+  i = clamp(i, 0, slides.length-1); if (i === cur && slides[i].classList.contains('active')) return;
+  const back = i < cur;
+  slides.forEach((s,j) => { s.classList.toggle('back', j < i); if (j !== i) s.classList.remove('active'); });
+  slides[i].classList.add('active'); slides[i].scrollTop = 0; cur = i;
+  $('progressBar').style.width = (i/(slides.length-1)*100) + '%';
+  $('slideLabel').innerHTML = `<b>${i+1}/${slides.length}</b> · ${slides[i].dataset.title}`;
+  [...drawer.children].forEach((b,j) => b.classList.toggle('on', j === i));
+  $('prevBtn').disabled = i === 0; $('nextBtn').disabled = i === slides.length-1;
+  history.replaceState(null, '', '#s' + i);
+  void back;
+}
+function toggleDrawer(on){ on = on ?? !drawer.classList.contains('open'); drawer.classList.toggle('open', on); $('scrim').classList.toggle('on', on); }
+$('menuBtn').addEventListener('click', () => toggleDrawer());
+$('scrim').addEventListener('click', () => toggleDrawer(false));
+$('prevBtn').addEventListener('click', () => goTo(cur-1));
+$('nextBtn').addEventListener('click', () => goTo(cur+1));
+function toggleFS(){
+  if (!document.fullscreenElement) (document.documentElement.requestFullscreen ? document.documentElement.requestFullscreen() : Promise.reject()).catch(() => toast('Tu navegador no permite pantalla completa'));
+  else document.exitFullscreen();
+}
+$('fsBtn').addEventListener('click', toggleFS);
+document.addEventListener('fullscreenchange', () => setTxt('fsLbl', document.fullscreenElement ? 'Salir' : 'Presentación'));
+$('fontBtn').addEventListener('click', () => { document.documentElement.classList.toggle('big'); toast(document.documentElement.classList.contains('big') ? 'Texto grande activado' : 'Texto normal'); });
+$('resetAll').addEventListener('click', () => {
+  Object.assign(MRU, MRU_DEF, {t:0, running:false, speed:1}); $('m_speed').textContent = '×1';
+  Object.assign(MV, MV_DEF, {t:0, running:false, speed:1, dir:1}); $('v_speed').textContent = '×1';
+  Object.assign(AC, AC_DEF, {t:0, running:false, dirs:[1,1,1]});
+  Object.assign(PB, PB_DEF, {t:0, running:false, dir:1});
+  Object.assign(S4, S4_DEF);
+  S1.t = 0; S1.pos = 35; END.t = 0;
+  ['q4','q6','q7'].forEach(id => $(id)._reset());
+  toast('✔ Simulaciones reiniciadas');
+});
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input, textarea')) return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); goTo(cur+1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); goTo(cur-1); }
+  else if (e.key === 'f' || e.key === 'F') toggleFS();
+  else if (e.key === 'Escape') toggleDrawer(false);
+  else if (e.key === 'Home') goTo(0);
+  else if (e.key === 'End') goTo(slides.length-1);
+});
+let lastT = performance.now();
+function loop(now){
+  const dt = Math.min(0.05, (now-lastT)/1000); lastT = now;
+  const f = frames[cur];
+  try { if (f) f(dt); } catch (err){ console.error(err); }
+  refreshBinds(); refreshPlays();
+  requestAnimationFrame(loop);
+}
+const hm = location.hash.match(/^#s(\d+)$/);
+cur = -1; goTo(hm ? +hm[1] : 0);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
