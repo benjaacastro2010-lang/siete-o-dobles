@@ -277,7 +277,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
   <div class="head">
     <span class="tag">Sección 1</span>
     <h2>¿Qué es la <span class="grad">cinemática</span>?</h2>
-    <p class="lead">Es la parte de la Física que estudia <b>cómo se mueven los cuerpos</b>, sin centrarse en las <b>fuerzas</b> que producen ese movimiento.</p>
+    <p class="lead">Estudia <b>cómo se mueven los cuerpos</b>, sin centrarse en las <b>fuerzas</b>.</p>
   </div>
   <div class="grid g2">
     <div class="panel">
@@ -290,24 +290,6 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
       <div class="hint" id="c_hint"></div>
     </div>
   </div>
-  <div class="panel mt challenge">
-    <h3>🧩 Desafío: ¿qué concepto aparece en cada frase?</h3>
-    <p class="note">Situación: <b>Sofía va en bicicleta desde su casa hasta el colegio.</b> Elegí el concepto que describe cada frase.</p>
-    <div class="scene" id="chText"></div>
-    <div class="chips" id="chChips"></div>
-    <div class="fb" id="chFb"></div>
-    <div class="btn-row" style="justify-content:space-between;align-items:center">
-      <span class="score" id="chScore"></span>
-      <button class="btn" id="chNext" disabled>Siguiente frase →</button>
-    </div>
-  </div>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>¿Qué diferencia hay entre <b>posición</b> y <b>distancia recorrida</b>?</li>
-      <li>Si das una vuelta completa a la manzana y volvés al punto de partida, ¿cuánto recorriste? ¿Cambió tu posición?</li>
-      <li>¿Por qué necesitamos elegir un <b>origen</b> (sistema de referencia) para hablar de posición?</li>
-    </ul>
-  </details>
 </div>
 </section>
 
@@ -317,7 +299,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
   <div class="head">
     <span class="tag">Sección 2</span>
     <h2>Simulador del <span class="grad">MRU</span> 🚗</h2>
-    <p class="lead"><b>Movimiento Rectilíneo Uniforme</b>: el cuerpo se mueve en <b>línea recta</b> con <b>velocidad constante</b>. Como la velocidad no cambia, la <b>aceleración es cero</b>.</p>
+    <p class="lead">Línea recta, <b>velocidad constante</b>, <b>aceleración cero</b>.</p>
     <div class="pills"><span class="pill c">Trayectoria recta</span><span class="pill v">v = constante</span><span class="pill a">a = 0</span></div>
   </div>
   <div class="grid g2">
@@ -343,17 +325,8 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
         <div class="ro a"><span>Aceleración</span><b id="m_ro_a"></b></div>
       </div>
       <div class="live" id="m_live"></div>
-      <div class="tbl-wrap"><table class="tbl" id="m_tbl"></table></div>
-      <p class="note">📌 Cada segundo, la posición cambia <b>siempre lo mismo</b>: exactamente <b id="m_dx"></b>. Las marcas sobre la pista muestran dónde estaba el auto en cada segundo.</p>
     </div>
   </div>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>Antes de apretar ▶: con x₀ = 0 m y v = 5 m/s, ¿dónde estará el auto a los 6 s? Calculen y después verifiquen.</li>
-      <li>¿Qué pasa si la velocidad es <b>negativa</b>? ¿Hacia dónde se mueve el auto?</li>
-      <li>¿Por qué las marcas de cada segundo quedan <b>igual de separadas</b>?</li>
-    </ul>
-  </details>
 </div>
 </section>
 
@@ -363,7 +336,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
   <div class="head">
     <span class="tag">Sección 3</span>
     <h2>Gráfica dinámica del MRU 📈</h2>
-    <p class="lead">Graficamos la <b>posición</b> en función del <b>tiempo</b>. Usa los mismos valores que el simulador anterior: si cambiás algo acá, cambia allá también.</p>
+    <p class="lead">Posición en función del tiempo. <b>Más pendiente = más rapidez</b>; pendiente negativa = la posición disminuye.</p>
   </div>
   <div class="grid g2">
     <div class="panel">
@@ -396,33 +369,6 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
       <canvas id="cvG3" class="cv mt" style="height:clamp(300px,46vh,500px)"></canvas>
     </div>
   </div>
-  <div class="grid g2b mt">
-    <div class="panel">
-      <h3>¿Qué nos dice la pendiente?</h3>
-      <ul class="tight">
-        <li>Una <b>mayor pendiente en valor absoluto</b> representa una <b>mayor rapidez</b>.</li>
-        <li>Pendiente <b style="color:var(--green)">positiva</b>: la posición <b>aumenta</b> con el tiempo.</li>
-        <li>Pendiente <b style="color:var(--pink)">negativa</b>: la posición <b>disminuye</b> con el tiempo (el auto va hacia el lado negativo del sistema de referencia elegido).</li>
-        <li>Los ejes y las escalas <b>no cambian</b> al comparar, así la diferencia de inclinación es real.</li>
-      </ul>
-    </div>
-    <div class="panel">
-      <h3>Cómo leer la gráfica</h3>
-      <ul class="tight">
-        <li>Eje horizontal: <b>tiempo (s)</b>. Eje vertical: <b>posición (m)</b>.</li>
-        <li>Cada punto es un instante: “a los 2 s estaba en 10 m”.</li>
-        <li>Donde la recta corta el eje vertical (t = 0) está la <b>posición inicial x₀</b>.</li>
-        <li>El triángulo muestra que en <b>1 s</b> la posición cambia <b>v metros</b>.</li>
-      </ul>
-    </div>
-  </div>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>Si duplicamos la velocidad, ¿qué le pasa a la pendiente de la recta?</li>
-      <li>¿Qué representa el punto donde la recta corta el eje vertical?</li>
-      <li>¿Cómo sería la gráfica de un auto <b>detenido</b> (v = 0)? Pruébenlo con el deslizador.</li>
-    </ul>
-  </details>
 </div>
 </section>
 
@@ -432,7 +378,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
   <div class="head">
     <span class="tag">Sección 4 · Experimento</span>
     <h2>¿Qué representa la <span class="grad">pendiente</span>?</h2>
-    <p class="lead">Arrastrá los puntos <b style="color:var(--amber)">A</b> y <b style="color:var(--pink)">B</b> sobre la recta. Observá cuánto cambia la posición (Δx) y cuánto cambia el tiempo (Δt).</p>
+    <p class="lead">Arrastrá <b style="color:var(--amber)">A</b> y <b style="color:var(--pink)">B</b>: Δx / Δt siempre da la pendiente = la velocidad.</p>
   </div>
   <div class="grid g2">
     <div class="panel">
@@ -453,13 +399,6 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
     </div>
   </div>
   <div class="panel mt" id="q4"></div>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>¿El valor de Δx / Δt depende de qué puntos elegimos sobre la recta? ¿Por qué?</li>
-      <li>¿Qué unidad tiene la pendiente de una gráfica posición-tiempo?</li>
-      <li>¿Qué pasa con Δx cuando la recta “baja”?</li>
-    </ul>
-  </details>
 </div>
 </section>
 
@@ -469,7 +408,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
   <div class="head">
     <span class="tag">Sección 5</span>
     <h2>Simulador del <span class="grad">MRUV</span> 🏎️</h2>
-    <p class="lead"><b>Movimiento Rectilíneo Uniformemente Variado</b>: trayectoria recta y <b>aceleración constante</b>. La velocidad cambia <b>siempre lo mismo en cada segundo</b>.</p>
+    <p class="lead">Línea recta, <b>aceleración constante</b>: la velocidad cambia lo mismo cada segundo.</p>
     <div class="pills"><span class="pill c">Trayectoria recta</span><span class="pill a">a = constante</span><span class="pill v">v cambia uniformemente</span></div>
   </div>
   <div class="grid g2">
@@ -507,16 +446,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
     </div>
     <div class="formula" style="font-size:1.2rem"><i>a</i> = (<i>v</i> − <i>v</i>₀) / <i>t</i> <span class="note" style="font-family:var(--sans)">(si t ≠ 0)</span></div>
     <div class="live" id="v_l3"></div>
-    <div class="tbl-wrap"><table class="tbl" id="v_tbl"></table></div>
-    <p class="note">📌 En la tabla, la velocidad aumenta (o disminuye) <b>siempre lo mismo</b> cada segundo: ese cambio es la aceleración. La posición, en cambio, <b>no</b> cambia lo mismo cada segundo.</p>
   </div>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>Con v₀ = 6 m/s y a = −2 m/s², ¿en qué instante se detiene el auto? (Pista: v = 0 → t = −v₀ / a)</li>
-      <li>¿Qué pasa con la separación entre las marcas de cada segundo cuando el auto acelera? ¿Y cuando frena?</li>
-      <li>Si la aceleración es negativa, ¿el auto siempre frena? ¿Qué pasa después de detenerse?</li>
-    </ul>
-  </details>
 </div>
 </section>
 
@@ -526,7 +456,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
   <div class="head">
     <span class="tag">Sección 6</span>
     <h2>La aceleración en acción ⚡</h2>
-    <p class="lead">Tres autos parten <b>con la misma velocidad inicial</b>. Solo cambia la aceleración. En la gráfica velocidad-tiempo, una aceleración constante es una <b>recta</b>, y su <b>pendiente es la aceleración</b>.</p>
+    <p class="lead">Misma velocidad inicial, distinta aceleración. En la gráfica v-t, <b>la pendiente es la aceleración</b>.</p>
   </div>
   <div class="grid g2">
     <div class="panel">
@@ -554,13 +484,6 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
     <div class="panel"><canvas id="cvAq" class="cv" style="height:300px"></canvas></div>
     <div class="panel" id="q6"></div>
   </div>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>¿Puede un auto tener velocidad positiva y aceleración negativa al mismo tiempo? ¿Qué le pasa?</li>
-      <li>¿Cómo se ve en la gráfica v-t el instante en que el auto 3 se detiene?</li>
-      <li>¿Tener mayor velocidad significa tener mayor aceleración?</li>
-    </ul>
-  </details>
 </div>
 </section>
 
@@ -570,7 +493,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
   <div class="head">
     <span class="tag">Sección 7</span>
     <h2>La <span class="grad">parábola</span> del MRUV 📊</h2>
-    <p class="lead">Con aceleración constante, la posición depende del tiempo <b>al cuadrado</b>: es una <b>función cuadrática</b>. Mirá cómo se genera la curva mientras el auto avanza por el riel vertical.</p>
+    <p class="lead">La posición depende de <b>t²</b>: función cuadrática → parábola. Si a = 0, vuelve a ser una recta.</p>
   </div>
   <div class="grid g2">
     <div class="panel">
@@ -597,25 +520,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
       <canvas id="cvPB" class="cv" style="height:clamp(360px,60vh,620px)"></canvas>
     </div>
   </div>
-  <div class="grid g2b mt">
-    <div class="panel">
-      <h3>Lo importante</h3>
-      <ul class="tight">
-        <li>Si <b>a ≠ 0</b>, entonces A = ½·a ≠ 0 → la gráfica x-t es una <b>parábola</b>.</li>
-        <li>Si <b>a &gt; 0</b>, la parábola abre hacia arriba; si <b>a &lt; 0</b>, hacia abajo.</li>
-        <li>Si <b>a = 0</b>, desaparece el término t²: x = x₀ + v₀·t → vuelve a ser una <b>recta</b> (MRU).</li>
-        <li>El <b>vértice</b> de la parábola es el instante en que <b>v = 0</b>: el auto se detiene y cambia de sentido.</li>
-      </ul>
-    </div>
-    <div class="panel" id="q7"></div>
-  </div>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>¿Qué le pasa a la parábola si la aceleración vale 0?</li>
-      <li>¿Qué significa el vértice de la parábola en términos del movimiento del auto?</li>
-      <li>¿Por qué la curva se va “empinando” cada vez más cuando a &gt; 0?</li>
-    </ul>
-  </details>
+  <div class="panel mt" id="q7"></div>
 </div>
 </section>
 
@@ -625,15 +530,9 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
   <div class="head">
     <span class="tag">Sección 8</span>
     <h2>Desafío final 🧠</h2>
-    <p class="lead">Respondan en grupo antes de tocar. ¡Cada respuesta correcta suma un punto!</p>
+    <p class="lead">5 preguntas. Respondan en grupo antes de tocar.</p>
   </div>
   <div class="panel" id="quiz"></div>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>Antes de elegir, pidan a alguien que explique en voz alta por qué cree que su opción es la correcta.</li>
-      <li>Si se equivocan, vuelvan a la sección correspondiente y compruébenlo con la simulación.</li>
-    </ul>
-  </details>
 </div>
 </section>
 
@@ -668,12 +567,6 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
     <canvas id="cvEnd" class="cv" style="height:clamp(380px,56vh,560px)"></canvas>
   </div>
   <p class="closing reveal" style="--d:.9s">«La <span class="grad">Física</span> describe el movimiento; la <span class="grad">Matemática</span> nos permite representarlo, calcularlo y comprenderlo».</p>
-  <details class="ask"><summary>💬 Para la clase (tocá para ver)</summary>
-    <ul>
-      <li>Expliquen con sus palabras: ¿por qué el MRU da una recta y el MRUV una parábola?</li>
-      <li>Piensen un ejemplo de la vida cotidiana para cada tipo de movimiento.</li>
-    </ul>
-  </details>
 </div>
 </section>
 
@@ -1092,45 +985,6 @@ function frameS1(dt){
     ? [`t = ${fmt(tm,1)} s`, `x = ${fmt(x,1)} m`, `v = Δx/Δt = 10 m/s`]
     : [`t = ${fmt(tm,1)} s`, `v = ${fmt(v,1)} m/s`, `a = Δv/Δt = 2 m/s²`], isV ? C.violet : C.amber);
 }
-/* desafío */
-const CH = {i:0, score:0, tried:false, items:[
-  {s:'“La bici está a <b>300 m de la puerta del colegio</b>.”', k:'posicion', tip:'Dice <i>dónde</i> está, respecto de un punto de referencia.'},
-  {s:'“Va por la avenida, dobla en la esquina y sigue por la calle del colegio: ese es <b>el camino que dibuja</b>.”', k:'trayectoria', tip:'Habla de la línea o camino que sigue.'},
-  {s:'“Sale a las 7:40 y llega a las 7:46: <b>tarda 6 minutos</b>.”', k:'tiempo', tip:'Habla de <i>cuándo</i> y de <i>cuánto dura</i>.'},
-  {s:'“Entre ida y vuelta, el cuentakilómetros marca que <b>pedaleó 2,4 km en total</b>.”', k:'distancia', tip:'Es la longitud total del camino, aunque haya vuelto al lugar de partida.'},
-  {s:'“En la avenida avanza unos <b>5 metros cada segundo</b>.”', k:'velocidad', tip:'Es un cambio de posición por cada unidad de tiempo.'},
-  {s:'“En la bajada, <b>cada segundo va un poco más rápido</b> que en el segundo anterior.”', k:'aceleracion', tip:'Lo que cambia con el tiempo es la velocidad.'}
-]};
-function renderCH(){
-  const it = CH.items[CH.i], chips = $('chChips');
-  if (!it){
-    $('chText').innerHTML = `🏁 ¡Desafío completado! Acertaron <b>${CH.score} de ${CH.items.length}</b> al primer intento.`;
-    chips.innerHTML = ''; $('chFb').className = 'fb';
-    $('chNext').textContent = '⟲ Reiniciar desafío'; $('chNext').disabled = false; setTxt('chScore', ''); return;
-  }
-  CH.tried = false; $('chText').innerHTML = `<span class="note">Frase ${CH.i+1} de ${CH.items.length}:</span><br>${it.s}`;
-  $('chFb').className = 'fb'; $('chNext').disabled = true; $('chNext').textContent = 'Siguiente frase →';
-  chips.innerHTML = '';
-  Object.entries(CONCEPTS).forEach(([k,c]) => {
-    const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = `${c.ic} ${c.name}`;
-    b.addEventListener('click', () => {
-      const fb = $('chFb');
-      if (k === it.k){
-        if (!CH.tried) CH.score++;
-        b.classList.add('right'); chips.querySelectorAll('.chip').forEach(x => x.disabled = true);
-        fb.className = 'fb show good'; fb.innerHTML = `<b>✔ ¡Bien!</b> Es <b>${c.name.toLowerCase()}</b>. ${it.tip}`; $('chNext').disabled = false;
-      } else {
-        CH.tried = true; b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong');
-        fb.className = 'fb show bad'; fb.innerHTML = `<b>✘ Todavía no.</b> Pista: ${it.tip}`;
-      }
-      setTxt('chScore', `Aciertos al primer intento: ${CH.score}`);
-    });
-    chips.appendChild(b);
-  });
-  setTxt('chScore', `Aciertos al primer intento: ${CH.score}`);
-}
-$('chNext').addEventListener('click', () => { if (CH.i >= CH.items.length){ CH.i = 0; CH.score = 0; } else CH.i++; renderCH(); });
-renderCH();
 
 /* =========================================================
    2 y 3 · MRU (modelo compartido)
@@ -1190,7 +1044,6 @@ function frameS2(dt){
   setTxt('m_ro_t', fmt(MRU.t,2)+' s'); setTxt('m_ro_x', fmt(x,2)+' m'); setTxt('m_ro_v', fs(MRU.v)+' m/s'); setTxt('m_ro_a', '0 m/s²');
   setHTML('m_live', `x = x₀ + v · t = ${fsp(MRU.x0)} + ${fsp(MRU.v)} · ${fmt(MRU.t,2)} = <b>${fmt(x,2)} m</b>`);
   setTxt('m_dx', fs(MRU.v)+' m');
-  updMRUTable();
 }
 function frameS3(dt){
   simStep(MRU, dt);
@@ -1342,14 +1195,6 @@ function frameS5(dt){
   else if (MV.v0 === 0) ev = 'Parte del reposo (v₀ = 0) y la velocidad crece uniformemente.';
   else ev = 'La velocidad y la aceleración tienen el mismo sentido: el auto va cada vez más rápido.';
   setTxt('v_event', ev);
-  const el = $('v_tbl'), key = [MV.x0, MV.v0, MV.a, MV.T].join('|');
-  if (el._key !== key){
-    el._key = key; el._hl = -1;
-    let r1 = '<tr><th>t (s)</th>', r2 = '<tr><th>v (m/s)</th>', r3 = '<tr><th>x (m)</th>';
-    for (let k = 0; k <= MV.T; k++){ r1 += `<td data-k="${k}">${k}</td>`; r2 += `<td data-k="${k}">${fs(mvV(k))}</td>`; r3 += `<td data-k="${k}">${fs(mvX(k))}</td>`; }
-    el.innerHTML = r1+'</tr>'+r2+'</tr>'+r3+'</tr>';
-  }
-  hlTable(el, MV.t);
 }
 
 /* =========================================================
@@ -1500,16 +1345,12 @@ const QUIZ = [
    why:'En el MRU, x = x₀ + v·t. Tiene la forma y = m·x + b: es una función afín y su gráfica es una recta.'},
   {q:'¿Qué representa la pendiente de una gráfica posición-tiempo?', o:['La aceleración','La distancia total recorrida','La velocidad','La posición inicial'], ok:2,
    why:'Pendiente = Δx / Δt, que es justamente la definición de velocidad.'},
-  {q:'¿Qué magnitud permanece constante en el MRUV?', o:['La aceleración','La velocidad','La posición','La distancia recorrida en cada segundo'], ok:0,
-   why:'En el MRUV la velocidad cambia, pero siempre al mismo ritmo: la aceleración es constante.'},
   {q:'¿Qué forma tiene la gráfica posición-tiempo del MRUV cuando la aceleración es distinta de cero?', o:['Una recta horizontal','Una recta inclinada','Una circunferencia','Una parábola'], ok:3,
    why:'x = x₀ + v₀·t + ½·a·t² es una función cuadrática (A = ½·a ≠ 0), y su gráfica es una parábola.'},
   {q:'Si un auto se desplaza a 4 m/s durante 5 segundos desde la posición 0 m (MRU), ¿qué posición alcanza?', o:['9 m','0,8 m','20 m','45 m'], ok:2,
    why:'x = x₀ + v·t = 0 + 4 · 5 = 20 m.'},
   {q:'Observá la gráfica posición-tiempo de un móvil. ¿Cuál es su velocidad?', svg:SVG_GRAPH, o:['7 m/s','5 m/s','25 m/s','35 m/s'], ok:1,
-   why:'v = Δx / Δt = (35 m − 10 m) / (5 s − 0 s) = 25 / 5 = 5 m/s. (7 m/s sale de olvidarse de que el móvil no partió de 0 m.)'},
-  {q:'Las marcas muestran dónde estaba un auto en cada segundo. ¿Qué tipo de movimiento tiene?', svg:SVG_STROBE, o:['MRU: avanza siempre lo mismo','MRUV: está frenando (a < 0)','MRUV: está acelerando (a > 0)','Está en reposo'], ok:2,
-   why:'En cada segundo recorre más que en el anterior (1, 3, 5, 7 unidades): la velocidad aumenta siempre lo mismo → MRUV con aceleración positiva.'}
+   why:'v = Δx / Δt = (35 m − 10 m) / (5 s − 0 s) = 25 / 5 = 5 m/s. (7 m/s sale de olvidarse de que el móvil no partió de 0 m.)'}
 ];
 const QZ = {i:0, score:0, res:[]};
 function renderQuiz(){
