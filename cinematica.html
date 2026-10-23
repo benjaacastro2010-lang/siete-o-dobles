@@ -861,12 +861,12 @@ $('startBtn').addEventListener('click', () => { if (!COV.go){ COV.go = true; COV
    1 · ¿QUÉ ES LA CINEMÁTICA?
    ========================================================= */
 const CONCEPTS = {
-  posicion:   {ic:'📍', name:'Posición', def:'Indica <b>dónde está</b> el objeto respecto de un punto de referencia llamado <b>origen</b>. Se mide en metros (m) y puede ser negativa.', hint:'👆 Tocá o arrastrá sobre la pista para cambiar la posición del auto.'},
-  trayectoria:{ic:'〰️', name:'Trayectoria', def:'Es el <b>camino</b> (la línea) que describe el objeto al moverse. Puede ser recta o curva.', hint:'La línea luminosa que deja el auto es su trayectoria.'},
-  tiempo:     {ic:'⏱️', name:'Tiempo', def:'Indica <b>cuándo</b> ocurre cada posición. Se mide en segundos (s). Cada punto marcado es la posición del auto en un instante.', hint:'El cronómetro avanza y marcamos dónde estaba el auto en cada segundo.'},
-  distancia:  {ic:'📏', name:'Distancia recorrida', def:'Es la <b>longitud total del camino</b> recorrido. Nunca disminuye. No es lo mismo que el desplazamiento (la línea recta entre la salida y la llegada).', hint:'Compará la distancia recorrida (amarillo) con el desplazamiento (punteado violeta).'},
-  velocidad:  {ic:'💨', name:'Velocidad', def:'Es el <b>cambio de posición por unidad de tiempo</b>: v = Δx / Δt. Se mide en m/s.', hint:'Cada segundo el auto avanza lo mismo: 10 m. Su velocidad es 10 m/s.'},
-  aceleracion:{ic:'⚡', name:'Aceleración', def:'Es el <b>cambio de velocidad por unidad de tiempo</b>: a = Δv / Δt. Se mide en m/s².', hint:'Cada segundo la velocidad aumenta 2 m/s: las marcas quedan cada vez más separadas.'}
+  posicion:   {ic:'📍', name:'Posición', def:'Dónde está el objeto, medido desde un <b>origen</b> (0 m).', hint:'👆 Tocá la pista para mover el auto.'},
+  trayectoria:{ic:'➡️', name:'Trayectoria', def:'El <b>camino</b> que sigue el objeto. Acá siempre es una <b>línea recta</b>.', hint:'La línea que deja el auto es su trayectoria.'},
+  tiempo:     {ic:'⏱️', name:'Tiempo', def:'<b>Cuándo</b> pasa cada cosa. Se mide en segundos (s).', hint:'Cada punto marca dónde estaba el auto en cada segundo.'},
+  distancia:  {ic:'📏', name:'Distancia recorrida', def:'<b>Cuántos metros</b> recorrió en total.', hint:'La línea amarilla es lo recorrido.'},
+  velocidad:  {ic:'💨', name:'Velocidad', def:'<b>Cuánto cambia la posición</b> en cada segundo (m/s).', hint:'Cada segundo avanza lo mismo: puntos igual de separados.'},
+  aceleracion:{ic:'⚡', name:'Aceleración', def:'<b>Cuánto cambia la velocidad</b> en cada segundo (m/s²).', hint:'Cada segundo va más rápido: puntos cada vez más separados.'}
 };
 const S1 = {mode:'posicion', t:0, pos:35, X:null, drag:false};
 (function initS1(){
@@ -918,39 +918,6 @@ function frameS1(dt){
   const {ctx,w,h} = fitCanvas($('cv1'));
   const s = clamp(w/900, .75, 1.15);
   const m = S1.mode;
-  if (m === 'trayectoria' || m === 'tiempo' || m === 'distancia'){
-    const pts = [[.06,.8],[.22,.55],[.4,.74],[.58,.36],[.76,.58],[.94,.26]].map(([a,b]) => [a*w, b*h]);
-    const P = pathInfo(catmull(pts));
-    const DUR = 8, CYC = 10, tt = S1.t % CYC, tm = Math.min(tt, DUR), sNow = tm/DUR*P.len;
-    const METERS = 160, k = METERS/P.len;
-    ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.strokeStyle = '#121838'; ctx.lineWidth = 44*s; strokePartial(ctx, P, P.len);
-    ctx.strokeStyle = 'rgba(34,211,238,.18)'; ctx.lineWidth = 46*s; ctx.globalCompositeOperation = 'destination-over'; strokePartial(ctx, P, P.len); ctx.globalCompositeOperation = 'source-over';
-    ctx.setLineDash([12,12]); ctx.strokeStyle = 'rgba(230,236,255,.14)'; ctx.lineWidth = 2; strokePartial(ctx, P, P.len); ctx.setLineDash([]);
-    if (m === 'trayectoria'){ ctx.strokeStyle = C.cyan; ctx.lineWidth = 5; ctx.shadowColor = C.cyan; ctx.shadowBlur = 16; strokePartial(ctx, P, sNow); }
-    if (m === 'distancia'){ ctx.strokeStyle = C.amber; ctx.lineWidth = 6; ctx.shadowColor = C.amber; ctx.shadowBlur = 14; strokePartial(ctx, P, sNow); }
-    ctx.restore();
-    const q = pathAt(P, sNow);
-    if (m === 'distancia'){
-      ctx.save(); ctx.setLineDash([7,6]); ctx.strokeStyle = C.violet; ctx.lineWidth = 2.5; seg(ctx, P.poly[0][0], P.poly[0][1], q.x, q.y); ctx.restore();
-      const disp = Math.hypot(q.x-P.poly[0][0], q.y-P.poly[0][1])*k;
-      hud(ctx, 14, 14, [`Distancia: ${fmt(sNow*k,0)} m`], C.amber); void disp;
-    }
-    if (m === 'tiempo'){
-      for (let i = 0; i <= Math.floor(tm+1e-9); i++){ const p = pathAt(P, i/DUR*P.len); dot(ctx, p.x, p.y, 6, C.pink); text(ctx, i+' s', p.x, p.y-20, {color:C.pink, font:'700 12px '+MONO, bg:'rgba(6,10,28,.85)'}); }
-      const cx = w-70, cy = 70, R = 46;
-      ctx.save(); ctx.fillStyle = 'rgba(6,10,28,.9)'; ctx.strokeStyle = C.pink; ctx.lineWidth = 3; ctx.shadowColor = C.pink; ctx.shadowBlur = 14;
-      ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
-      ctx.fillRect(cx-6, cy-R-10, 12, 8);
-      for (let i = 0; i < 8; i++){ const a = i/8*Math.PI*2 - Math.PI/2; ctx.strokeStyle = C.muted; ctx.lineWidth = 2; seg(ctx, cx+Math.cos(a)*(R-8), cy+Math.sin(a)*(R-8), cx+Math.cos(a)*(R-3), cy+Math.sin(a)*(R-3)); }
-      const a = tm/DUR*Math.PI*2 - Math.PI/2; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; seg(ctx, cx, cy, cx+Math.cos(a)*(R-12), cy+Math.sin(a)*(R-12));
-      ctx.restore(); text(ctx, 't = ' + fmt(tm,1) + ' s', cx, cy+R+18, {color:C.pink, font:'700 16px '+MONO});
-    }
-    if (m === 'trayectoria') text(ctx, 'trayectoria', P.poly[Math.floor(P.poly.length*0.3)][0], P.poly[Math.floor(P.poly.length*0.3)][1]-38*s, {color:C.cyan, font:'700 15px '+SANS, bg:'rgba(6,10,28,.8)'});
-    dot(ctx, P.poly[0][0], P.poly[0][1], 6, C.green); text(ctx, 'salida', P.poly[0][0], P.poly[0][1]+24, {color:C.green, font:'700 12px '+MONO});
-    ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.ang); drawCar(ctx, 0, 14*s, s*0.9, C.cyan, 1, sNow/(WHEEL_R*s)); ctx.restore();
-    return;
-  }
   // modos sobre pista recta
   const xmin = m === 'posicion' ? -30 : 0, xmax = 100;
   const X = makeScale(w, xmin, xmax); S1.X = X;
@@ -967,18 +934,32 @@ function frameS1(dt){
     dot(ctx, px, yc+rh/2+16, 5, '#fff');
     return;
   }
+  if (m === 'trayectoria' || m === 'tiempo' || m === 'distancia'){
+    const DUR = 8, CYC = 10, tm = Math.min(S1.t % CYC, DUR), x = 100*tm/DUR, px = X(x);
+    const col = m === 'trayectoria' ? C.cyan : m === 'distancia' ? C.amber : C.pink;
+    if (m !== 'tiempo'){
+      ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = m === 'distancia' ? 8 : 5; ctx.lineCap = 'round'; ctx.shadowColor = col; ctx.shadowBlur = 16;
+      seg(ctx, X(0), yc, px, yc); ctx.restore();
+    }
+    if (m === 'trayectoria') text(ctx, 'trayectoria: línea recta', (X(0)+Math.max(px, X(30)))/2, yc-rh/2-22, {color:C.cyan, font:'700 15px '+SANS, bg:'rgba(6,10,28,.8)'});
+    if (m === 'distancia') hud(ctx, 14, 12, [`Distancia: ${fmt(x,0)} m`], C.amber);
+    if (m === 'tiempo'){
+      for (let i = 0; i <= Math.floor(tm+1e-9); i++) dot(ctx, X(100*i/DUR), yc, 5, C.pink);
+      const cx = w-64, cy = 58, R = 40;
+      ctx.save(); ctx.fillStyle = 'rgba(6,10,28,.9)'; ctx.strokeStyle = C.pink; ctx.lineWidth = 3; ctx.shadowColor = C.pink; ctx.shadowBlur = 14;
+      ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0; ctx.fillStyle = C.pink; ctx.fillRect(cx-6, cy-R-9, 12, 7);
+      const a = tm/DUR*Math.PI*2 - Math.PI/2; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; seg(ctx, cx, cy, cx+Math.cos(a)*(R-10), cy+Math.sin(a)*(R-10));
+      ctx.restore(); hud(ctx, 14, 12, [`t = ${fmt(tm,0)} s`], C.pink);
+    }
+    drawCar(ctx, px, yc+rh*0.3, s, col, 1, px/(WHEEL_R*s));
+    return;
+  }
   const DUR = 10, CYC = 12.5, tt = S1.t % CYC, tm = Math.min(tt, DUR);
   const isV = m === 'velocidad';
   const xOf = t => isV ? 10*t : t*t;    // v = 10 m/s   |   a = 2 m/s² → x = ½·2·t² = t²
   const x = xOf(tm), v = isV ? 10 : 2*tm;
-  let lastLbl = -1e9;
   for (let i = 0; i <= Math.floor(tm+1e-9); i++){
     const pxk = X(xOf(i)); dot(ctx, pxk, yc, 5, isV ? C.violet : C.amber);
-    if (pxk - lastLbl > 26){ text(ctx, i+' s', pxk, yc-rh/2-14, {color:isV ? C.violet : C.amber, font:'700 12px '+MONO}); lastLbl = pxk; }
-    if (i > 0){
-      const a = X(xOf(i-1)), b = pxk;
-
-    }
   }
   drawCar(ctx, X(x), yc+rh*0.3, s, isV ? C.violet : C.amber, 1, X(x)/(WHEEL_R*s));
   posMarker(ctx, X(x), yc+rh/2+16, isV ? C.violet : C.amber);
