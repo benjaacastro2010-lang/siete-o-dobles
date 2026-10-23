@@ -278,7 +278,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
 <section class="slide" id="s1" data-title="¿Qué es la cinemática?">
 <div class="inner">
   <div class="head">
-    <span class="tag">Sección 1</span>
+    <span class="tag">Etapa 1</span>
     <h2>¿Qué es la <span class="grad">cinemática</span>?</h2>
     <p class="lead">Estudia <b>cómo se mueven los cuerpos</b>, sin centrarse en las <b>fuerzas</b>.</p>
   </div>
@@ -296,50 +296,13 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
 </div>
 </section>
 
-<!-- ================= 2 · SIMULADOR MRU ================= -->
-<section class="slide" id="s2" data-title="Simulador del MRU">
-<div class="inner">
-  <div class="head">
-    <span class="tag">Sección 2</span>
-    <h2>Simulador del <span class="grad">MRU</span> 🚗</h2>
-    <p class="lead">Línea recta, <b>velocidad constante</b>, <b>aceleración cero</b>.</p>
-    <div class="pills"><span class="pill c">Trayectoria recta</span><span class="pill v">v = constante</span><span class="pill a">a = 0</span></div>
-  </div>
-  <div class="grid g2">
-    <div class="panel">
-      <div class="formula"><i>x</i> = <i>x</i>₀ + <i>v</i> · <i>t</i></div>
-      <div class="ctrl"><label>Posición inicial x₀ <output id="m_x0_o"></output></label><input type="range" id="m_x0" min="-10" max="20" step="1"></div>
-      <div class="ctrl" style="--c:var(--violet)"><label>Velocidad v <output id="m_v_o"></output></label><input type="range" id="m_v" min="-3" max="8" step="0.5"></div>
-      <div class="ctrl" style="--c:var(--amber)"><label>Duración del recorrido <output id="m_T_o"></output></label><input type="range" id="m_T" min="1" max="10" step="1"></div>
-      <div class="ctrl" style="--c:var(--pink)"><label>Tiempo transcurrido t <small>(arrastrá para ir a un instante)</small> <output id="m_t_o"></output></label><input type="range" id="m_t" min="0" max="8" step="0.01"></div>
-      <div class="btn-row">
-        <button class="btn primary" id="m_play">▶ Iniciar</button>
-        <button class="btn" id="m_reset">⟲ Reiniciar</button>
-        <button class="btn" id="m_speed" title="Velocidad de reproducción">×1</button>
-      </div>
-      <button class="btn ghost" id="m_example">📘 Cargar ejemplo: x₀ = 0 m, v = 5 m/s</button>
-    </div>
-    <div class="panel">
-      <canvas id="cvMRU" class="cv" style="height:clamp(200px,30vh,280px)"></canvas>
-      <div class="readouts">
-        <div class="ro p"><span>Tiempo</span><b id="m_ro_t"></b></div>
-        <div class="ro c"><span>Posición</span><b id="m_ro_x"></b></div>
-        <div class="ro v"><span>Velocidad</span><b id="m_ro_v"></b></div>
-        <div class="ro a"><span>Aceleración</span><b id="m_ro_a"></b></div>
-      </div>
-      <div class="live" id="m_live"></div>
-    </div>
-  </div>
-</div>
-</section>
-
 <!-- ================= 3 · GRÁFICA MRU ================= -->
-<section class="slide" id="s3" data-title="Gráfica dinámica del MRU">
+<section class="slide" id="s3" data-title="MRU: velocidad constante">
 <div class="inner">
   <div class="head">
-    <span class="tag">Sección 3</span>
-    <h2>Gráfica dinámica del MRU 📈</h2>
-    <p class="lead">Posición en función del tiempo. <b>Más pendiente = más rapidez</b>; pendiente negativa = la posición disminuye.</p>
+    <span class="tag">Etapa 2</span>
+    <h2>MRU: <span class="grad">velocidad constante</span> 🚗</h2>
+    <p class="lead">El auto va en <b>línea recta</b> y avanza <b>siempre lo mismo cada segundo</b> (no acelera: a = 0). Por eso su gráfica posición-tiempo es una <b>recta</b>, y la <b>pendiente es la velocidad</b>.</p>
   </div>
   <div class="grid g2">
     <div class="panel">
@@ -348,7 +311,6 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
         <div class="l k">x = x₀ + v · t</div><div class="m">⟷</div><div class="k">y = m · x + b</div>
         <div class="l">velocidad <b>v</b></div><div class="m">⟷</div><div>pendiente <b>m</b></div>
         <div class="l">posición inicial <b>x₀</b></div><div class="m">⟷</div><div>ordenada al origen <b>b</b></div>
-        <div class="l">tiempo <b>t</b></div><div class="m">⟷</div><div>variable <b>x</b></div>
       </div>
       <div class="live" id="g_live"></div>
       <h3 style="margin-top:14px">Compará velocidades</h3>
@@ -357,10 +319,7 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
         <button class="btn" data-v="5">🚗 Intermedia · 5 m/s</button>
         <button class="btn" data-v="8">🏎️ Alta · 8 m/s</button>
       </div>
-      <button class="btn ghost" data-v="-3" id="g_neg">↩ Probar velocidad negativa · −3 m/s</button>
       <div class="ctrl" style="--c:var(--violet)"><label>Velocidad v <output id="g_v_o"></output></label><input type="range" id="g_v" min="-3" max="8" step="0.5"></div>
-      <div class="ctrl"><label>Posición inicial x₀ <output id="g_x0_o"></output></label><input type="range" id="g_x0" min="-10" max="20" step="1"></div>
-      <div class="ctrl" style="--c:var(--amber)"><label>Duración <output id="g_T_o"></output></label><input type="range" id="g_T" min="1" max="10" step="1"></div>
       <div class="btn-row">
         <button class="btn primary" id="g_play">▶ Iniciar</button>
         <button class="btn" id="g_reset">⟲ Reiniciar</button>
@@ -375,126 +334,13 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
 </div>
 </section>
 
-<!-- ================= 4 · PENDIENTE ================= -->
-<section class="slide" id="s4" data-title="¿Qué representa la pendiente?">
-<div class="inner">
-  <div class="head">
-    <span class="tag">Sección 4 · Experimento</span>
-    <h2>¿Qué representa la <span class="grad">pendiente</span>?</h2>
-    <p class="lead">Arrastrá <b style="color:var(--amber)">A</b> y <b style="color:var(--pink)">B</b>: Δx / Δt siempre da la pendiente = la velocidad.</p>
-  </div>
-  <div class="grid g2">
-    <div class="panel">
-      <div class="formula"><i>v</i> = Δ<i>x</i> / Δ<i>t</i></div>
-      <div class="readouts" style="grid-template-columns:repeat(2,minmax(0,1fr))">
-        <div class="ro a"><span>Punto A</span><b id="p_A"></b></div>
-        <div class="ro p"><span>Punto B</span><b id="p_B"></b></div>
-        <div class="ro g"><span>Δt = t<sub>B</sub> − t<sub>A</sub></span><b id="p_dt"></b></div>
-        <div class="ro v"><span>Δx = x<sub>B</sub> − x<sub>A</sub></span><b id="p_dx"></b></div>
-      </div>
-      <div class="live" id="p_live" style="font-size:1.15rem"></div>
-      <div class="ctrl" style="--c:var(--violet)"><label>Inclinación de la recta <output id="p_v_o"></output></label><input type="range" id="p_v" min="-4" max="9" step="0.5"></div>
-      <p class="note">💡 Probá: mové A y B a distintos lugares. ¿Cambia el resultado de Δx / Δt? Después cambiá la inclinación.</p>
-      <button class="btn" id="p_reset">⟲ Reiniciar puntos</button>
-    </div>
-    <div class="panel">
-      <canvas id="cv4" class="cv" style="height:clamp(320px,52vh,540px); cursor:grab"></canvas>
-    </div>
-  </div>
-  <div class="panel mt" id="q4"></div>
-</div>
-</section>
-
-<!-- ================= 5 · SIMULADOR MRUV ================= -->
-<section class="slide" id="s5" data-title="Simulador del MRUV">
-<div class="inner">
-  <div class="head">
-    <span class="tag">Sección 5</span>
-    <h2>Simulador del <span class="grad">MRUV</span> 🏎️</h2>
-    <p class="lead">Línea recta, <b>aceleración constante</b>: la velocidad cambia lo mismo cada segundo.</p>
-    <div class="pills"><span class="pill c">Trayectoria recta</span><span class="pill a">a = constante</span><span class="pill v">v cambia uniformemente</span></div>
-  </div>
-  <div class="grid g2">
-    <div class="panel">
-      <div class="ctrl"><label>Posición inicial x₀ <output id="v_x0_o"></output></label><input type="range" id="v_x0" min="-20" max="20" step="1"></div>
-      <div class="ctrl" style="--c:var(--violet)"><label>Velocidad inicial v₀ <output id="v_v0_o"></output></label><input type="range" id="v_v0" min="-10" max="15" step="0.5"></div>
-      <div class="ctrl" style="--c:var(--amber)"><label>Aceleración a <output id="v_a_o"></output></label><input type="range" id="v_a" min="-4" max="4" step="0.5"></div>
-      <div class="ctrl" style="--c:var(--green)"><label>Duración <output id="v_T_o"></output></label><input type="range" id="v_T" min="1" max="12" step="1"></div>
-      <div class="ctrl" style="--c:var(--pink)"><label>Tiempo transcurrido t <output id="v_t_o"></output></label><input type="range" id="v_t" min="0" max="8" step="0.01"></div>
-      <div class="btn-row">
-        <button class="btn primary" id="v_play">▶ Iniciar</button>
-        <button class="btn" id="v_reset">⟲ Reiniciar</button>
-        <button class="btn" id="v_speed" title="Velocidad de reproducción">×1</button>
-      </div>
-      <div class="btn-row">
-        <button class="btn ghost" data-ex="acel">🚀 Acelera desde el reposo</button>
-        <button class="btn ghost" data-ex="frena">🛑 Frena y cambia de sentido</button>
-      </div>
-    </div>
-    <div class="panel">
-      <canvas id="cvMV" class="cv" style="height:clamp(230px,34vh,320px)"></canvas>
-      <div class="readouts">
-        <div class="ro p"><span>Tiempo</span><b id="v_ro_t"></b></div>
-        <div class="ro c"><span>Posición</span><b id="v_ro_x"></b></div>
-        <div class="ro v"><span>Velocidad</span><b id="v_ro_v"></b></div>
-        <div class="ro a"><span>Aceleración</span><b id="v_ro_a"></b></div>
-      </div>
-      <div class="event" id="v_event"></div>
-    </div>
-  </div>
-  <div class="panel mt">
-    <div class="grid g2b" style="gap:12px">
-      <div><div class="formula" style="font-size:1.3rem"><i>v</i> = <i>v</i>₀ + <i>a</i> · <i>t</i></div><div class="live" id="v_l1"></div></div>
-      <div><div class="formula" style="font-size:1.3rem"><i>x</i> = <i>x</i>₀ + <i>v</i>₀ · <i>t</i> + ½ · <i>a</i> · <i>t</i>²</div><div class="live" id="v_l2"></div></div>
-    </div>
-  </div>
-</div>
-</section>
-
-<!-- ================= 6 · ACELERACIÓN EN ACCIÓN ================= -->
-<section class="slide" id="s6" data-title="La aceleración en acción">
-<div class="inner">
-  <div class="head">
-    <span class="tag">Sección 6</span>
-    <h2>La aceleración en acción ⚡</h2>
-    <p class="lead">Misma velocidad inicial, distinta aceleración. En la gráfica v-t, <b>la pendiente es la aceleración</b>.</p>
-  </div>
-  <div class="grid g2">
-    <div class="panel">
-      <div class="formula"><i>a</i> = Δ<i>v</i> / Δ<i>t</i> = pendiente de <i>v</i>(<i>t</i>)</div>
-      <div class="ctrl" style="--c:var(--blue)"><label>Velocidad inicial común v₀ <output id="a_v0_o"></output></label><input type="range" id="a_v0" min="0" max="8" step="0.5"></div>
-      <div class="ctrl" style="--c:var(--green)"><label>Auto 1 · aceleración positiva <output id="a_p_o"></output></label><input type="range" id="a_p" min="0.5" max="3" step="0.5"></div>
-      <div class="ctrl" style="--c:var(--blue)"><label>Auto 2 · aceleración nula <output>0 m/s²</output></label><input type="range" min="0" max="0" value="0" disabled></div>
-      <div class="ctrl" style="--c:var(--pink)"><label>Auto 3 · aceleración negativa <output id="a_n_o"></output></label><input type="range" id="a_n" min="-3" max="-0.5" step="0.5"></div>
-      <div class="btn-row">
-        <button class="btn primary" id="a_play">▶ Iniciar</button>
-        <button class="btn" id="a_reset">⟲ Reiniciar</button>
-      </div>
-      <ul class="tight note">
-        <li><b style="color:var(--green)">a &gt; 0</b>: la velocidad crece → la recta sube.</li>
-        <li><b style="color:var(--blue)">a = 0</b>: la velocidad no cambia → recta horizontal (¡es un MRU!).</li>
-        <li><b style="color:var(--pink)">a &lt; 0</b>: la velocidad decrece → la recta baja. Si cruza v = 0, el auto se detiene y cambia de sentido.</li>
-      </ul>
-    </div>
-    <div class="panel">
-      <canvas id="cvA" class="cv" style="height:clamp(250px,36vh,330px)"></canvas>
-      <canvas id="cvAg" class="cv mt" style="height:clamp(260px,38vh,380px)"></canvas>
-    </div>
-  </div>
-  <div class="grid g2b mt">
-    <div class="panel"><canvas id="cvAq" class="cv" style="height:300px"></canvas></div>
-    <div class="panel" id="q6"></div>
-  </div>
-</div>
-</section>
-
 <!-- ================= 7 · PARÁBOLA ================= -->
-<section class="slide" id="s7" data-title="La parábola del MRUV">
+<section class="slide" id="s7" data-title="MRUV: aceleración constante">
 <div class="inner">
   <div class="head">
-    <span class="tag">Sección 7</span>
-    <h2>La <span class="grad">parábola</span> del MRUV 📊</h2>
-    <p class="lead">La posición depende de <b>t²</b>: función cuadrática → parábola. Si a = 0, vuelve a ser una recta.</p>
+    <span class="tag">Etapa 3</span>
+    <h2>MRUV: <span class="grad">aceleración constante</span> 🏎️</h2>
+    <p class="lead">Ahora el auto <b>acelera</b> (o frena): su velocidad cambia lo mismo cada segundo. La posición depende de <b>t²</b>, así que la gráfica es una <b>parábola</b>. Si a = 0, vuelve a ser una recta (MRU).</p>
   </div>
   <div class="grid g2">
     <div class="panel">
@@ -505,11 +351,9 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
         <div class="l"><b>B</b></div><div class="m">=</div><div>v₀ <span class="note" id="pb_B"></span></div>
         <div class="l"><b>C</b></div><div class="m">=</div><div>x₀ <span class="note" id="pb_C"></span></div>
       </div>
-      <p class="note">⚠️ Usamos <b>A</b> (mayúscula) para el coeficiente cuadrático, para no confundirlo con la aceleración física <b>a</b>.</p>
       <div class="live" id="pb_live" style="font-size:1.1rem"></div>
       <div class="ctrl" style="--c:var(--amber)"><label>Aceleración a <output id="pb_a_o"></output></label><input type="range" id="pb_a" min="-3" max="3" step="0.5"></div>
       <div class="ctrl" style="--c:var(--violet)"><label>Velocidad inicial v₀ <output id="pb_v0_o"></output></label><input type="range" id="pb_v0" min="-4" max="8" step="0.5"></div>
-      <div class="ctrl"><label>Posición inicial x₀ <output id="pb_x0_o"></output></label><input type="range" id="pb_x0" min="-10" max="20" step="1"></div>
       <div class="btn-row">
         <button class="btn primary" id="pb_play">▶ Generar parábola</button>
         <button class="btn" id="pb_reset">⟲ Reiniciar</button>
@@ -521,54 +365,18 @@ details.ask ul{margin:0 16px 14px; padding-left:1.2em; line-height:1.6; font-siz
       <canvas id="cvPB" class="cv" style="height:clamp(360px,60vh,620px)"></canvas>
     </div>
   </div>
-  <div class="panel mt" id="q7"></div>
 </div>
 </section>
 
 <!-- ================= 8 · DESAFÍO FINAL ================= -->
-<section class="slide" id="s8" data-title="Desafío final">
+<section class="slide" id="s8" data-title="Preguntas">
 <div class="inner" style="max-width:980px">
   <div class="head">
-    <span class="tag">Sección 8</span>
-    <h2>Desafío final 🧠</h2>
+    <span class="tag">Etapa 4</span>
+    <h2>Preguntas 🧠</h2>
     <p class="lead">5 preguntas. Respondan en grupo antes de tocar.</p>
   </div>
   <div class="panel" id="quiz"></div>
-</div>
-</section>
-
-<!-- ================= 9 · CONCLUSIÓN ================= -->
-<section class="slide" id="s9" data-title="Conclusión">
-<div class="inner">
-  <div class="head" style="text-align:center">
-    <span class="tag">Conclusión</span>
-    <h2>MRU vs MRUV de un vistazo</h2>
-  </div>
-  <div class="grid g2b">
-    <div class="sum-card mru reveal" style="--d:.1s">
-      <h3>🚗 MRU</h3>
-      <ul class="tight">
-        <li class="reveal" style="--d:.2s">Velocidad <b>constante</b>.</li>
-        <li class="reveal" style="--d:.3s">Aceleración <b>nula</b>.</li>
-        <li class="reveal" style="--d:.4s">Posición <b>lineal</b> respecto del tiempo: x = x₀ + v·t</li>
-        <li class="reveal" style="--d:.5s"><b>Función afín</b> → gráfica <b>recta</b>.</li>
-      </ul>
-    </div>
-    <div class="sum-card mruv reveal" style="--d:.25s">
-      <h3>🏎️ MRUV</h3>
-      <ul class="tight">
-        <li class="reveal" style="--d:.35s">Aceleración <b>constante</b>.</li>
-        <li class="reveal" style="--d:.45s">Velocidad <b>lineal</b> respecto del tiempo: v = v₀ + a·t</li>
-        <li class="reveal" style="--d:.55s">Posición <b>cuadrática</b> respecto del tiempo: x = x₀ + v₀·t + ½·a·t²</li>
-        <li class="reveal" style="--d:.65s"><b>Función cuadrática</b> → gráfica <b>parabólica</b> (si a ≠ 0).</li>
-      </ul>
-    </div>
-  </div>
-  <div class="panel mt reveal" style="--d:.7s">
-    <canvas id="cvEnd" class="cv" style="height:clamp(380px,56vh,560px)"></canvas>
-  </div>
-  <p class="closing reveal" style="--d:.9s">«La <span class="grad">Física</span> describe el movimiento; la <span class="grad">Matemática</span> nos permite representarlo, calcularlo y comprenderlo».</p>
-  <div class="reveal" style="--d:1s"><div class="team"><span class="course">3ro 2da</span><span>Benjamin Castro</span><span>Leandro Daza</span><span>Morena Juarez</span><span>Milena Mamani</span></div></div>
 </div>
 </section>
 
@@ -889,30 +697,6 @@ function setConcept(k){
   const c = CONCEPTS[k]; $('c_def').innerHTML = `<h4>${c.ic} ${c.name}</h4>${c.def}`; $('c_hint').textContent = c.hint;
   $('cv1').style.cursor = k === 'posicion' ? 'pointer' : 'default';
 }
-function catmull(pts, n=26){
-  const out = [];
-  for (let i = 0; i < pts.length-1; i++){
-    const p0 = pts[Math.max(0,i-1)], p1 = pts[i], p2 = pts[i+1], p3 = pts[Math.min(pts.length-1,i+2)];
-    for (let k = 0; k < n; k++){ const t = k/n, t2 = t*t, t3 = t2*t;
-      const f = j => 0.5*((2*p1[j]) + (-p0[j]+p2[j])*t + (2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2 + (-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3);
-      out.push([f(0), f(1)]); }
-  }
-  out.push(pts[pts.length-1]); return out;
-}
-function pathInfo(poly){ const cum = [0]; for (let i = 1; i < poly.length; i++) cum.push(cum[i-1] + Math.hypot(poly[i][0]-poly[i-1][0], poly[i][1]-poly[i-1][1])); return {poly, cum, len:cum[cum.length-1]}; }
-function pathAt(P, s){
-  s = clamp(s, 0, P.len); let i = 1; while (i < P.cum.length-1 && P.cum[i] < s) i++;
-  const a = P.poly[i-1], b = P.poly[i], f = (s-P.cum[i-1])/((P.cum[i]-P.cum[i-1])||1);
-  return {x:a[0]+(b[0]-a[0])*f, y:a[1]+(b[1]-a[1])*f, ang:Math.atan2(b[1]-a[1], b[0]-a[0])};
-}
-function strokePartial(ctx, P, s){
-  ctx.beginPath(); ctx.moveTo(P.poly[0][0], P.poly[0][1]);
-  for (let i = 1; i < P.poly.length; i++){
-    if (P.cum[i] >= s){ const q = pathAt(P, s); ctx.lineTo(q.x, q.y); break; }
-    ctx.lineTo(P.poly[i][0], P.poly[i][1]);
-  }
-  ctx.stroke();
-}
 function frameS1(dt){
   S1.t += dt;
   const {ctx,w,h} = fitCanvas($('cv1'));
@@ -975,14 +759,10 @@ const MRU_DEF = {x0:0, v:5, T:8};
 const MRU = Object.assign({t:0, running:false, speed:1, XMIN:-40, XMAX:100}, MRU_DEF);
 const mruX = t => MRU.x0 + MRU.v*t;
 const setMRU = (k, v) => { MRU[k] = v; if (k === 'T') MRU.t = Math.min(MRU.t, MRU.T); };
-for (const pre of ['m','g']){
-  bind(pre+'_x0', () => MRU.x0, v => setMRU('x0', v), v => fs(v)+' m');
+for (const pre of ['g']){
   bind(pre+'_v',  () => MRU.v,  v => setMRU('v', v),  v => fs(v)+' m/s');
-  bind(pre+'_T',  () => MRU.T,  v => setMRU('T', v),  v => fs(v)+' s');
 }
-bind('m_t', () => MRU.t, v => { MRU.t = v; MRU.running = false; }, v => fmt(v,1)+' s', () => MRU.T);
-wirePlay('m_play','m_reset',MRU); wirePlay('g_play','g_reset',MRU); wireSpeed('m_speed', MRU);
-$('m_example').addEventListener('click', () => { MRU.x0 = 0; MRU.v = 5; MRU.T = 8; MRU.t = 0; MRU.running = true; });
+wirePlay('g_play','g_reset',MRU);
 const G3 = {compare:true};
 document.querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => { MRU.v = parseFloat(b.dataset.v); MRU.t = 0; MRU.running = true; }));
 $('g_cmp').addEventListener('click', () => { G3.compare = !G3.compare; $('g_cmp').textContent = '👁 Comparación: ' + (G3.compare ? 'sí' : 'no'); $('g_cmp').classList.toggle('sel', G3.compare); });
@@ -1003,28 +783,6 @@ function drawMRUTrack(cv, compact){
   if (MRU.v !== 0) arrow(ctx, px, yc-rh/2-(compact?8:30), px + dir*clamp(Math.abs(MRU.v)*7, 14, 80), yc-rh/2-(compact?8:30), C.violet, 3);
   drawCar(ctx, px, yc+rh*0.3, s, C.cyan, dir, px/(WHEEL_R*s));
   posMarker(ctx, px, ry, C.cyan, compact ? null : 'x = '+fmt(x,1)+' m');
-}
-function updMRUTable(){
-  const el = $('m_tbl'), key = [MRU.x0, MRU.v, MRU.T].join('|');
-  if (el._key !== key){
-    el._key = key; el._hl = -1;
-    let r1 = '<tr><th>t (s)</th>', r2 = '<tr><th>x (m)</th>';
-    for (let k = 0; k <= MRU.T; k++){ r1 += `<td data-k="${k}">${k}</td>`; r2 += `<td data-k="${k}">${fs(mruX(k))}</td>`; }
-    el.innerHTML = r1 + '</tr>' + r2 + '</tr>';
-  }
-  hlTable(el, MRU.t);
-}
-function hlTable(el, t){
-  const k = Math.floor(t + 1e-9);
-  if (el._hl === k) return; el._hl = k;
-  el.querySelectorAll('td').forEach(td => { const j = +td.dataset.k; td.classList.toggle('now', j === k); td.classList.toggle('past', j < k); });
-}
-function frameS2(dt){
-  simStep(MRU, dt); drawMRUTrack($('cvMRU'), false);
-  const x = mruX(MRU.t);
-  setTxt('m_ro_t', fmt(MRU.t,1)+' s'); setTxt('m_ro_x', fmt(x,1)+' m'); setTxt('m_ro_v', fs(MRU.v)+' m/s'); setTxt('m_ro_a', '0 m/s²');
-  setHTML('m_live', `x = ${fsp(MRU.x0)} + ${fsp(MRU.v)} · ${fmt(MRU.t,1)} = <b>${fmt(x,1)} m</b>`);
-  setTxt('m_dx', fs(MRU.v)+' m');
 }
 function frameS3(dt){
   simStep(MRU, dt);
@@ -1052,78 +810,10 @@ function frameS3(dt){
   const xn = mruX(MRU.t); P.guides(MRU.t, xn, C.cyan); dot(ctx, P.X(MRU.t), P.Y(xn), 8, '#fff');
   hud(ctx, P.x0+10, P.y0+10, ['pendiente = v = ' + fs(MRU.v) + ' m/s'], C.cyan);
   setHTML('g_live', `Ahora: <b>x = ${linTxt(MRU.v, MRU.x0)}</b> &nbsp;→&nbsp; m = <span class="lv">${fs(MRU.v)} m/s</span>, b = <span class="lv">${fs(MRU.x0)} m</span>`);
-  document.querySelectorAll('#g_presets [data-v], #g_neg').forEach(b => b.classList.toggle('sel', parseFloat(b.dataset.v) === MRU.v));
+  document.querySelectorAll('#g_presets [data-v]').forEach(b => b.classList.toggle('sel', parseFloat(b.dataset.v) === MRU.v));
 }
 function linTxt(m, b){ let s = fs(m) + ' · t'; if (b > 0) s += ' + ' + fs(b); else if (b < 0) s += ' ' + MINUS + ' ' + fs(-b); else s += ' + 0'; return s; }
 
-/* =========================================================
-   4 · PENDIENTE
-   ========================================================= */
-const S4_DEF = {v:5, tA:2, tB:6};
-const S4 = Object.assign({x0:10, drag:null, P:null}, S4_DEF);
-const s4x = t => S4.x0 + S4.v*t;
-bind('p_v', () => S4.v, v => S4.v = v, v => 'm = ' + fs(v));
-$('p_reset').addEventListener('click', () => { S4.tA = 2; S4.tB = 6; });
-(function initS4(){
-  const cv = $('cv4');
-  const move = px => { const t = Math.round(clamp(S4.P.invX(px), 0, 10)*10)/10; if (S4.drag === 'A') S4.tA = t; else S4.tB = t; };
-  cv.addEventListener('pointerdown', e => {
-    const P = S4.P; if (!P) return; const {px,py} = ptr(e,cv);
-    const dA = Math.hypot(px-P.X(S4.tA), py-P.Y(s4x(S4.tA))), dB = Math.hypot(px-P.X(S4.tB), py-P.Y(s4x(S4.tB)));
-    let pick = null;
-    if (Math.min(dA,dB) < 40) pick = dA <= dB ? 'A' : 'B';
-    else { const t = P.invX(px); if (t >= 0 && t <= 10) pick = Math.abs(t-S4.tA) < Math.abs(t-S4.tB) ? 'A' : 'B'; }
-    if (pick){ S4.drag = pick; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; move(px); }
-  });
-  cv.addEventListener('pointermove', e => { if (S4.drag) move(ptr(e,cv).px); });
-  const up = () => { S4.drag = null; cv.style.cursor = 'grab'; };
-  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
-  makeQuestion($('q4'), {q:'«Si la recta se vuelve más inclinada, ¿qué ocurre con la velocidad?»', opts:[
-    {t:'La velocidad no cambia: la inclinación es solo un dibujo.', ok:false, why:'La inclinación sí tiene significado físico: es Δx/Δt. Probá con el deslizador: al inclinar más la recta, Δx/Δt aumenta.'},
-    {t:'La velocidad aumenta (en valor absoluto).', ok:true, why:'Una recta más inclinada recorre más metros (Δx) en el mismo tiempo (Δt). Como v = Δx/Δt, la pendiente es la velocidad: más pendiente, más rapidez.'},
-    {t:'La velocidad disminuye.', ok:false, why:'Es al revés: con más inclinación, en cada segundo la posición cambia más metros. Eso significa mayor rapidez, no menor.'}
-  ]});
-})();
-function frameS4(){
-  const {ctx,w,h} = fitCanvas($('cv4'));
-  const P = Plot(ctx, w, h, {xmin:0, xmax:10, ymin:-40, ymax:100, xstep:2, ystep:20, xlabel:'tiempo t (s)', ylabel:'posición x (m)'}); S4.P = P;
-  P.axes(); P.curve(s4x, 0, 10, C.violet, 4);
-  const xA = s4x(S4.tA), xB = s4x(S4.tB);
-  if (S4.tA !== S4.tB){
-    ctx.save(); ctx.lineWidth = 3; ctx.shadowBlur = 8;
-    ctx.strokeStyle = C.green; ctx.shadowColor = C.green; seg(ctx, P.X(S4.tA), P.Y(xA), P.X(S4.tB), P.Y(xA));
-    ctx.strokeStyle = C.violet; ctx.shadowColor = C.violet; ctx.setLineDash([6,4]); seg(ctx, P.X(S4.tB), P.Y(xA), P.X(S4.tB), P.Y(xB)); ctx.restore();
-    text(ctx, 'Δt = '+fs(S4.tB-S4.tA)+' s', (P.X(S4.tA)+P.X(S4.tB))/2, P.Y(xA) + ((xB-xA)*(S4.tB-S4.tA) >= 0 ? 16 : -16), {color:C.green, font:'700 13px '+MONO, bg:'rgba(6,10,28,.85)'});
-    if (Math.abs(P.Y(xB)-P.Y(xA)) > 10) text(ctx, 'Δx = '+fs(xB-xA)+' m', P.X(S4.tB) + (S4.tB > S4.tA ? 10 : -10), (P.Y(xA)+P.Y(xB))/2, {color:C.violet, font:'700 13px '+MONO, align:S4.tB > S4.tA ? 'left' : 'right', bg:'rgba(6,10,28,.85)'});
-  }
-  [['A',S4.tA,xA,C.amber],['B',S4.tB,xB,C.pink]].forEach(([n,t,x,col]) => {
-    P.guides(t, x, col);
-    ctx.save(); ctx.globalAlpha = .25 + .1*Math.sin(performance.now()/300); dot(ctx, P.X(t), P.Y(x), 18, col, false); ctx.restore();
-    dot(ctx, P.X(t), P.Y(x), 10, col); text(ctx, n, P.X(t), P.Y(x), {color:'#0b0f26', font:'700 13px '+SANS});
-  });
-  setTxt('p_A', `${fmt(xA,0)} m`); setTxt('p_B', `${fmt(xB,0)} m`);
-  const dT = S4.tB - S4.tA, dX = xB - xA;
-  setTxt('p_dt', fmt(dT,1)+' s'); setTxt('p_dx', fmt(dX,1)+' m');
-  if (Math.abs(dT) < 1e-9) setHTML('p_live', 'Δt = 0 → no se puede dividir. Separá los puntos A y B.');
-  else setHTML('p_live', `v = Δx / Δt = ${par(dX,1)} m / ${par(dT,1)} s = <b>${fmt(dX/dT,1)} m/s</b><br><span class="note" style="font-family:var(--sans)">= pendiente de la recta</span>`);
-}
-
-/* =========================================================
-   5 · SIMULADOR MRUV
-   ========================================================= */
-const MV_DEF = {x0:0, v0:2, a:1.5, T:8};
-const MV = Object.assign({t:0, running:false, speed:1, dir:1}, MV_DEF);
-const mvX = t => MV.x0 + MV.v0*t + 0.5*MV.a*t*t;
-const mvV = t => MV.v0 + MV.a*t;
-bind('v_x0', () => MV.x0, v => MV.x0 = v, v => fs(v)+' m');
-bind('v_v0', () => MV.v0, v => MV.v0 = v, v => fs(v)+' m/s');
-bind('v_a',  () => MV.a,  v => MV.a = v,  v => fs(v)+' m/s²');
-bind('v_T',  () => MV.T,  v => { MV.T = v; MV.t = Math.min(MV.t, v); }, v => fs(v)+' s');
-bind('v_t',  () => MV.t,  v => { MV.t = v; MV.running = false; }, v => fmt(v,1)+' s', () => MV.T);
-wirePlay('v_play','v_reset',MV); wireSpeed('v_speed', MV);
-document.querySelectorAll('[data-ex]').forEach(b => b.addEventListener('click', () => {
-  Object.assign(MV, b.dataset.ex === 'acel' ? {x0:0, v0:0, a:2, T:8} : {x0:0, v0:8, a:-2, T:8}, {t:0, running:true});
-}));
 function motionRange(fx, T, extra=[]){
   let mn = Infinity, mx = -Infinity;
   for (let i = 0; i <= 200; i++){ const x = fx(T*i/200); mn = Math.min(mn,x); mx = Math.max(mx,x); }
@@ -1131,107 +821,6 @@ function motionRange(fx, T, extra=[]){
   return [mn, mx];
 }
 function stopTime(v0, a){ if (a === 0) return null; const ts = -v0/a; return ts > 1e-9 ? ts : null; }
-function frameS5(dt){
-  simStep(MV, dt);
-  const {ctx,w,h} = fitCanvas($('cvMV'));
-  const [mn, mx] = motionRange(mvX, MV.T, [MV.x0]);
-  const R = niceRange(mn, mx, Math.max(3, Math.floor(w/160)));
-  const X = makeScale(w, R.min, R.max);
-  const s = clamp(w/1000, .7, 1.1), rh = Math.min(64, h*.24), yc = h*0.56, ry = yc+rh/2+16;
-  drawRoad(ctx, X, yc, rh); drawRuler(ctx, X, ry, R.step);
-  flag(ctx, X(MV.x0), yc-rh/2-26, yc+rh/2, 'x₀', C.green);
-  const ts = stopTime(MV.v0, MV.a);
-  if (ts !== null && ts < MV.T){
-    const pxs = X(mvX(ts)); ctx.save(); ctx.strokeStyle = C.amber; ctx.setLineDash([3,5]); ctx.lineWidth = 1.5; seg(ctx, pxs, yc-rh/2-6, pxs, yc+rh/2+6); ctx.restore();
-  }
-  let last = -1e9;
-  for (let k = 1; k <= Math.floor(MV.t+1e-9); k++){
-    const px = X(mvX(k)); dot(ctx, px, yc, 4.5, C.pink);
-  }
-  const x = mvX(MV.t), v = mvV(MV.t), px = X(x);
-  if (Math.abs(v) > 1e-6) MV.dir = Math.sign(v); else if (MV.a !== 0 && MV.t < 1e-9) MV.dir = Math.sign(MV.a);
-  const ay = Math.max(18, yc-rh/2-78), vy = yc-rh/2-44;
-  if (Math.abs(v) > 1e-6){ arrow(ctx, px, vy, px + clamp(v*8, -170, 170), vy, C.violet, 3.5); text(ctx, 'v', px + clamp(v*8,-170,170) + Math.sign(v)*12, vy, {color:C.violet, font:'700 14px '+MONO}); }
-  else text(ctx, 'v = 0', px, vy, {color:C.violet, font:'700 13px '+MONO});
-  if (MV.a !== 0){ arrow(ctx, px, ay, px + MV.a*22, ay, C.amber, 3.5); text(ctx, 'a', px + MV.a*22 + Math.sign(MV.a)*12, ay, {color:C.amber, font:'700 14px '+MONO}); }
-  else text(ctx, 'a = 0', px, ay, {color:C.amber, font:'700 13px '+MONO});
-  drawCar(ctx, px, yc+rh*0.3, s, C.cyan, MV.dir, px/(WHEEL_R*s));
-  posMarker(ctx, px, ry, C.cyan);
-  setTxt('v_ro_t', fmt(MV.t,1)+' s'); setTxt('v_ro_x', fmt(x,1)+' m'); setTxt('v_ro_v', fmt(v,1)+' m/s'); setTxt('v_ro_a', fs(MV.a)+' m/s²');
-  const tt = fmt(MV.t,1);
-  setHTML('v_l1', `v = ${fsp(MV.v0)} + ${fsp(MV.a)} · ${tt} = <b>${fmt(v,1)} m/s</b>`);
-  setHTML('v_l2', `x = ${fsp(MV.x0)} + ${fsp(MV.v0)} · ${tt} + ½ · ${fsp(MV.a)} · ${tt}² = <b>${fmt(x,1)} m</b>`);
-  setHTML('v_l3', MV.t < 1e-9 ? 't = 0 → todavía no se puede calcular (no se divide por cero). Iniciá la simulación.'
-    : `a = (${par(v,2)} − ${fsp(MV.v0)}) / ${tt} = <b>${fmt((v-MV.v0)/MV.t,2)} m/s²</b> &nbsp;<span class="note" style="font-family:var(--sans)">← siempre igual: ¡es constante!</span>`);
-  let ev;
-  if (MV.a === 0) ev = 'a = 0 → la velocidad no cambia: es un MRU.';
-  else if (ts !== null && ts < MV.T) ev = MV.t < ts ? '⚠️ El auto frena: se va a detener y cambiar de sentido.' : '↩ Se detuvo (v = 0) y cambió de sentido.';
-  else if (ts !== null) ev = 'El auto frena.';
-  else if (MV.v0 === 0) ev = 'Parte del reposo (v₀ = 0) y la velocidad crece uniformemente.';
-  else ev = 'La velocidad y la aceleración tienen el mismo sentido: el auto va cada vez más rápido.';
-  setTxt('v_event', ev);
-}
-
-/* =========================================================
-   6 · LA ACELERACIÓN EN ACCIÓN
-   ========================================================= */
-const AC_DEF = {v0:4, aP:1.5, aN:-1.5};
-const AC = Object.assign({T:8, t:0, running:false, dirs:[1,1,1]}, AC_DEF);
-bind('a_v0', () => AC.v0, v => AC.v0 = v, v => fs(v)+' m/s');
-bind('a_p',  () => AC.aP, v => AC.aP = v, v => '+'+fs(v)+' m/s²');
-bind('a_n',  () => AC.aN, v => AC.aN = v, v => fs(v)+' m/s²');
-wirePlay('a_play','a_reset',AC);
-const LANES = [{a:() => AC.aP, color:C.green, name:'Auto 1'}, {a:() => 0, color:C.blue, name:'Auto 2'}, {a:() => AC.aN, color:C.pink, name:'Auto 3'}];
-function frameS6(dt){
-  simStep(AC, dt);
-  const {ctx,w,h} = fitCanvas($('cvA'));
-  const fx = (a,t) => AC.v0*t + 0.5*a*t*t, fv = (a,t) => AC.v0 + a*t;
-  let mn = 0, mx = 0;
-  LANES.forEach(L => { const [a,b] = motionRange(t => fx(L.a(),t), AC.T, [0]); mn = Math.min(mn,a); mx = Math.max(mx,b); });
-  const R = niceRange(mn, mx, Math.max(3, Math.floor(w/160)));
-  const X = makeScale(w, R.min, R.max);
-  const s = clamp(w/1000, .6, 1)*.85, rh = Math.min(48, h*.17), gap = (h-60)/3;
-  LANES.forEach((L,i) => {
-    const yc = 26 + gap*i + gap/2, a = L.a();
-    drawRoad(ctx, X, yc, rh);
-    for (let k = 1; k <= Math.floor(AC.t+1e-9); k++) dot(ctx, X(fx(a,k)), yc, 3.5, L.color);
-    const x = fx(a, AC.t), v = fv(a, AC.t);
-    if (Math.abs(v) > 1e-6) AC.dirs[i] = Math.sign(v);
-    drawCar(ctx, X(x), yc+rh*0.32, s, L.color, AC.dirs[i], X(x)/(WHEEL_R*s));
-    text(ctx, `${L.name} · ${a > 0 ? 'acelera (a > 0)' : a < 0 ? 'frena (a < 0)' : 'velocidad constante (a = 0)'}`, X.L-30, yc-rh/2-10, {color:L.color, font:'700 12px '+MONO, align:'left'});
-  });
-  drawRuler(ctx, X, h-26, R.step);
-  // gráfica v-t
-  const g = fitCanvas($('cvAg'));
-  const vmin = Math.min(0, AC.v0 + AC.aN*AC.T), vmax = AC.v0 + AC.aP*AC.T;
-  const VR = niceRange(vmin, vmax, 6);
-  const P = Plot(g.ctx, g.w, g.h, {xmin:0, xmax:AC.T, ymin:VR.min, ymax:VR.max, xstep:1, ystep:VR.step, xlabel:'tiempo t (s)', ylabel:'velocidad v (m/s)', title:'Gráfica velocidad-tiempo'});
-  P.axes();
-  LANES.forEach(L => {
-    const a = L.a(), f = t => fv(a,t);
-    P.curve(f, 0, AC.T, L.color+'40', 2, [4,6], false); P.curve(f, 0, AC.t, L.color, 4);
-    dot(g.ctx, P.X(AC.t), P.Y(f(AC.t)), 6, L.color);
-    text(g.ctx, a > 0 ? 'sube: a > 0' : a < 0 ? 'baja: a < 0' : 'horizontal: a = 0', P.X(AC.T)-6, P.Y(f(AC.T)) + (a >= 0 ? -14 : 14), {color:L.color, font:'700 12px '+MONO, align:'right', bg:'rgba(6,10,28,.8)'});
-  });
-  const ts = AC.v0/(-AC.aN);
-  if (ts > 0 && ts < AC.T && AC.t >= ts){ dot(g.ctx, P.X(ts), P.Y(0), 7, '#fff'); text(g.ctx, 'Auto 3 se detiene y cambia de sentido', P.X(ts)+10, P.Y(0)+16, {color:C.pink, font:'700 12px '+MONO, align:'left', bg:'rgba(6,10,28,.85)'}); }
-  drawAQ();
-}
-function drawAQ(){
-  const {ctx,w,h} = fitCanvas($('cvAq'));
-  const P = Plot(ctx, w, h, {xmin:0, xmax:8, ymin:0, ymax:20, xstep:1, ystep:4, xlabel:'t (s)', ylabel:'v (m/s)', title:'¿Cuál tiene mayor aceleración?'});
-  P.axes();
-  [{n:'A', v0:4, v1:12, c:C.green}, {n:'B', v0:0, v1:16, c:C.amber}, {n:'C', v0:12, v1:18, c:C.pink}].forEach(L => {
-    const f = t => L.v0 + (L.v1-L.v0)/8*t; P.curve(f, 0, 8, L.c, 3.5);
-    text(ctx, L.n, P.X(8)+12, P.Y(L.v1), {color:L.c, font:'700 15px '+SANS, align:'left'});
-  });
-}
-makeQuestion($('q6'), {q:'«¿Cuál de estos vehículos tiene mayor aceleración?» (mirá la gráfica v-t de la izquierda)', opts:[
-  {t:'El vehículo A', ok:false, why:'A pasa de 4 a 12 m/s en 8 s: a = 8/8 = 1 m/s². No es la recta más inclinada.'},
-  {t:'El vehículo B', ok:true, why:'B pasa de 0 a 16 m/s en 8 s: a = Δv/Δt = 16/8 = 2 m/s². Es la recta más inclinada (mayor pendiente) de la gráfica v-t.'},
-  {t:'El vehículo C', ok:false, why:'C es el más <b>rápido</b>, pero no el que más acelera: pasa de 12 a 18 m/s en 8 s → a = 6/8 = 0,75 m/s². ¡Velocidad alta no es lo mismo que aceleración alta!'}
-]});
-
 /* =========================================================
    7 · LA PARÁBOLA DEL MRUV
    ========================================================= */
@@ -1240,14 +829,8 @@ const PB = Object.assign({T:8, t:0, running:false, compare:true, dir:1}, PB_DEF)
 const pbX = (t, a=PB.a) => PB.x0 + PB.v0*t + 0.5*a*t*t;
 bind('pb_a',  () => PB.a,  v => PB.a = v,  v => fs(v)+' m/s²');
 bind('pb_v0', () => PB.v0, v => PB.v0 = v, v => fs(v)+' m/s');
-bind('pb_x0', () => PB.x0, v => PB.x0 = v, v => fs(v)+' m');
 wirePlay('pb_play','pb_reset',PB, ['▶ Generar parábola','⏸ Pausar','▶ Continuar','↻ Generar de nuevo']);
 $('pb_cmp').addEventListener('click', () => { PB.compare = !PB.compare; $('pb_cmp').classList.toggle('sel', PB.compare); $('pb_cmp').textContent = (PB.compare ? '👁 ' : '🚫 ') + 'Comparar a = −2, 0, +2'; });
-makeQuestion($('q7'), {q:'Si la posición de un auto es <span style="font-family:var(--math);font-style:italic">x = 3 + 2·t + 4·t²</span> (en metros y segundos), ¿cuánto vale su aceleración?', opts:[
-  {t:'a = 4 m/s²', ok:false, why:'¡Cuidado! 4 es el coeficiente <b>A</b>, y A = ½·a. Entonces a = 2·A = 2·4 = 8 m/s².'},
-  {t:'a = 8 m/s²', ok:true, why:'El coeficiente de t² es A = ½·a = 4, por lo tanto a = 2·4 = 8 m/s². Además, B = v₀ = 2 m/s y C = x₀ = 3 m.'},
-  {t:'a = 2 m/s²', ok:false, why:'2 es el coeficiente <b>B</b>, que corresponde a la velocidad inicial v₀, no a la aceleración.'}
-]});
 function frameS7(dt){
   simStep(PB, dt);
   const {ctx,w,h} = fitCanvas($('cvPB'));
@@ -1360,41 +943,10 @@ function renderQuiz(){
 renderQuiz();
 
 /* =========================================================
-   9 · CONCLUSIÓN (comparación animada)
-   ========================================================= */
-const END = {t:0};
-function frameS9(dt){
-  END.t += dt;
-  const {ctx,w,h} = fitCanvas($('cvEnd'));
-  const T = 8, tm = Math.min(END.t % 10.5, T);
-  const mru = {x:t => 5*t, v:() => 5, color:C.cyan, name:'MRU · velocidad constante'};
-  const mruv = {x:t => 0.75*t*t, v:t => 1.5*t, color:C.violet, name:'MRUV · acelera'};
-  const laneH = Math.min(170, h*0.36);
-  const X = makeScale(w, 0, 50);
-  const s = clamp(w/1100, .6, 1)*.85, rh = Math.min(40, laneH*.26);
-  [mru, mruv].forEach((M,i) => {
-    const yc = 30 + i*(laneH-30)/2 + (laneH-30)/4;
-    drawRoad(ctx, X, yc, rh);
-    for (let k = 1; k <= Math.floor(tm+1e-9); k++) dot(ctx, X(M.x(k)), yc, 3.5, M.color);
-    drawCar(ctx, X(M.x(tm)), yc+rh*0.32, s, M.color, 1, X(M.x(tm))/(WHEEL_R*s));
-    text(ctx, M.name, X.L-30, yc-rh/2-9, {color:M.color, font:'700 12px '+MONO, align:'left'});
-  });
-  text(ctx, 't = '+fmt(tm,1)+' s', w-20, 14, {color:C.pink, font:'700 14px '+MONO, align:'right'});
-  const top = laneH + 6, ph = h - top, half = w/2;
-  const narrow = w < 640;
-  const r1 = narrow ? {rx:0, ry:top, rw:w, rh:ph/2} : {rx:0, ry:top, rw:half, rh:ph};
-  const r2 = narrow ? {rx:0, ry:top+ph/2, rw:w, rh:ph/2} : {rx:half, ry:top, rw:half, rh:ph};
-  const P1 = Plot(ctx, w, h, Object.assign({xmin:0, xmax:8, ymin:0, ymax:50, xstep:2, ystep:25, xlabel:'t (s)', ylabel:'x (m)', title:'Posición: recta vs parábola', pad:{t:26}}, r1));
-  P1.axes(); [mru, mruv].forEach(M => { P1.curve(M.x, 0, T, M.color+'30', 2, [4,6], false); P1.curve(M.x, 0, tm, M.color, 4); dot(ctx, P1.X(tm), P1.Y(M.x(tm)), 5, M.color); });
-  const P2 = Plot(ctx, w, h, Object.assign({xmin:0, xmax:8, ymin:0, ymax:14, xstep:2, ystep:7, xlabel:'t (s)', ylabel:'v (m/s)', title:'Velocidad: constante vs lineal', pad:{t:26}}, r2));
-  P2.axes(); [mru, mruv].forEach(M => { P2.curve(M.v, 0, T, M.color+'30', 2, [4,6], false); P2.curve(M.v, 0, tm, M.color, 4); dot(ctx, P2.X(tm), P2.Y(M.v(tm)), 5, M.color); });
-}
-
-/* =========================================================
    Navegación, pantalla completa y bucle de animación
    ========================================================= */
 const slides = [...document.querySelectorAll('.slide')];
-const frames = [frameCover, frameS1, frameS2, frameS3, frameS4, frameS5, frameS6, frameS7, null, frameS9];
+const frames = [frameCover, frameS1, frameS3, frameS7, null];
 let cur = 0;
 const drawer = $('drawer');
 slides.forEach((s,i) => {
@@ -1426,13 +978,9 @@ $('fsBtn').addEventListener('click', toggleFS);
 document.addEventListener('fullscreenchange', () => setTxt('fsLbl', document.fullscreenElement ? 'Salir' : 'Presentación'));
 $('fontBtn').addEventListener('click', () => { document.documentElement.classList.toggle('big'); toast(document.documentElement.classList.contains('big') ? 'Texto grande activado' : 'Texto normal'); });
 $('resetAll').addEventListener('click', () => {
-  Object.assign(MRU, MRU_DEF, {t:0, running:false, speed:1}); $('m_speed').textContent = '×1';
-  Object.assign(MV, MV_DEF, {t:0, running:false, speed:1, dir:1}); $('v_speed').textContent = '×1';
-  Object.assign(AC, AC_DEF, {t:0, running:false, dirs:[1,1,1]});
+  Object.assign(MRU, MRU_DEF, {t:0, running:false, speed:1});
   Object.assign(PB, PB_DEF, {t:0, running:false, dir:1});
-  Object.assign(S4, S4_DEF);
-  S1.t = 0; S1.pos = 35; END.t = 0;
-  ['q4','q6','q7'].forEach(id => $(id)._reset());
+  S1.t = 0; S1.pos = 35;
   toast('✔ Simulaciones reiniciadas');
 });
 document.addEventListener('keydown', e => {
